@@ -91,10 +91,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
     private quantityInput: React.RefObject<HTMLInputElement> = React.createRef();
 
     public render() {
-        //const browseFileDisabled: boolean = !this.state.predictionLoaded;
-        //const predictDisabled: boolean = !this.state.predictionLoaded || !this.state.file;
-        //const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
-        //strings.predict.uploadFile是小标题之后的
+
         const inputDisabled: boolean = this.state.isGenerating;
         const generateDisabled: boolean = !this.state.dataQuantityLoaded || this.state.isGenerating;
         const downloadDisabled: boolean = !this.state.dataGenerateLoaded || this.state.isGenerating;
@@ -143,6 +140,16 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                                     onClick={this.handleDownloadClick}
                                 />
                             </div>
+                            {this.state.isGenerating &&
+                            <div className="loading-container">
+                                <Spinner
+                                    label={strings.datas.inProgress}
+                                    ariaLive="assertive"
+                                    labelPosition="right"
+                                    size={SpinnerSize.large}
+                                />
+                            </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -168,13 +175,21 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
     }
 
     private handleGenerateClick = () => {
-        this.setState({isGenerating: true,});
-        //this.setState({
-        //    isGenerating: false,
-        //    dataGenerateLoaded: true,
-       // });
+        this.setState({dataGenerateLoaded: false, isGenerating: true,});
+        this.getDatasGenerate()
+            .then((result) => {
+                this.setState({
+                    isGenerating: false,
+                    dataGenerateLoaded: true,
+                });
+            }).catch((error) => {
+
+            });
     }
 
     private handleDownloadClick = () => {
+    }
+
+    private async getDatasGenerate(): Promise<any> {
     }
 }
