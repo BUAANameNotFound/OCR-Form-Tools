@@ -320,7 +320,7 @@ export const english: IAppStrings = {
     },
     datas: {
         title: "Datas",
-        inputNumber: "Generate datas",
+        inputNumber: "Input Data Quantity",
         inProgress: "generating datas in progress...",
     },
     errors: {

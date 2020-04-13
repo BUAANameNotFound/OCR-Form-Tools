@@ -42,6 +42,12 @@ export interface IDatasPageProps extends RouteComponentProps, React.Props<DatasP
 
 export interface IDatasPageState {
     NumberLabel: string;
+    tagLoaded: boolean;
+    dataQuantity: number; 
+    dataQuantityLoaded: boolean;
+    dataGenerateLoaded: boolean;
+    isGenerating: boolean;
+
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -65,6 +71,11 @@ function mapDispatchToProps(dispatch) {
 export default class DatasPage extends React.Component<IDatasPageProps, IDatasPageState> {
     public state: IDatasPageState = {
         NumberLabel: "Input a integer...",
+        tagLoaded: true,
+        dataQuantity: 0,
+        dataQuantityLoaded: false,
+        dataGenerateLoaded: false,
+        isGenerating: false,
     };
 
     public async componentDidMount() {
@@ -74,19 +85,24 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
             await this.props.actions.loadProject(project);
             this.props.appTitleActions.setTitle(project.name);
         }
-        document.title = strings.predict.title + " - " + strings.appName;
+        document.title = strings.datas.title + " - " + strings.appName;
     }
+
+    private quantityInput: React.RefObject<HTMLInputElement> = React.createRef();
 
     public render() {
         //const browseFileDisabled: boolean = !this.state.predictionLoaded;
         //const predictDisabled: boolean = !this.state.predictionLoaded || !this.state.file;
         //const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
         //strings.predict.uploadFile是小标题之后的
-        const browseFileDisabled: boolean = true;
+        const inputDisabled: boolean = this.state.isGenerating;
+        const generateDisabled: boolean = !this.state.dataQuantityLoaded || this.state.isGenerating;
+        const downloadDisabled: boolean = !this.state.dataGenerateLoaded || this.state.isGenerating;
+        
 
         return (
-            <div className="predict" id="pagePredict">
-                <div className="predict-main">
+            <div className="datas" id="pageDatas">
+                <div className="datas-main">
                 </div>
                 <div className="datas-sidebar bg-lighter-1">
                     <div className="condensed-list">
@@ -102,26 +118,29 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                                 <input
                                     type="text"
                                     id="inputNumber"
-                                    style = {{cursor: (browseFileDisabled ? "default" : "pointer")}}
-                                    readOnly={true}
-                                    className="dummyInputFile"
-                                    aria-label={strings.datas.inputNumber}
-                                    value={this.state.NumberLabel}/>
+                                    style = {{cursor: (generateDisabled ? "default" : "pointer")}}
+                                    ref={this.quantityInput}
+                                    placeholder={this.state.NumberLabel}
+                                    onChange={this.handleQuantityChange}
+                                    disabled={inputDisabled}
+                                    />
                                 <div className="rlMargin10">
                                     <PrimaryButton
                                         theme={getPrimaryGreenTheme()}
                                         text="Generate"
                                         allowDisabledFocus
-                                        disabled={browseFileDisabled}
+                                        disabled={generateDisabled}
                                         autoFocus={true}
+                                        onClick={this.handleGenerateClick}
                                     />
                                 </div>
                                 <PrimaryButton
                                     theme={getPrimaryWhiteTheme()}
                                     text="Download"
-                                    aria-label={""}
+                                    aria-label={!this.state.dataGenerateLoaded ? strings.datas.inProgress : ""}
                                     allowDisabledFocus
-                                    disabled={true}
+                                    disabled={downloadDisabled}
+                                    onClick={this.handleDownloadClick}
                                 />
                             </div>
                         </div>
@@ -129,5 +148,33 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                 </div>
             </div>
         );
+    }
+
+    private handleQuantityChange = () => {
+        if (this.quantityInput.current.value !== "") {
+            const quantityNumber = this.quantityInput.current.value;
+            if (quantityNumber !== "") {
+                this.setState({
+                    dataQuantity: Number(quantityNumber),
+                    dataQuantityLoaded: true,
+                });
+            }
+        } else {
+            this.setState({
+                dataQuantity: 0,
+                dataQuantityLoaded: false,
+            });           
+        }
+    }
+
+    private handleGenerateClick = () => {
+        this.setState({isGenerating: true,});
+        //this.setState({
+        //    isGenerating: false,
+        //    dataGenerateLoaded: true,
+       // });
+    }
+
+    private handleDownloadClick = () => {
     }
 }
