@@ -66,6 +66,13 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
                 category: Categories.Separator,
             },
             {
+                // TODO: remove hard code
+                displayName: "Generation",
+                icon: "Add",
+                category: Categories.Modifier,
+                // handler: this.handleRename,
+            },
+            {
                 displayName: strings.tags.toolbar.rename,
                 icon: "Rename",
                 category: Categories.Modifier,
