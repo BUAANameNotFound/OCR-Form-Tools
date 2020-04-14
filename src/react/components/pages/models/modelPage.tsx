@@ -70,7 +70,7 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class ModelsPage extends React.Component<IModelsPageProps, IModelsPageState> {
     public state: IModelsPageState = {
-        NumberLabel: "Input a integer...",
+        NumberLabel: "Project Name",
         tagLoaded: true,
         dataQuantity: 0,
         dataQuantityLoaded: false,
@@ -105,12 +105,41 @@ export default class ModelsPage extends React.Component<IModelsPageProps, IModel
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
                             <FontIcon className="mr-1" iconName="Insights" />
-                            <span className="condensed-list-title">GenerateDatas</span>
+                            <span className="condensed-list-title">History Models</span>
                         </h6>
                         <div className="p-3">
                             <h5>
                                 {strings.models.Listmodels}
                             </h5>
+                            <div style={{display: "flex", marginBottom: "25px"}}>
+                                <input
+                                    type="text"
+                                    id="Project Name"
+                                    style = {{cursor: (generateDisabled ? "default" : "pointer")}}
+                                    ref={this.quantityInput}
+                                    placeholder={this.state.NumberLabel}
+                                    onChange={this.handleQuantityChange}
+                                    disabled={inputDisabled}
+                                    />
+                                <div className="rlMargin10">
+                                    <PrimaryButton
+                                        theme={getPrimaryGreenTheme()}
+                                        text="List"
+                                        allowDisabledFocus
+                                        disabled={generateDisabled}
+                                        autoFocus={true}
+                                        onClick={this.handleGenerateClick}
+                                    />
+                                </div>
+                                <PrimaryButton
+                                    theme={getPrimaryWhiteTheme()}
+                                    text="Renew"
+                                    aria-label={!this.state.dataGenerateLoaded ? strings.models.inProgress : ""}
+                                    allowDisabledFocus
+                                    disabled={downloadDisabled}
+                                    onClick={this.handleDownloadClick}
+                                />
+                            </div>
                             {this.state.isGenerating &&
                             <div className="loading-container">
                                 <Spinner
