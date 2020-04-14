@@ -29,6 +29,9 @@ import { constants } from "../../../../common/constants";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme } from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
 import axios from "axios";
+import CondensedList from "../../common/condensedList/condensedList";
+import ConnectionItem from "./modelItem";
+import Confirm from "../../common/confirm/confirm";
 
 export interface IModelsPageProps extends RouteComponentProps, React.Props<ModelsPage> {
     recentProjects: IProject[];
@@ -69,6 +72,7 @@ function mapDispatchToProps(dispatch) {
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class ModelsPage extends React.Component<IModelsPageProps, IModelsPageState> {
+    private confirmDelete: React.RefObject<Confirm>;
     public state: IModelsPageState = {
         NumberLabel: "Project Name",
         tagLoaded: true,
@@ -101,6 +105,17 @@ export default class ModelsPage extends React.Component<IModelsPageProps, IModel
             <div className="datas" id="pageDatas">
                 <div className="datas-main">
                 </div>
+
+                <div className="app-connections-page-list bg-lighter-1">
+                    <CondensedList
+                        title={strings.models.title}
+                        newLinkTo={"/connections/create"}
+                        newLinkToTitle={strings.connections.new}
+                        onDelete={(connection) => this.confirmDelete.current.open(connection)}
+                        Component={ConnectionItem}
+                        items={this.props.connections} />
+                </div>
+
                 <div className="datas-sidebar bg-lighter-1">
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
