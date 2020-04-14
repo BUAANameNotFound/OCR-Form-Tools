@@ -55,14 +55,6 @@
       "unicode": "E721"
     },
     {
-      "name": "CheckboxComposite",
-      "unicode": "E73A"
-    },
-    {
-      "name": "LabelComposite",
-      "unicode": "E932"
-    },
-    {
       "name": "CheckMark",
       "unicode": "E73E"
     },
@@ -165,10 +157,6 @@
     {
       "name": "PlugConnected",
       "unicode": "F302"
-    },
-    {
-      "name": "AlertSolid",
-      "unicode": "F331"
     },
     {
       "name": "Hide3",

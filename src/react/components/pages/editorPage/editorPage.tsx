@@ -241,7 +241,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                         onCanvasRendered={this.onCanvasRendered}
                                         onSelectedRegionsChanged={this.onSelectedRegionsChanged}
                                         onRunningOCRStatusChanged={this.onCanvasRunningOCRStatusChanged}
-                                        onTagChanged={this.onTagChanged}
                                         editorMode={this.state.editorMode}
                                         project={this.props.project}
                                         lockedTags={this.state.lockedTags}
@@ -565,8 +564,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         } catch (err) {
             console.warn("Error computing asset size");
         }
-
-        await this.props.actions.updateProjectTagsFromFiles(this.props.project);
 
         this.setState({
             selectedAsset: assetMetadata,

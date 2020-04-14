@@ -121,13 +121,11 @@ export interface IAppStrings {
         training: string;
         pleaseWait: string;
         notTrainedYet: string;
-        backEndNotAvailable: string;
     };
     predict: {
         title: string;
         uploadFile: string;
         inProgress: string;
-        downloadScript: string;
     };
     projectMetrics: {
         title: string;
@@ -313,6 +311,11 @@ export interface IAppStrings {
     profile: {
         settings: string;
     };
+    models: {
+        title: string,
+        Listmodels: string,
+        inProgress: string,
+    },
     errors: {
         unknown: IErrorMetadata,
         projectInvalidJson: IErrorMetadata,

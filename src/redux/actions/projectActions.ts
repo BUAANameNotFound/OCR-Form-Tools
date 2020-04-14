@@ -30,7 +30,6 @@ export default interface IProjectActions {
     saveAssetMetadata(project: IProject, assetMetadata: IAssetMetadata): Promise<IAssetMetadata>;
     updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag): Promise<IAssetMetadata[]>;
     deleteProjectTag(project: IProject, tagName): Promise<IAssetMetadata[]>;
-    updateProjectTagsFromFiles(project: IProject): Promise<void>;
 }
 
 /**
@@ -86,14 +85,6 @@ export function saveProject(project: IProject)
         await loadProject(savedProject)(dispatch, getState);
 
         return savedProject;
-    };
-}
-
-export function updateProjectTagsFromFiles(project: IProject): (dispatch: Dispatch) => Promise<void> {
-    return async (dispatch: Dispatch) => {
-        const projectService = new ProjectService();
-        const updatedProject = await projectService.updateProjectTagsFromFiles(project);
-        dispatch(updateProjectTagsFromFilesAction(updatedProject));
     };
 }
 
@@ -253,10 +244,6 @@ export interface ILoadProjectAction extends IPayloadAction<string, IProject> {
     type: ActionTypes.LOAD_PROJECT_SUCCESS;
 }
 
-export interface IUpdateProjectTagsFromFilesAction extends IPayloadAction<string, IProject> {
-    type: ActionTypes.UPDATE_PROJECT_TAGS_FROM_FILES_SUCCESS;
-}
-
 /**
  * Close project action type
  */
@@ -349,9 +336,6 @@ export const saveAssetMetadataAction =
  */
 export const updateProjectTagAction =
     createPayloadAction<IUpdateProjectTagAction>(ActionTypes.UPDATE_PROJECT_TAG_SUCCESS);
-
-export const updateProjectTagsFromFilesAction =
-    createPayloadAction<IUpdateProjectTagsFromFilesAction>(ActionTypes.UPDATE_PROJECT_TAGS_FROM_FILES_SUCCESS);
 /**
  * Instance of Delete project tag action
  */

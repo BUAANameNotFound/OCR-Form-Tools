@@ -10,7 +10,7 @@ import ConnectionPage from "../pages/connections/connectionsPage";
 import EditorPage from "../pages/editorPage/editorPage";
 import PredictPage from "../pages/predict/predictPage";
 import ProjectSettingsPage from "../pages/projectSettings/projectSettingsPage";
-
+import ModelsPage from "../pages/models/modelPage";
 /**
  * @name - Main Content Router
  * @description - Controls main content pane based on route
@@ -28,6 +28,7 @@ export function MainContentRouter() {
                 <Route path="/projects/:projectId/train" component={TrainPage} />
                 <Route path="/projects/:projectId/predict" component={PredictPage} />
                 <Route path="/projects/:projectId/settings" component={ProjectSettingsPage} />
+                <Route path="/projects/:projectId/models" component={ModelsPage} />
                 <Route component={HomePage} />
             </Switch>
         </div>

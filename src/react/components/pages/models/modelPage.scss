@@ -4,14 +4,14 @@
   margin: 5px 0 5px 0;
 }
 
-.predict {
+.datas {
   display: flex;
   flex-grow: 1;
   flex-direction: row;
   height: 10px; // Not sure why it helps
 }
 
-.predict-main {
+.datas-main {
   position: relative;
   display: flex;
   flex-grow: 1;
@@ -22,7 +22,7 @@
   }
 }
 
-.predict-sidebar {
+.datas-sidebar {
   height: 100%;
   display: flex;
   width: 400px;
@@ -43,4 +43,23 @@
   border-radius: 2px;
   width: 100%;
   flex: 1;
+}
+
+.seperator {
+  margin: 20px 10px;
+  position: relative;
+  background-color: inherit;
+  width: 45%;
+  display: inline-block;
+}
+
+.seperator:before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  border-top: 1px solid white;
+  background: white;
+  width: 100%;
+  transform: translateY(-50%);
 }

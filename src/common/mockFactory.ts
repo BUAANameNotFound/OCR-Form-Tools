@@ -5,7 +5,7 @@ import {
     AssetState, AssetType, IApplicationState, IAppSettings, IAsset, IAssetMetadata,
     IConnection, IProject, ITag, StorageType, ISecurityToken,
     IAppError, ErrorCode,
-    IRegion, RegionType, FieldType, FieldFormat, FeatureCategory,
+    IRegion, RegionType, FieldType, FieldFormat,
 } from "../models/applicationState";
 import { IAssetProvider, IAssetProviderRegistrationOptions } from "../providers/storage/assetProviderFactory";
 import { IAzureCloudStorageOptions } from "../providers/storage/azureBlobStorage";
@@ -442,7 +442,6 @@ export default class MockFactory {
             tags,
             type: RegionType.Rectangle,
             pageNumber: 1,
-            category: FeatureCategory.Text,
         };
     }
 
@@ -466,7 +465,6 @@ export default class MockFactory {
      */
     public static projectActions(): IProjectActions {
         return {
-            updateProjectTagsFromFiles: jest.fn(() => Promise.resolve()),
             loadProject: jest.fn(() => Promise.resolve()),
             saveProject: jest.fn(() => Promise.resolve()),
             deleteProject: jest.fn(() => Promise.resolve()),

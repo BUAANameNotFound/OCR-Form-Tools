@@ -9,9 +9,6 @@ export function registerIcons() {
             fontFamily: "FabricMDL2Icons",
         },
         icons: {
-            AlertSolid: "\uF331",
-            CheckboxComposite: "\uE73A",
-            LabelComposite: "\uE932",
             Insights: "\uE3AF",
             MachineLearning: "\uE3B8",
             TagGroup: "\uE3F6",

@@ -121,13 +121,11 @@ export const english: IAppStrings = {
         training: "Training",
         pleaseWait: "Please wait",
         notTrainedYet: "Not trained yet",
-        backEndNotAvailable: "Checkbox feature will work in future version of Form Recognizer service, please stay tuned.",
     },
     predict: {
         title: "Predict",
         uploadFile: "Upload file",
         inProgress: "Prediction in progress...",
-        downloadScript: "Use script",
     },
     projectMetrics: {
         title: "Project Metrics",
@@ -317,6 +315,11 @@ export const english: IAppStrings = {
     },
     profile: {
         settings: "Profile Settings",
+    },
+    models: {
+        title: "Models",
+        Listmodels: "List History Models",
+        inProgress: "list models in progress...",
     },
     errors: {
         unknown: {

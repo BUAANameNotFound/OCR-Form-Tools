@@ -13,7 +13,7 @@ import {
 } from "../models/applicationState";
 import Guard from "../common/guard";
 import { constants } from "../common/constants";
-import { decryptProject, encryptProject, joinPath, patch, getNextColor } from "../common/utils";
+import { decryptProject, encryptProject, joinPath, patch } from "../common/utils";
 import packageJson from "../../package.json";
 import { strings, interpolate } from "../common/strings";
 import { toast } from "react-toastify";
@@ -31,7 +31,6 @@ export interface IProjectService {
     save(project: IProject, securityToken: ISecurityToken): Promise<IProject>;
     delete(project: IProject): Promise<void>;
     isDuplicate(project: IProject, projectList: IProject[]): boolean;
-    updateProjectTagsFromFiles(oldProject: IProject): Promise<IProject>;
 }
 
 /**
@@ -53,8 +52,6 @@ export default class ProjectService implements IProjectService {
             // Ensure tags is always initialized to an array
             if (!loadedProject.tags) {
                 loadedProject.tags = [];
-            } else {
-                await this.updateProjectTagsFromFiles(loadedProject);
             }
 
             return Promise.resolve({ ...loadedProject });
@@ -80,7 +77,10 @@ export default class ProjectService implements IProjectService {
 
         const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
 
-        await this.updateProjectTagsFromFiles(project);
+        if (!project.tags) {
+            await this.getTagsFromPreExistingLabelFiles(project, storageProvider);
+            await this.getTagsFromPreExistingFieldFile(project, storageProvider);
+        }
 
         if (project.tags) {
             await this.saveFieldsFile(project, storageProvider);
@@ -154,16 +154,6 @@ export default class ProjectService implements IProjectService {
         return false;
     }
 
-    public async updateProjectTagsFromFiles(project: IProject): Promise<IProject> {
-        const updatedProject = Object.assign({}, project);
-        updatedProject.tags = [];
-        const storageProvider = StorageProviderFactory.createFromConnection(project.sourceConnection);
-        await this.getTagsFromPreExistingFieldFile(updatedProject, storageProvider);
-        await this.getTagsFromPreExistingLabelFiles(updatedProject, storageProvider);
-        await this.setColorsForUpdatedTags(project, updatedProject);
-        return updatedProject;
-    }
-
     /**
      * Assign project tags.
      * A new project doesn't have any tags at the beginning. But it could connect to a blob container
@@ -207,7 +197,7 @@ export default class ProjectService implements IProjectService {
                 } as ITag);
             });
             if (project.tags) {
-                await this.addMissingTags(project, tags);
+                project.tags = patch(tags, project.tags, "name", ["color"]);
             } else {
                 project.tags = tags;
             }
@@ -240,7 +230,6 @@ export default class ProjectService implements IProjectService {
             });
             if (project.tags) {
                 project.tags = patch(project.tags, tags, "name", ["type", "format"]);
-                await this.addMissingTags(project, tags);
             } else {
                 project.tags = tags;
             }
@@ -251,33 +240,6 @@ export default class ProjectService implements IProjectService {
                 toast.error(reason, {autoClose: false});
             }
         }
-    }
-
-    private async setColorsForUpdatedTags(oldProject: IProject, updatedProject: IProject) {
-        if (!oldProject.tags || oldProject.tags.length === 0) {
-            return;
-        }
-
-        let existingTags: ITag[] = [];
-        const newTags: ITag[] = [];
-        updatedProject.tags.forEach((updatedTag) => {
-            if (!oldProject.tags.find((oldTag) => updatedTag.name === oldTag.name )) {
-                newTags.push(updatedTag);
-            } else {
-                existingTags.push(updatedTag);
-            }
-        });
-        existingTags = patch(existingTags, oldProject.tags, "name", ["color"]);
-        newTags.forEach((newTag) => {
-            newTag.color = getNextColor(existingTags);
-            existingTags.push(newTag);
-        });
-        updatedProject.tags = existingTags;
-    }
-
-    private async addMissingTags(project: IProject, tags: ITag[]) {
-        const missingTags = tags.filter((fileTag) => !project.tags.find((tag) => fileTag.name === tag.name ));
-        project.tags = [...project.tags, ...missingTags];
     }
 
     /**

@@ -54,6 +54,13 @@ export function Sidebar({ project }) {
                     </ConditionalNavLink>
                 </li>
                 <li>
+                    <ConditionalNavLink disabled={!projectId}
+                        title={strings.models.title}
+                        to={`/projects/${projectId}/models`}>
+                        <FontIcon iconName="Formodels" />
+                    </ConditionalNavLink>
+                </li>
+                <li>
                     <NavLink title={strings.connections.title} to={`/connections`} role="button">
                         <FontIcon iconName="Plug" />
                     </NavLink>

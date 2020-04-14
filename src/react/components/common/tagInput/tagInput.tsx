@@ -13,7 +13,7 @@ import {
 import { strings } from "../../../../common/strings";
 import { getDarkTheme } from "../../../../common/themes";
 import { AlignPortal } from "../align/alignPortal";
-import { getNextColor } from "../../../../common/utils";
+import { randomIntInRange } from "../../../../common/utils";
 import { IRegion, ITag, ILabel, FieldType, FieldFormat } from "../../../../models/applicationState";
 import { ColorPicker } from "../colorPicker";
 import "./tagInput.scss";
@@ -95,12 +95,20 @@ function filterFormat(type: FieldType): FieldFormat[] {
                 FieldFormat.NotSpecified,
                 FieldFormat.Currency,
             ];
+        case FieldType.Integer:
+            return [
+                FieldFormat.NotSpecified,
+            ];
         case FieldType.Date:
             return [
                 FieldFormat.NotSpecified,
                 FieldFormat.DMY,
                 FieldFormat.MDY,
                 FieldFormat.YMD,
+            ];
+        case FieldType.Time:
+            return [
+                FieldFormat.NotSpecified,
             ];
         default:
             return [ FieldFormat.NotSpecified ];
@@ -501,7 +509,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
     private creatTagInput = (value: any) => {
         const newTag: ITag = {
                 name: value,
-                color: getNextColor(this.state.tags),
+                color: this.getNextColor(),
                 type: FieldType.String,
                 format: FieldFormat.NotSpecified,
         };
@@ -512,6 +520,25 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         } else {
             toast.warn(strings.tags.warnings.existingName);
         }
+    }
+
+    private getNextColor = () => {
+        const tags = this.state.tags;
+
+        for (const color of tagColors) {
+            let vacancy = true;
+            for (const tag of tags) {
+                if (color.toLowerCase() === tag.color.toLowerCase()) {
+                    vacancy = false;
+                    break;
+                }
+            }
+            if (vacancy) {
+                return color;
+            }
+        }
+
+        return tagColors[randomIntInRange(0, tagColors.length - 1)];
     }
 
     private validateTagLength = (tag: ITag) => {

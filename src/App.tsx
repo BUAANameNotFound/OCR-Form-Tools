@@ -44,6 +44,7 @@ function mapDispatchToProps(dispatch) {
  * @name - App
  * @description - Root level component for VoTT Application
  */
+//experimentalDecorators
 @connect(mapStateToProps, mapDispatchToProps)
 export default class App extends React.Component<IAppProps> {
     constructor(props, context) {

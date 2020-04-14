@@ -122,13 +122,11 @@ export const spanish: IAppStrings = {
         training: "Entrenamiento",
         pleaseWait: "Por favor espera",
         notTrainedYet: "Aún no entrenado",
-        backEndNotAvailable: "La función de casilla de verificación funcionará en la versión futura del servicio de reconocimiento de formularios, manténgase atento.",
     },
     predict: {
         title: "Predecir",
         uploadFile: "Subir archivo",
         inProgress: "Predicción en progreso ...",
-        downloadScript: "Usar script",
     },
     projectMetrics: {
         title: "Métricas del proyecto",
@@ -320,6 +318,11 @@ export const spanish: IAppStrings = {
     },
     profile: {
         settings: "Configuración de Perfíl",
+    },
+    models: {
+        title: "Models",
+        Listmodels: "List History Models",
+        inProgress: "list models in progress...",
     },
     errors: {
         unknown: {
