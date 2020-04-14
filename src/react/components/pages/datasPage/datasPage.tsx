@@ -47,6 +47,9 @@ export interface IDatasPageState {
     dataQuantityLoaded: boolean;
     dataGenerateLoaded: boolean;
     isGenerating: boolean;
+    shouldShowAlert: boolean;
+    alertTitle: string;
+    alertMessage: string;
 
 }
 
@@ -76,6 +79,9 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         dataQuantityLoaded: false,
         dataGenerateLoaded: false,
         isGenerating: false,
+        shouldShowAlert: false,
+        alertTitle: "",
+        alertMessage: "",
     };
 
     public async componentDidMount() {
@@ -153,6 +159,17 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                         </div>
                     </div>
                 </div>
+                <Alert
+                    show={this.state.shouldShowAlert}
+                    title={this.state.alertTitle}
+                    message={this.state.alertMessage}
+                    onClose={() => this.setState({
+                        shouldShowAlert: false,
+                        alertTitle: "",
+                        alertMessage: "",
+                        dataGenerateLoaded: false,
+                    })}
+                />
             </div>
         );
     }
@@ -170,7 +187,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
             this.setState({
                 dataQuantity: 0,
                 dataQuantityLoaded: false,
-            });           
+            });
         }
     }
 
@@ -183,7 +200,23 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                     dataGenerateLoaded: true,
                 });
             }).catch((error) => {
-
+                let alertMessage = "";
+                if (error.response) {
+                    alertMessage = error.response.data;
+                } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
+                    alertMessage = strings.errors.predictWithoutTrainForbidden.message;
+                } else if (error.errorCode === ErrorCode.ModelNotFound) {
+                    alertMessage = error.message;
+                } else {
+                    alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
+                }
+                this.setState({
+                    shouldShowAlert: true,
+                    alertTitle: "Generate Error",
+                    alertMessage,
+                    isGenerating: false,
+                    dataGenerateLoaded: false,
+                });
             });
     }
 
@@ -191,5 +224,59 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
     }
 
     private async getDatasGenerate(): Promise<any> {
+
+        const endpointURL = url.resolve(
+            this.props.project.apiUriBase,
+            `/generate/pdf`,
+        );
+        
+        const headers = {"Content-Type": "json", "cache-control": "no-cache" };
+        let jsonforsend = "";
+        let response;
+        try {
+            response = await ServiceHelper.postWithAutoRetry(
+                endpointURL, jsonforsend, { headers }, this.props.project.apiKey as string);
+        } catch (err) {
+            ServiceHelper.handleServiceError(err);
+        }
+
+        const operationLocation = response.headers["operation-location"];
+
+        // Make the second REST API call and get the response.
+        return this.poll(() =>
+            ServiceHelper.getWithAutoRetry(
+                operationLocation, { headers }, this.props.project.apiKey as string), 120000, 500);
+        
+    }
+
+
+    /**
+     * Poll function to repeatly check if request succeeded
+     * @param func - function that will be called repeatly
+     * @param timeout - timeout
+     * @param interval - interval
+     */
+    private poll = (func, timeout, interval): Promise<any> => {
+        const endTime = Number(new Date()) + (timeout || 10000);
+        interval = interval || 100;
+
+        const checkSucceeded = (resolve, reject) => {
+            const ajax = func();
+            ajax.then((response) => {
+                if (response.data.status.toLowerCase() === constants.statusCodeSucceeded) {
+                    resolve(response.data);
+                } else if (response.data.status.toLowerCase() === constants.statusCodeFailed) {
+                    reject("Generate Wrong");
+                } else if (Number(new Date()) < endTime) {
+                    // If the request isn't succeeded and the timeout hasn't elapsed, go again
+                    setTimeout(checkSucceeded, interval, resolve, reject);
+                } else {
+                    // Didn't succeeded after too much time, reject
+                    reject("Timed out, please try other file.");
+                }
+            });
+        };
+
+        return new Promise(checkSucceeded);
     }
 }
