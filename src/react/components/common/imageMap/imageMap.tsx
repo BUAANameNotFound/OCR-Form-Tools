@@ -31,6 +31,7 @@ interface IImageMapProps {
 
     enableFeatureSelection?: boolean;
     handleFeatureSelect?: (feature: any, isTaggle: boolean, category: FeatureCategory) => void;
+    handleClick?: (x: any, y: any) => void;
     hoveringFeature?: string;
 
     onMapReady: () => void;
@@ -429,6 +430,7 @@ export class ImageMap extends React.Component<IImageMapProps> {
     }
 
     private handlePointerDown = (event: MapBrowserEvent) => {
+
         if (!this.props.enableFeatureSelection) {
             return;
         }
@@ -441,6 +443,26 @@ export class ImageMap extends React.Component<IImageMapProps> {
         }
 
         const eventPixel =  this.map.getEventPixel(event.originalEvent);
+        // console.log(eventPixel);
+        // console.log(this.map.getCoordinateFromPixel(eventPixel))
+        // console.log(this.map.getSize())
+        // console.log(this.map.getView().getProjection().getExtent())
+        // console.log(eventPixel[1] / this.map.getSize()[1])
+
+        const width = this.map.getView().getProjection().getExtent()[2];
+        const height = this.map.getView().getProjection().getExtent()[3];
+
+        const x = this.map.getCoordinateFromPixel(eventPixel)[0];
+        const y = height - this.map.getCoordinateFromPixel(eventPixel)[1];
+
+        // console.log(width)
+        // console.log(height)
+        // console.log(x)
+        // console.log(y)
+
+        if (this.props.handleClick) {
+            this.props.handleClick(x / width, y / height);
+        }
 
         const filter = this.getLayerFilterAtPixel(eventPixel);
 

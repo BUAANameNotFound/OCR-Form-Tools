@@ -216,6 +216,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     imageHeight={this.state.imageHeight}
                     enableFeatureSelection={true}
                     handleFeatureSelect={this.handleFeatureSelect}
+                    handleClick={this.handleClick}
                     featureStyler={this.featureStyler}
                     checkboxFeatureStyler={this.checkboxFeatureStyler}
                     labelFeatureStyler={this.labelFeatureStyler}
@@ -517,6 +518,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private createBoundingBoxVectorFeature = (text, boundingBox, imageExtent, ocrExtent, page) => {
+        // console.log(boundingBox)
         const coordinates: any[] = [];
         const polygonPoints: number[] = [];
         const imageWidth = imageExtent[2] - imageExtent[0];
@@ -534,7 +536,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             polygonPoints.push(boundingBox[i] / ocrWidth);
             polygonPoints.push(boundingBox[i + 1] / ocrHeight);
         }
-
+        console.log(coordinates)
+        console.log(polygonPoints)
+        // console.log(ocrHeight)
         const featureId = this.createRegionIdFromBoundingBox(polygonPoints, page);
         const feature = new Feature({
             geometry: new Polygon([coordinates]),
@@ -780,7 +784,57 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
     }
 
+    private halfClick = false;
+    private lastX;
+    private lastY;
+
+    private handleClick = (x, y) => {
+        console.log(`Click: x: ${x}, y: ${y}`)
+
+        if (this.halfClick === false) {
+            this.lastX = x;
+            this.lastY = y;
+            this.halfClick = true;
+        } else {
+            this.halfClick = false;
+            this.createRegionByPixel(this.lastX, this.lastY, x, y);
+            this.drawOcr();
+        }
+        // this.buildRegionOrders();
+        // this.drawOcr();
+    }
+
+    private createRegionByPixel = (x1, y1, x2, y2) => {
+        const ocrReadResults = this.state.ocrForCurrentPage["readResults"];
+        const imageExtent = this.imageMap.getImageExtent();
+        const ocrExtent = [0, 0, ocrReadResults.width, ocrReadResults.height];
+
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const polygonPoints = [x1, y1, x1+dx, y1, x1+dx, y1+dy, x1, y1+dy]
+
+        const ocrWidth = ocrExtent[2] - ocrExtent[0];
+        const ocrHeight = ocrExtent[3] - ocrExtent[1];
+
+        const boundingBox = this.polygonPointsToBoundingBox(polygonPoints, ocrWidth, ocrHeight);
+
+        let feature = this.createBoundingBoxVectorFeature(
+            "test", boundingBox, imageExtent, ocrExtent, ocrReadResults.page);
+        this.imageMap.addFeature(feature);
+    }
+
+    private polygonPointsToBoundingBox = (polygonPoints, ocrWidth, ocrHeight) => {
+        const boundingBox: number[] = [];
+        for (let i = 0; i < polygonPoints.length; i += 2) {
+            boundingBox.push(polygonPoints[i] * ocrWidth);
+            boundingBox.push(polygonPoints[i + 1] * ocrHeight);
+        }
+        return boundingBox
+    }
+
     private handleFeatureSelect = (feature: Feature, isToggle: boolean = true, category: FeatureCategory) => {
+        console.log(feature);
+
         const regionId = feature.get("id");
         if (isToggle && this.isRegionSelected(regionId)) {
             this.removeFromSelectedRegions(regionId);
@@ -1518,6 +1572,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private createRegion(boundingBox: number[], text: string, tagName: string, pangeNumber: number) {
+        // console.log(boundingBox);
         const xAxisValues = boundingBox.filter((value, index) => index % 2 === 0);
         const yAxisValues = boundingBox.filter((value, index) => index % 2 === 1);
         const left = Math.min(...xAxisValues);
