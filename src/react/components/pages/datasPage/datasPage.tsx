@@ -44,6 +44,7 @@ export interface IDatasPageState {
     NumberLabel: string;
     tagLoaded: boolean;
     dataQuantity: number; 
+    lastDataQuantity: number;
     dataQuantityLoaded: boolean;
     dataGenerateLoaded: boolean;
     isGenerating: boolean;
@@ -76,6 +77,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         NumberLabel: "Input a integer...",
         tagLoaded: true,
         dataQuantity: 0,
+        lastDataQuantity: 0,
         dataQuantityLoaded: false,
         dataGenerateLoaded: false,
         isGenerating: false,
@@ -156,6 +158,11 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                                 />
                             </div>
                             }
+                            {this.state.dataGenerateLoaded &&
+                            <div>
+                                {this.state.lastDataQuantity} Datas has been successfully generated.
+                            </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -195,9 +202,11 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         this.setState({dataGenerateLoaded: false, isGenerating: true,});
         this.getDatasGenerate()
             .then((result) => {
+                let lastQuantity = this.state.dataQuantity;
                 this.setState({
                     isGenerating: false,
                     dataGenerateLoaded: true,
+                    lastDataQuantity : lastQuantity,
                 });
             }).catch((error) => {
                 let alertMessage = "";
@@ -210,6 +219,15 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                 } else {
                     alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
                 }
+                /*
+                let lastQuantity = this.state.dataQuantity;
+                this.setState({
+                    isGenerating: false,
+                    dataGenerateLoaded: true,
+                    lastDataQuantity : lastQuantity,
+                });
+                */
+                
                 this.setState({
                     shouldShowAlert: true,
                     alertTitle: "Generate Error",
@@ -217,6 +235,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                     isGenerating: false,
                     dataGenerateLoaded: false,
                 });
+                
             });
     }
 
