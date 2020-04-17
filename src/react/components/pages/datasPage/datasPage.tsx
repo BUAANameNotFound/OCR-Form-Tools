@@ -226,8 +226,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                     dataGenerateLoaded: true,
                     lastDataQuantity : lastQuantity,
                 });
-                */
-                
+                */  
                 this.setState({
                     shouldShowAlert: true,
                     alertTitle: "Generate Error",
@@ -240,6 +239,42 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
     }
 
     private handleDownloadClick = () => {
+
+        const endpointURL = url.resolve(
+            this.props.project.apiUriBase,
+            `/download/pdf`,
+        );
+
+        const headers = { "responseType" : "blob"};
+        this.poll(() =>
+        ServiceHelper.postWithAutoRetry(
+                endpointURL, {}, { headers }, this.props.project.apiKey as string), 120000, 500)
+        .then((res) => {
+            let url = window.URL.createObjectURL(new Blob([res.data]));
+            let link= document.createElement('a');
+            link.style.display='none';
+            link.href=url;
+            link.setAttribute('download', "datas.zip");
+            document.body.appendChild(link);
+            link.click();
+        }).catch((error) => {
+                let alertMessage = "";
+                if (error.response) {
+                    alertMessage = error.response.data;
+                } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
+                    alertMessage = strings.errors.predictWithoutTrainForbidden.message;
+                } else if (error.errorCode === ErrorCode.ModelNotFound) {
+                    alertMessage = error.message;
+                } else {
+                    alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
+                }
+                this.setState({
+                    shouldShowAlert: true,
+                    alertTitle: "Download Error",
+                    alertMessage,
+                });
+        });
+
     }
 
     private async getDatasGenerate(): Promise<any> {
@@ -278,21 +313,23 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
     private poll = (func, timeout, interval): Promise<any> => {
         const endTime = Number(new Date()) + (timeout || 10000);
         interval = interval || 100;
-
+        console.log("dddd3");
         const checkSucceeded = (resolve, reject) => {
             const ajax = func();
             ajax.then((response) => {
                 if (response.data.status.toLowerCase() === constants.statusCodeSucceeded) {
                     resolve(response.data);
                 } else if (response.data.status.toLowerCase() === constants.statusCodeFailed) {
-                    reject("Generate Wrong");
+                    reject("Error");
                 } else if (Number(new Date()) < endTime) {
                     // If the request isn't succeeded and the timeout hasn't elapsed, go again
                     setTimeout(checkSucceeded, interval, resolve, reject);
                 } else {
                     // Didn't succeeded after too much time, reject
-                    reject("Timed out, please try other file.");
+                    reject("Timed out, please try other quantity.");
                 }
+            }).catch((error) => {
+                reject("Error");
             });
         };
 
