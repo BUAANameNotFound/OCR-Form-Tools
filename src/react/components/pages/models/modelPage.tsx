@@ -32,8 +32,12 @@ import axios from "axios";
 import CondensedList from "../../common/condensedList/condensedList";
 import ConnectionItem from "./modelItem";
 import Confirm from "../../common/confirm/confirm";
+//import TrainChart from "./trainChart";
+//import TrainPanel from "./trainPanel";
+import ModelTable from "./modelTable";
+import { IModelRecordProps } from "./modelRecord";
 
-export interface IModelsPageProps extends RouteComponentProps, React.Props<ModelsPage> {
+export interface IModelPageProps extends RouteComponentProps, React.Props<ModelsPage> {
     recentProjects: IProject[];
     connections: IConnection[];
     appSettings: IAppSettings;
@@ -43,22 +47,26 @@ export interface IModelsPageProps extends RouteComponentProps, React.Props<Model
     appTitleActions: IAppTitleActions;
 }
 
-export interface IModelsPageState {
-    NumberLabel: string;
-    tagLoaded: boolean;
-    dataQuantity: number; 
-    dataQuantityLoaded: boolean;
-    dataGenerateLoaded: boolean;
-    isGenerating: boolean;
+export interface IModelPageState {
+    currTrainRecord: IModelRecordProps;
+    viewType: "chartView" | "tableView";
+    modelMessage:string;
 
+}
+
+interface ITrainApiResponse {
+    modelId: string;
+    createdDateTime: string;
+    averageModelAccuracy: number;
+    fields: object[];
 }
 
 function mapStateToProps(state: IApplicationState) {
     return {
-        recentProjects: state.recentProjects,
-        connections: state.connections,
         appSettings: state.appSettings,
         project: state.currentProject,
+        connections: state.connections,
+        recentProjects: state.recentProjects,
     };
 }
 
@@ -71,35 +79,33 @@ function mapDispatchToProps(dispatch) {
 }
 
 @connect(mapStateToProps, mapDispatchToProps)
-export default class ModelsPage extends React.Component<IModelsPageProps, IModelsPageState> {
+export default class ModelsPage extends React.Component<IModelPageProps, IModelPageState> {
     private confirmDelete: React.RefObject<Confirm>;
-    public state: IModelsPageState = {
-        NumberLabel: "Project Name",
-        tagLoaded: true,
-        dataQuantity: 0,
-        dataQuantityLoaded: false,
-        dataGenerateLoaded: false,
-        isGenerating: false,
-    };
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            modelMessage: "OK!",
+            currTrainRecord: null,
+            viewType: "tableView",
+        };
+    }
 
     public async componentDidMount() {
         const projectId = this.props.match.params["projectId"];
         if (projectId) {
             const project = this.props.recentProjects.find((project) => project.id === projectId);
             await this.props.actions.loadProject(project);
+
             this.props.appTitleActions.setTitle(project.name);
+            this.updateCurrTrainRecord(this.getProjectTrainRecord());
         }
-        document.title = strings.models.title + " - " + strings.appName;
+        document.title = strings.train.title + " - " + strings.appName;
     }
 
-    private quantityInput: React.RefObject<HTMLInputElement> = React.createRef();
-
     public render() {
-
-        const inputDisabled: boolean = this.state.isGenerating;
-        const generateDisabled: boolean = !this.state.dataQuantityLoaded || this.state.isGenerating;
-        const downloadDisabled: boolean = !this.state.dataGenerateLoaded || this.state.isGenerating;
-        
+        const currTrainRecord = this.state.currTrainRecord;
 
         return (
             <div className="datas" id="pageDatas">
@@ -116,6 +122,21 @@ export default class ModelsPage extends React.Component<IModelsPageProps, IModel
                         items={this.props.connections} />
                 </div>
 
+                <div className = "model_history">
+                    {currTrainRecord &&
+                        <div>
+                            <h3> Train Result </h3>
+                            <span> Model ID: {currTrainRecord.modelInfo.modelId} </span>
+                        </div>
+                    }
+                    {this.state.viewType === "tableView" &&
+                        <ModelTable
+                            trainMessage={this.state.modelMessage}
+                            accuracies={currTrainRecord && currTrainRecord.accuracies} />}
+
+                </div>
+
+
                 <div className="datas-sidebar bg-lighter-1">
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
@@ -126,45 +147,6 @@ export default class ModelsPage extends React.Component<IModelsPageProps, IModel
                             <h5>
                                 {strings.models.Listmodels}
                             </h5>
-                            <div style={{display: "flex", marginBottom: "25px"}}>
-                                <input
-                                    type="text"
-                                    id="Project Name"
-                                    style = {{cursor: (generateDisabled ? "default" : "pointer")}}
-                                    ref={this.quantityInput}
-                                    placeholder={this.state.NumberLabel}
-                                    onChange={this.handleQuantityChange}
-                                    disabled={inputDisabled}
-                                    />
-                                <div className="rlMargin10">
-                                    <PrimaryButton
-                                        theme={getPrimaryGreenTheme()}
-                                        text="List"
-                                        allowDisabledFocus
-                                        disabled={generateDisabled}
-                                        autoFocus={true}
-                                        onClick={this.handleGenerateClick}
-                                    />
-                                </div>
-                                <PrimaryButton
-                                    theme={getPrimaryWhiteTheme()}
-                                    text="Renew"
-                                    aria-label={!this.state.dataGenerateLoaded ? strings.models.inProgress : ""}
-                                    allowDisabledFocus
-                                    disabled={downloadDisabled}
-                                    onClick={this.handleDownloadClick}
-                                />
-                            </div>
-                            {this.state.isGenerating &&
-                            <div className="loading-container">
-                                <Spinner
-                                    label={strings.models.inProgress}
-                                    ariaLive="assertive"
-                                    labelPosition="right"
-                                    size={SpinnerSize.large}
-                                />
-                            </div>
-                            }
                         </div>
                     </div>
                 </div>
@@ -172,39 +154,14 @@ export default class ModelsPage extends React.Component<IModelsPageProps, IModel
         );
     }
 
-    private handleQuantityChange = () => {
-        if (this.quantityInput.current.value !== "") {
-            const quantityNumber = this.quantityInput.current.value;
-            if (quantityNumber !== "") {
-                this.setState({
-                    dataQuantity: Number(quantityNumber),
-                    dataQuantityLoaded: true,
-                });
-            }
-        } else {
-            this.setState({
-                dataQuantity: 0,
-                dataQuantityLoaded: false,
-            });           
-        }
-    }
-
-    private handleGenerateClick = () => {
-        this.setState({dataGenerateLoaded: false, isGenerating: true,});
-        this.getDatasGenerate()
-            .then((result) => {
-                this.setState({
-                    isGenerating: false,
-                    dataGenerateLoaded: true,
-                });
-            }).catch((error) => {
-
-            });
-    }
-
-    private handleDownloadClick = () => {
-    }
-
     private async getDatasGenerate(): Promise<any> {
+    }
+
+    private updateCurrTrainRecord = (curr: IModelRecordProps): void => {
+        this.setState({ currTrainRecord: curr });
+    }
+
+    private getProjectTrainRecord = (): IModelRecordProps => {
+        return _.get(this, "props.project.trainRecord", null);
     }
 }

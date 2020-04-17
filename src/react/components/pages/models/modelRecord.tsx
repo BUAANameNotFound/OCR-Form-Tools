@@ -1,0 +1,46 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+import React from "react";
+import { FontIcon } from "office-ui-fabric-react";
+
+export interface IModelRecordProps {
+    accuracies?: object;
+    averageAccuracy: number;
+    modelInfo: {
+        modelId: string;
+        createdDateTime: string;
+    };
+}
+
+export interface IModelRecordState {}
+
+export default class ModelRecord extends React.Component<IModelRecordProps, IModelRecordState> {
+    public render() {
+        return (
+            <aside className="mt-3">
+                <h5> Model information </h5>
+                <div>
+                    <h6> Model ID </h6>
+                    <p>
+                        {this.props.modelInfo.modelId}
+                    </p>
+                    <h6> Created date and time</h6>
+                    <p>
+                        {new Date(this.props.modelInfo.createdDateTime).toLocaleString()}
+                    </p>
+                    <h6> Average accuracy </h6>
+                    <p>
+                        {(this.props.averageAccuracy * 100).toFixed(2) + "%"}
+                    </p>
+                    <div className="accuracy-info">
+                        <a href="https://aka.ms/form-recognizer/docs/train" target="_blank" rel="noopener noreferrer">
+                            <FontIcon iconName="Info" />
+                            <span>Learn more about improving model accuracy.</span>
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        );
+    }
+}
