@@ -8,7 +8,8 @@ import IApplicationActions, * as applicationActions from "../../../../redux/acti
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import "./datasPage.scss";
 import {
-    IApplicationState, IConnection, IProject, IAppSettings, AppError, ErrorCode,
+    IApplicationState, IConnection, IProject, IAppSettings, AppError, ErrorCode, ISize, ITag,
+    ILabel,
 } from "../../../../models/applicationState";
 import { ImageMap } from "../../common/imageMap/imageMap";
 import Style from "ol/style/Style";
@@ -28,6 +29,7 @@ import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../.
 import { constants } from "../../../../common/constants";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme } from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
+import SplitPane from "react-split-pane";
 import axios from "axios";
 
 export interface IDatasPageProps extends RouteComponentProps, React.Props<DatasPage> {
@@ -51,6 +53,8 @@ export interface IDatasPageState {
     shouldShowAlert: boolean;
     alertTitle: string;
     alertMessage: string;
+        /** Size of the asset thumbnails to display in the side bar */
+    thumbnailSize: ISize;
 
 }
 
@@ -84,6 +88,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         shouldShowAlert: false,
         alertTitle: "",
         alertMessage: "",
+        thumbnailSize: { width: 175, height: 155 },
     };
 
     public async componentDidMount() {
@@ -92,7 +97,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
             const project = this.props.recentProjects.find((project) => project.id === projectId);
             await this.props.actions.loadProject(project);
             this.props.appTitleActions.setTitle(project.name);
-        }
+        } 
         document.title = strings.datas.title + " - " + strings.appName;
     }
 
@@ -107,65 +112,84 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
 
         return (
             <div className="datas" id="pageDatas">
-                <div className="datas-main">
-                </div>
-                <div className="datas-sidebar bg-lighter-1">
-                    <div className="condensed-list">
-                        <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
-                            <FontIcon className="mr-1" iconName="Insights" />
-                            <span className="condensed-list-title">GenerateDatas</span>
-                        </h6>
-                        <div className="p-3">
-                            <h5>
-                                {strings.datas.inputNumber}
-                            </h5>
-                            <div style={{display: "flex", marginBottom: "25px"}}>
-                                <input
-                                    type="text"
-                                    id="inputNumber"
-                                    style = {{cursor: (generateDisabled ? "default" : "pointer")}}
-                                    ref={this.quantityInput}
-                                    placeholder={this.state.NumberLabel}
-                                    onChange={this.handleQuantityChange}
-                                    disabled={inputDisabled}
-                                    />
-                                <div className="rlMargin10">
-                                    <PrimaryButton
-                                        theme={getPrimaryGreenTheme()}
-                                        text="Generate"
-                                        allowDisabledFocus
-                                        disabled={generateDisabled}
-                                        autoFocus={true}
-                                        onClick={this.handleGenerateClick}
-                                    />
-                                </div>
-                                <PrimaryButton
-                                    theme={getPrimaryWhiteTheme()}
-                                    text="Download"
-                                    aria-label={!this.state.dataGenerateLoaded ? strings.datas.inProgress : ""}
-                                    allowDisabledFocus
-                                    disabled={downloadDisabled}
-                                    onClick={this.handleDownloadClick}
-                                />
-                            </div>
-                            {this.state.isGenerating &&
-                            <div className="loading-container">
-                                <Spinner
-                                    label={strings.datas.inProgress}
-                                    ariaLive="assertive"
-                                    labelPosition="right"
-                                    size={SpinnerSize.large}
-                                />
-                            </div>
-                            }
-                            {this.state.dataGenerateLoaded &&
-                            <div>
-                                {this.state.lastDataQuantity} Datas has been successfully generated.
-                            </div>
-                            }
-                        </div>
+                <SplitPane split="vertical"
+                    defaultSize={this.state.thumbnailSize.width}
+                    minSize={175}
+                    maxSize={175}
+                    paneStyle={{ display: "flex" }}
+                    onChange={this.onSideBarResize}
+                    onDragFinished={this.onSideBarResizeComplete}>
+                    <div className="datas-sidebar bg-lighter-1">
+
                     </div>
-                </div>
+                    <div className="datas-content">
+
+                        <div className="datas-content-main" >
+                            <div className="datas-content-main-body">
+                            </div>
+                        </div>
+
+                        <div className="datas-right-sidebar bg-lighter-1">
+                            <div className="condensed-list">
+                                <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
+                                    <FontIcon className="mr-1" iconName="Insights" />
+                                    <span className="condensed-list-title">GenerateDatas</span>
+                                </h6>
+                                <div className="p-3">
+                                    <h5>
+                                        {strings.datas.inputNumber}
+                                    </h5>
+                                    <div style={{display: "flex", marginBottom: "25px"}}>
+                                        <input
+                                            type="text"
+                                            id="inputNumber"
+                                            style = {{cursor: (generateDisabled ? "default" : "pointer")}}
+                                            ref={this.quantityInput}
+                                            placeholder={this.state.NumberLabel}
+                                            onChange={this.handleQuantityChange}
+                                            disabled={inputDisabled}
+                                            />
+                                        <div className="rlMargin10">
+                                            <PrimaryButton
+                                                theme={getPrimaryGreenTheme()}
+                                                text="Generate"
+                                                allowDisabledFocus
+                                                disabled={generateDisabled}
+                                                autoFocus={true}
+                                                onClick={this.handleGenerateClick}
+                                            />
+                                        </div>
+                                        <PrimaryButton
+                                            theme={getPrimaryWhiteTheme()}
+                                            text="Download"
+                                            aria-label={!this.state.dataGenerateLoaded ? strings.datas.inProgress : ""}
+                                            allowDisabledFocus
+                                            disabled={downloadDisabled}
+                                            onClick={this.handleDownloadClick}
+                                        />
+                                    </div>
+                                    {this.state.isGenerating &&
+                                    <div className="loading-container">
+                                        <Spinner
+                                            label={strings.datas.inProgress}
+                                            ariaLive="assertive"
+                                            labelPosition="right"
+                                            size={SpinnerSize.large}
+                                        />
+                                    </div>
+                                    }
+                                    {this.state.dataGenerateLoaded &&
+                                    <div>
+                                        {this.state.lastDataQuantity} Datas has been successfully generated.
+                                    </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </SplitPane>
+              
                 <Alert
                     show={this.state.shouldShowAlert}
                     title={this.state.alertTitle}
@@ -334,5 +358,31 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         };
 
         return new Promise(checkSucceeded);
+    }
+
+
+        /**
+     * Called when the asset side bar is resized
+     * @param newWidth The new sidebar width
+     */
+    private onSideBarResize = (newWidth: number) => {
+        this.setState({
+            thumbnailSize: {
+                width: newWidth,
+                height: newWidth / (4 / 3),
+            },
+        });
+    }
+
+    /**
+     * Called when the asset sidebar has been completed
+     */
+    private onSideBarResizeComplete = () => {
+        const appSettings = {
+            ...this.props.appSettings,
+            thumbnailSize: this.state.thumbnailSize,
+        };
+
+        this.props.applicationActions.saveAppSettings(appSettings);
     }
 }

@@ -5,11 +5,65 @@
 }
 
 .datas {
-  display: flex;
   flex-grow: 1;
+  display: flex;
   flex-direction: row;
-  height: 10px; // Not sure why it helps
+  overflow: hidden;
+  position: relative;
+
+  &-content {
+   flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+
+    &-main {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+
+      &-header {
+        flex-basis: 50px;
+      }
+
+      &-body {
+        display: flex;
+        flex-grow: 1;
+        flex-direction: row;
+
+        position: relative;
+        overflow: hidden;
+        background-color: $darker-5;
+      }
+    }
+
+    &-sidebar {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+
+      &-nav {
+        width: 100%;
+        flex-grow: 1;
+
+        .asset-list {
+          user-select: none;
+        }
+
+        .asset-list:focus {
+          outline: none;
+        }
+      }
+    }
+
+    &-right-sidebar {
+      display: flex;
+      margin-left: auto;
+      width: 400px;
+    }
+
+  }
 }
+
 
 .datas-main {
   position: relative;
@@ -22,27 +76,10 @@
   }
 }
 
-.datas-sidebar {
-  height: 100%;
-  display: flex;
-  width: 400px;
-  min-width: 400px;
-}
 
 .input-disabled {
   color: #bbb;
   background-color: white;
-}
-
-.dummyInputFile {
-  color: #757575;
-  border: 1px;
-  padding: 4px;
-  padding-left: 8px;
-  padding-right: 8px;
-  border-radius: 2px;
-  width: 100%;
-  flex: 1;
 }
 
 .seperator {
