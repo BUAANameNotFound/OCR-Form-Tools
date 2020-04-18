@@ -1,4 +1,4 @@
-import React from "react";
+import React, { RefObject }  from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
@@ -8,7 +8,10 @@ import IApplicationActions, * as applicationActions from "../../../../redux/acti
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import "./datasPage.scss";
 import {
-    IApplicationState, IConnection, IProject, IAppSettings, AppError, ErrorCode, ISize, ITag,
+    AppError, ErrorCode, 
+    AssetState, AssetType, EditorMode, IApplicationState,IConnection,
+    IAppSettings, IAsset, IAssetMetadata, IProject, IRegion,
+    ISize, ITag,
     ILabel,
 } from "../../../../models/applicationState";
 import { ImageMap } from "../../common/imageMap/imageMap";
@@ -30,7 +33,12 @@ import { constants } from "../../../../common/constants";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme } from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
 import SplitPane from "react-split-pane";
+import DatasSideBar from "./datasSideBar"
+import { AssetPreview } from "../../common/assetPreview/assetPreview";
 import axios from "axios";
+
+import Canvas from "./canvas";
+import CanvasHelpers from "./canvasHelpers";
 
 export interface IDatasPageProps extends RouteComponentProps, React.Props<DatasPage> {
     recentProjects: IProject[];
@@ -43,6 +51,9 @@ export interface IDatasPageProps extends RouteComponentProps, React.Props<DatasP
 }
 
 export interface IDatasPageState {
+
+    assets: IAsset[];
+    selectedAsset?: IAssetMetadata;
     NumberLabel: string;
     tagLoaded: boolean;
     dataQuantity: number; 
@@ -53,9 +64,19 @@ export interface IDatasPageState {
     shouldShowAlert: boolean;
     alertTitle: string;
     alertMessage: string;
-        /** Size of the asset thumbnails to display in the side bar */
+
     thumbnailSize: ISize;
 
+    isValid: boolean;
+
+    editorMode: EditorMode;
+
+
+    selectedTag: string;
+
+    lockedTags: string[];
+
+    hoveredLabel: ILabel;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -78,6 +99,7 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class DatasPage extends React.Component<IDatasPageProps, IDatasPageState> {
     public state: IDatasPageState = {
+        assets: [],
         NumberLabel: "Input a integer...",
         tagLoaded: true,
         dataQuantity: 0,
@@ -89,17 +111,54 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         alertTitle: "",
         alertMessage: "",
         thumbnailSize: { width: 175, height: 155 },
+        isValid: true,
+        editorMode: EditorMode.Select,
+        selectedTag: null,
+        lockedTags: [],
+        hoveredLabel: null,
     };
 
+
+    private loadingProjectAssets: boolean = false;
+    private canvas: RefObject<Canvas> = React.createRef();
+    private isUnmount: boolean = false;
+    
+    constructor(props) {
+        super(props);
+    }
+
     public async componentDidMount() {
+
+        window.addEventListener("focus", this.onFocused);
+        this.isUnmount = false;
         const projectId = this.props.match.params["projectId"];
-        if (projectId) {
+        if (this.props.project) {
+            await this.loadProjectAssets();
+            this.props.appTitleActions.setTitle(this.props.project.name);
+        } 
+        else if (projectId) {
             const project = this.props.recentProjects.find((project) => project.id === projectId);
             await this.props.actions.loadProject(project);
             this.props.appTitleActions.setTitle(project.name);
-        } 
+        }
         document.title = strings.datas.title + " - " + strings.appName;
     }
+
+    public async componentDidUpdate(prevProps: Readonly<IDatasPageProps>) {
+        if (this.props.project && this.state.assets.length === 0) {
+            await this.loadProjectAssets();
+        }
+
+        if (this.props.project && prevProps.project && this.props.project.tags !== prevProps.project.tags) {
+            this.updateRootAssets();
+        }
+    }
+
+    public componentWillUnmount() {
+        this.isUnmount = true;
+        window.removeEventListener("focus", this.onFocused);
+    }
+    
 
     private quantityInput: React.RefObject<HTMLInputElement> = React.createRef();
 
@@ -109,7 +168,14 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         const generateDisabled: boolean = !this.state.dataQuantityLoaded || this.state.isGenerating;
         const downloadDisabled: boolean = !this.state.dataGenerateLoaded || this.state.isGenerating;
         
+        const { project } = this.props;
+        const { assets, selectedAsset} = this.state;
+        const rootAssets = assets.filter((asset) => !asset.parent);
+       
 
+        if (!project) {
+           return (<div>Loading...</div>);
+        }
         return (
             <div className="datas" id="pageDatas">
                 <SplitPane split="vertical"
@@ -120,12 +186,31 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                     onChange={this.onSideBarResize}
                     onDragFinished={this.onSideBarResizeComplete}>
                     <div className="datas-sidebar bg-lighter-1">
-
+                        <DatasSideBar
+                            assets={rootAssets}
+                            selectedAsset={selectedAsset ? selectedAsset.asset : null}
+                            onBeforeAssetSelected={this.onBeforeAssetSelected}
+                            onAssetSelected={this.selectAsset}
+                            thumbnailSize={this.state.thumbnailSize}
+                        />
                     </div>
                     <div className="datas-content">
-
                         <div className="datas-content-main" >
                             <div className="datas-content-main-body">
+                                {selectedAsset &&
+                                    <Canvas
+                                        ref={this.canvas}
+                                        selectedAsset={this.state.selectedAsset}
+                                        editorMode={this.state.editorMode}
+                                        project={this.props.project}
+                                        lockedTags={this.state.lockedTags}
+                                        hoveredLabel={this.state.hoveredLabel}>
+                                        <AssetPreview
+                                            controlsEnabled={this.state.isValid}
+                                            onBeforeAssetChanged={this.onBeforeAssetSelected}
+                                            asset={this.state.selectedAsset.asset} />
+                                    </Canvas>
+                                }
                             </div>
                         </div>
 
@@ -337,7 +422,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
     private poll = (func, timeout, interval): Promise<any> => {
         const endTime = Number(new Date()) + (timeout || 10000);
         interval = interval || 100;
-        console.log("dddd3");
+
         const checkSucceeded = (resolve, reject) => {
             const ajax = func();
             ajax.then((response) => {
@@ -384,5 +469,150 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         };
 
         this.props.applicationActions.saveAppSettings(appSettings);
+    }
+
+
+    private loadProjectAssets = async (): Promise<void> => {
+        if (this.loadingProjectAssets) {
+            return;
+        }
+
+        this.loadingProjectAssets = true;
+
+        const rootAssets: IAsset[] = _(await this.props.actions.loadAssets(this.props.project))
+            .uniqBy((asset) => asset.id)
+            .value();
+
+        if (this.state.assets.length === rootAssets.length
+            && this.state.assets.map((asset) => asset.id).join(",") === rootAssets.map((asset) => asset.id).join(",")) {
+            this.loadingProjectAssets = false;
+            return;
+        }
+
+        const lastVisited = rootAssets.find((asset) => asset.id === this.props.project.lastVisitedAssetId);
+
+        this.setState({
+            assets: rootAssets,
+        }, async () => {
+            if (rootAssets.length > 0) {
+                await this.selectAsset(lastVisited ? lastVisited : rootAssets[0]);
+            }
+            this.loadingProjectAssets = false;
+        });
+    }
+
+
+    /**
+     * Updates the root asset list from the project assets
+     */
+    private updateRootAssets = () => {
+        const updatedAssets = [...this.state.assets];
+        updatedAssets.forEach((asset) => {
+            const projectAsset = _.get(this.props, "project.assets[asset.id]", null);
+            if (projectAsset) {
+                asset.state = projectAsset.state;
+            }
+        });
+
+        this.setState({ assets: updatedAssets });
+    }
+
+
+    private onBeforeAssetSelected = (): boolean => {
+        return this.state.isValid;
+    }
+
+    private selectAsset = async (asset: IAsset): Promise<void> => {
+        // Nothing to do if we are already on the same asset.
+        if (this.state.selectedAsset && this.state.selectedAsset.asset.id === asset.id) {
+            return;
+        }
+
+        const assetMetadata = await this.props.actions.loadAssetMetadata(this.props.project, asset);
+
+        try {
+            if (!assetMetadata.asset.size) {
+                const assetProps = await HtmlFileReader.readAssetAttributes(asset);
+                assetMetadata.asset.size = { width: assetProps.width, height: assetProps.height };
+            }
+        } catch (err) {
+            console.warn("Error computing asset size");
+        }
+
+        this.setState({
+            selectedAsset: assetMetadata,
+        });
+    }
+
+    /**
+     * Returns a value indicating whether the current asset is taggable
+     */
+    private isTaggableAssetType = (asset: IAsset): boolean => {
+        return asset.type !== AssetType.Unknown;
+    }
+
+    private onAssetMetadataChanged = async (assetMetadata: IAssetMetadata): Promise<void> => {
+        // Comment out below code as we allow regions without tags, it would make labeler's work easier.
+
+        const initialState = assetMetadata.asset.state;
+
+        // The root asset can either be the actual asset being edited (ex: VideoFrame) or the top level / root
+        // asset selected from the side bar (image/video).
+        const rootAsset = { ...(assetMetadata.asset.parent || assetMetadata.asset) };
+
+        if (this.isTaggableAssetType(assetMetadata.asset)) {
+            assetMetadata.asset.state = AssetState.Visited;
+        } else if (assetMetadata.asset.state === AssetState.NotVisited) {
+            assetMetadata.asset.state = AssetState.Visited;
+        }
+
+        // Update root asset if not already in the "Tagged" state
+        // This is primarily used in the case where a Video Frame is being edited.
+        // We want to ensure that in this case the root video asset state is accurately
+        // updated to match that state of the asset.
+        if (rootAsset.id === assetMetadata.asset.id) {
+            rootAsset.state = assetMetadata.asset.state;
+        } else {
+            const rootAssetMetadata = await this.props.actions.loadAssetMetadata(this.props.project, rootAsset);
+
+            if (rootAssetMetadata.asset.state !== AssetState.Tagged) {
+                rootAssetMetadata.asset.state = assetMetadata.asset.state;
+                await this.props.actions.saveAssetMetadata(this.props.project, rootAssetMetadata);
+            }
+
+            rootAsset.state = rootAssetMetadata.asset.state;
+        }
+
+        // Only update asset metadata if state changes or is different
+        if (initialState !== assetMetadata.asset.state || this.state.selectedAsset !== assetMetadata) {
+            await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
+            if (this.props.project.lastVisitedAssetId === assetMetadata.asset.id) {
+                this.setState({selectedAsset: assetMetadata});
+            }
+        }
+
+        await this.props.actions.saveProject(this.props.project);
+
+        // Find and update the root asset in the internal state
+        // This forces the root assets that are displayed in the sidebar to
+        // accurately show their correct state (not-visited, visited or tagged)
+        const assets = [...this.state.assets];
+        const assetIndex = assets.findIndex((asset) => asset.id === rootAsset.id);
+        if (assetIndex > -1) {
+            assets[assetIndex] = {
+                ...rootAsset,
+            };
+        }
+
+        this.setState({ assets, isValid: true });
+
+        // Workaround for if component is unmounted
+        if (!this.isUnmount) {
+            this.props.appTitleActions.setTitle(`${this.props.project.name} - [ ${rootAsset.name} ]`);
+        }
+    }
+
+    private onFocused = () => {
+        this.loadProjectAssets();
     }
 }
