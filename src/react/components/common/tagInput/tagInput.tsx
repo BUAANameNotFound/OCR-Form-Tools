@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { KeyboardEvent } from "react";
+import React, {KeyboardEvent} from "react";
 import {
     ContextualMenu,
     ContextualMenuItemType,
@@ -10,17 +10,17 @@ import {
     IContextualMenuItem,
     ICustomizations,
 } from "office-ui-fabric-react";
-import { strings } from "../../../../common/strings";
-import { getDarkTheme } from "../../../../common/themes";
-import { AlignPortal } from "../align/alignPortal";
-import { getNextColor } from "../../../../common/utils";
-import { IRegion, ITag, ILabel, FieldType, FieldFormat } from "../../../../models/applicationState";
-import { ColorPicker } from "../colorPicker";
+import {strings} from "../../../../common/strings";
+import {getDarkTheme} from "../../../../common/themes";
+import {AlignPortal} from "../align/alignPortal";
+import {getNextColor} from "../../../../common/utils";
+import {FieldFormat, FieldType, ILabel, IRegion, ITag} from "../../../../models/applicationState";
+import {ColorPicker} from "../colorPicker";
 import "./tagInput.scss";
 import "../condensedList/condensedList.scss";
-import TagInputItem, { ITagInputItemProps, ITagClickProps } from "./tagInputItem";
+import TagInputItem, {ITagClickProps, ITagInputItemProps} from "./tagInputItem";
 import TagInputToolbar from "./tagInputToolbar";
-import { toast } from "react-toastify";
+import {toast} from "react-toastify";
 // tslint:disable-next-line:no-var-requires
 const tagColors = require("../../common/tagColors.json");
 
@@ -71,6 +71,8 @@ export interface ITagInputProps {
     onLabelLeave: (label: ILabel) => void;
     /** Function to handle tag change */
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
+
+    onGeneration: any;
 }
 
 export interface ITagInputState {
@@ -101,6 +103,12 @@ function filterFormat(type: FieldType): FieldFormat[] {
                 FieldFormat.DMY,
                 FieldFormat.MDY,
                 FieldFormat.YMD,
+            ];
+        case FieldType.Generate:
+            return [
+              FieldFormat.Name,
+              FieldFormat.Number,
+              FieldFormat.Address,
             ];
         default:
             return [ FieldFormat.NotSpecified ];
@@ -172,6 +180,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                         onLockTag={this.onLockTag}
                         onDelete={this.onDeleteTag}
                         onReorder={this.onReOrder}
+                        onGeneration={this.props.onGeneration}
                     />
                 </div>
                 <div className="tag-input-body-container">

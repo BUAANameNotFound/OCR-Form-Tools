@@ -788,7 +788,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private lastX;
     private lastY;
 
+    private enableDraw = false;
+
     private handleClick = (x, y) => {
+        if (this.enableDraw == false)
+            return
+
         console.log(`Click: x: ${x}, y: ${y}`)
 
         if (this.halfClick === false) {
@@ -819,7 +824,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const boundingBox = this.polygonPointsToBoundingBox(polygonPoints, ocrWidth, ocrHeight);
 
         let feature = this.createBoundingBoxVectorFeature(
-            "test", boundingBox, imageExtent, ocrExtent, ocrReadResults.page);
+            "__GENERATION", boundingBox, imageExtent, ocrExtent, ocrReadResults.page);
         this.imageMap.addFeature(feature);
     }
 
@@ -1199,8 +1204,17 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
     private handleKeyDown = (keyEvent) => {
         switch (keyEvent.key) {
-            case "Delete":
             case "Backspace":
+                this.enableDraw = !this.enableDraw;
+                if (this.enableDraw) {
+                    console.log("Draw enable")
+                } else {
+                    console.log("Draw disable")
+                }
+                break;
+
+
+            case "Delete":
                 this.deleteRegions(this.getSelectedRegions());
                 break;
 

@@ -14,7 +14,7 @@ import {
     AssetState, AssetType, EditorMode, IApplicationState,
     IAppSettings, IAsset, IAssetMetadata, IProject, IRegion,
     ISize, ITag,
-    ILabel,
+    ILabel, FieldType, FieldFormat, IField,
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -31,7 +31,7 @@ import EditorSideBar from "./editorSideBar";
 import Alert from "../../common/alert/alert";
 import Confirm from "../../common/confirm/confirm";
 import { OCRService } from "../../../../services/ocrService";
-import { throttle } from "../../../../common/utils";
+import {joinPath, throttle} from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
@@ -269,6 +269,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                 onLabelEnter={this.onLabelEnter}
                                 onLabelLeave={this.onLabelLeave}
                                 onTagChanged={this.onTagChanged}
+                                onGeneration={this.onGeneration}
                                 ref = {this.tagInputRef}
                             />
                         </div>
@@ -451,6 +452,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      */
     private onAssetMetadataChanged = async (assetMetadata: IAssetMetadata): Promise<void> => {
         // Comment out below code as we allow regions without tags, it would make labeler's work easier.
+
+        console.log(assetMetadata);
 
         const initialState = assetMetadata.asset.state;
 
@@ -708,5 +711,42 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 });
             }
         }
+    }
+
+    private onGeneration = async () => {
+        const fields =
+            this.props.project.tags.map((tag) => ({
+                fieldKey: tag.name,
+                fieldType: tag.type ? tag.type : FieldType.String,
+                fieldFormat: tag.format ? tag.format : FieldFormat.NotSpecified,
+            } ));
+
+        // const fieldFilePath = joinPath("/", project.folderPath, constants.fieldsFileName);
+        // await storageProvider.writeText(fieldFilePath, JSON.stringify(fieldInfo, null, 4));
+        // "__GENERATION"
+        let labels = this.state.selectedAsset.labelData.labels;
+
+        for (let label of labels) {
+            for (let field of fields) {
+                if (label.label === field.fieldKey) {
+                    for (let word of label.value) {
+                        word.text = field.fieldFormat;
+                    }
+                }
+            }
+        }
+
+
+        console.log(JSON.stringify(this.state.selectedAsset.labelData, null, 4));
+        // console.log(JSON.stringify(fields, null, 4));
+        const requestOptions = {
+            // mode: "no-cors" as RequestMode,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(this.state.selectedAsset.labelData, null, 4),
+        };
+        fetch('https://lyniupi.azurewebsites.net/api/HttpTryLy1', requestOptions)
+            .then(response => console.log(response))
+        // console.log(data);
     }
 }

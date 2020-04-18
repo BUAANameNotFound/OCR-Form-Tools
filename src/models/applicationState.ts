@@ -372,6 +372,7 @@ export enum FieldType {
     Time = "time",
     Integer = "integer",
     Checkbox = "checkbox",
+    Generate = "generate",
 }
 
 export enum FieldFormat {
@@ -384,6 +385,10 @@ export enum FieldFormat {
     DMY = "dmy",
     MDY = "mdy",
     YMD = "ymd",
+
+    Name = "name",
+    Number = "number",
+    Address = "address",
 }
 
 export enum FeatureCategory {

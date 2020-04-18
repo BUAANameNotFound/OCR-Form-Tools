@@ -28,6 +28,8 @@ export interface ITagInputToolbarProps {
     onDelete: (tag: ITag) => void;
     /** Function to call when one of the re-order buttons is clicked */
     onReorder: (tag: ITag, displacement: number) => void;
+
+    onGeneration: any;
 }
 
 interface ITagInputToolbarItemProps {
@@ -62,15 +64,15 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
                 handler: this.handleSearch,
             },
             {
-                displayName: strings.tags.toolbar.vertiline,
-                category: Categories.Separator,
-            },
-            {
                 // TODO: remove hard code
                 displayName: "Generation",
                 icon: "Add",
-                category: Categories.Modifier,
-                // handler: this.handleRename,
+                category: Categories.General,
+                handler: this.handleGeneration,
+            },
+            {
+                displayName: strings.tags.toolbar.vertiline,
+                category: Categories.Separator,
             },
             {
                 displayName: strings.tags.toolbar.rename,
@@ -152,6 +154,10 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
 
     private handleSearch = () => {
         this.props.onSearchTags();
+    }
+
+    private handleGeneration = () => {
+        this.props.onGeneration();
     }
 
     private handleRename = () => {
