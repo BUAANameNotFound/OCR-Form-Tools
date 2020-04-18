@@ -143,7 +143,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.ocrService = new OCRService(this.props.project);
         const asset = this.state.currentAsset.asset;
         await this.loadImage();
-        await this.loadOcr();
         this.loadLabelData(asset);
     }
 
@@ -166,7 +165,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             }, async () => {
                 const asset = this.state.currentAsset.asset;
                 await this.loadImage();
-                await this.loadOcr();
                 this.loadLabelData(asset);
             });
         } else if (this.isLabelDataChanged(this.props, prevProps)) {
@@ -195,20 +193,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         };
         return (
             <div style={{ width: "100%", height: "100%" }}>
-                <KeyboardBinding
-                        displayName={"Delete region"}
-                        key={"Delete"}
-                        keyEventType={KeyEventType.KeyDown}
-                        accelerators={["Delete", "Backspace", "<", ",", ">", ".",
-                            "{", "[", "}", "]", "+", "-", "/", "=", "_", "?"]}
-                        handler={this.handleKeyDown}
-                />
-                <CanvasCommandBar
-                    handleLayerChange={this.handleLayerChange}
-                    handleZoomIn={this.handleCanvasZoomIn}
-                    handleZoomOut={this.handleCanvasZoomOut}
-                    layers={this.state.layers}
-                />
                 <ImageMap
                     ref={(ref) => this.imageMap = ref}
                     imageUri={this.state.imageUri}
@@ -226,47 +210,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleTableToolTipChange={this.handleTableToolTipChange}
                     hoveringFeature={this.state.hoveringFeature}
                 />
-                <TooltipHost
-                    content={"rows: " + this.state.tableIconTooltip.rows +
-                             " columns: " + this.state.tableIconTooltip.columns}
-                    id="tableInfo"
-                    styles={hostStyles}
-                >
-                    <div
-                        aria-describedby="tableInfo"
-                        className="tooltip-container"
-                        onClick={this.handleTableIconFeatureSelect}
-                    />
-                </TooltipHost>
-                { this.shouldShowPreviousPageButton() &&
-                    <IconButton
-                        className="toolbar-btn prev"
-                        title="Previous"
-                        iconProps={{iconName: "ChevronLeft"}}
-                        onClick={this.prevPage}
-                    />
-                }
-                { this.shouldShowNextPageButton() &&
-                    <IconButton
-                        className="toolbar-btn next"
-                        title="Next"
-                        onClick={this.nextPage}
-                        iconProps={{iconName: "ChevronRight"}}
-                    />
-                }
-                { this.shouldShowMultiPageIndicator() &&
-                    <p className="page-number">
-                        Page {this.state.currentPage} of {this.state.numPages}
-                    </p>
-                }
-                { this.state.ocrStatus !== OcrStatus.done &&
-                    <div className="canvas-ocr-loading">
-                        <div className="canvas-ocr-loading-spinner">
-                            <Label className="p-0" ></Label>
-                            <Spinner size={SpinnerSize.large} label="Running OCR..." ariaLive="assertive" labelPosition="right"/>
-                        </div>
-                    </div>
-                }
                 <Alert
                     show={this.state.isError}
                     title={this.state.errorTitle || "Error"}
@@ -918,33 +861,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         });
     }
 
-    private loadOcr = async () => {
-        const asset = this.state.currentAsset.asset;
-        if (asset.isRunningOCR) {
-            // Skip loading OCR this time since it's running. This will be triggered again once it's finished.
-            return;
-        }
-        try {
-            const ocr = await this.ocrService.getRecognizedText(asset.path, asset.name, this.setOCRStatus);
-            if (asset.id === this.state.currentAsset.asset.id) {
-                // since get OCR is async, we only set currentAsset's OCR
-                this.setState({
-                    ocr,
-                    ocrForCurrentPage: this.getOcrResultForCurrentPage(ocr),
-                }, () => {
-                    this.buildRegionOrders();
-                    this.drawOcr();
-                });
-            }
-        } catch (error) {
-            this.setState({
-                isError: true,
-                errorTitle: error.title,
-                errorMessage: error.message,
-            });
-        }
-    }
-
     private loadTiffFile = async (asset: IAsset) => {
         const assetArrayBuffer = await HtmlFileReader.getAssetArray(asset);
         const tiffImages = parseTiffData(assetArrayBuffer);
@@ -1576,27 +1492,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         return boundingBox.join(",") + ":" + page;
     }
 
-    private handleLayerChange = async (layer: string) => {
-        switch (layer) {
-            case "text":
-                this.imageMap.toggleTextFeatureVisibility();
-                break;
-            case "tables":
-                this.imageMap.toggleTableFeatureVisibility();
-                break;
-            case "checkboxes":
-                this.imageMap.toggleCheckboxFeatureVisibility();
-                break;
-            case "label":
-                this.imageMap.toggleLabelFeatureVisibility();
-                break;
-        }
-        const newLayers = Object.assign({}, this.state.layers);
-        newLayers[layer] = !newLayers[layer];
-        this.setState({
-            layers : newLayers,
-        });
-    }
 
     private handleTableToolTipChange = async (display: string, width: number, height: number, top: number,
                                               left: number, rows: number, columns: number, featureID: string) => {
