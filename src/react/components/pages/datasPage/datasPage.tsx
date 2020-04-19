@@ -186,6 +186,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                     onChange={this.onSideBarResize}
                     onDragFinished={this.onSideBarResizeComplete}>
                     <div className="datas-sidebar bg-lighter-1">
+                    {this.state.dataGenerateLoaded &&
                         <DatasSideBar
                             assets={rootAssets}
                             selectedAsset={selectedAsset ? selectedAsset.asset : null}
@@ -193,14 +194,16 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                             onAssetSelected={this.selectAsset}
                             thumbnailSize={this.state.thumbnailSize}
                         />
+                    }
                     </div>
                     <div className="datas-content">
                         <div className="datas-content-main" >
                             <div className="datas-content-main-body">
-                                {selectedAsset &&
+                                {this.state.dataGenerateLoaded && selectedAsset &&
                                     <Canvas
                                         ref={this.canvas}
                                         selectedAsset={this.state.selectedAsset}
+                                        onAssetMetadataChanged={this.onAssetMetadataChanged}                                        
                                         editorMode={this.state.editorMode}
                                         project={this.props.project}
                                         lockedTags={this.state.lockedTags}
@@ -335,7 +338,8 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                     dataGenerateLoaded: true,
                     lastDataQuantity : lastQuantity,
                 });
-                */  
+                */
+                  
                 this.setState({
                     shouldShowAlert: true,
                     alertTitle: "Generate Error",
