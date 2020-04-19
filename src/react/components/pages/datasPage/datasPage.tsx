@@ -324,7 +324,19 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
 
     private handleGenerateClick = () => {
         this.setState({dataGenerateLoaded: false, isGenerating: true,});
-        this.getDatasGenerate()
+        const endpointURL = url.resolve(
+            this.props.project.apiUriBase,
+            `/generate/pdf`,
+        );
+        
+        const headers = {"Content-Type": "json", "cache-control": "no-cache" };
+        let jsonforsend = "";
+        let response;
+
+        try {
+            this.poll(() =>
+            ServiceHelper.postWithAutoRetry(
+                endpointURL, jsonforsend, { headers }, this.props.project.apiKey as string), 120000, 500)
             .then((result) => {
                 let lastQuantity = this.state.dataQuantity;
                 this.setState({
@@ -361,6 +373,9 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                 });
                 
             });
+        } catch (err) {
+            ServiceHelper.handleServiceError(err);
+        }
     }
 
     private handleDownloadClick = () => {
@@ -401,33 +416,6 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         });
 
     }
-
-    private async getDatasGenerate(): Promise<any> {
-
-        const endpointURL = url.resolve(
-            this.props.project.apiUriBase,
-            `/generate/pdf`,
-        );
-        
-        const headers = {"Content-Type": "json", "cache-control": "no-cache" };
-        let jsonforsend = "";
-        let response;
-        try {
-            response = await ServiceHelper.postWithAutoRetry(
-                endpointURL, jsonforsend, { headers }, this.props.project.apiKey as string);
-        } catch (err) {
-            ServiceHelper.handleServiceError(err);
-        }
-
-        const operationLocation = response.headers["operation-location"];
-
-        // Make the second REST API call and get the response.
-        return this.poll(() =>
-            ServiceHelper.getWithAutoRetry(
-                operationLocation, { headers }, this.props.project.apiKey as string), 120000, 500);
-        
-    }
-
 
     /**
      * Poll function to repeatly check if request succeeded
