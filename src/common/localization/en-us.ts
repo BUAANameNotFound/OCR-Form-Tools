@@ -317,7 +317,7 @@ export const english: IAppStrings = {
         settings: "Profile Settings",
     },
     models: {
-        title: "Models",
+        title: "History Models",
         Listmodels: "List History Models",
         inProgress: "list models in progress...",
     },

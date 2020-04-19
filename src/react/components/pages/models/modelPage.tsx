@@ -6,7 +6,6 @@ import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton} from "office
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
-import "./modelPage.scss";
 import {
     IApplicationState, IConnection, IProject, IAppSettings, AppError, ErrorCode,
 } from "../../../../models/applicationState";
@@ -30,12 +29,13 @@ import { getPrimaryGreenTheme, getPrimaryWhiteTheme } from "../../../../common/t
 import { SkipButton } from "../../shell/skipButton";
 import axios from "axios";
 import CondensedList from "../../common/condensedList/condensedList";
-import ConnectionItem from "./modelItem";
+import ModelItem from "./modelItem";
 import Confirm from "../../common/confirm/confirm";
 //import TrainChart from "./trainChart";
 //import TrainPanel from "./trainPanel";
 import ModelTable from "./modelTable";
 import { IModelRecordProps } from "./modelRecord";
+import "./modelPage.scss";
 
 export interface IModelPageProps extends RouteComponentProps, React.Props<ModelsPage> {
     recentProjects: IProject[];
@@ -108,25 +108,34 @@ export default class ModelsPage extends React.Component<IModelPageProps, IModelP
         const currTrainRecord = this.state.currTrainRecord;
 
         return (
-            <div className="datas" id="pageDatas">
-                <div className="datas-main">
+            <div className="models" id="pageModels">
+                <div className="models-main">
                 </div>
 
-                <div className="app-connections-page-list bg-lighter-1">
+                 {/* <div className="datas-sidebar bg-lighter-1">
+                    <div className="condensed-list">
+                        <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
+                            <FontIcon className="mr-1" iconName="Insights" />
+                            <span className="condensed-list-title">History Models</span> 
+                        </h6>
+                    </div>
+                </div> */}
+
+                <div className="app-connections-page-list-bg-lighter-1">
                     <CondensedList
                         title={strings.models.title}
-                        newLinkTo={"/connections/create"}
-                        newLinkToTitle={strings.connections.new}
+                        //newLinkTo={"/connections/create"}
+                        //newLinkToTitle={strings.connections.new}
                         onDelete={(connection) => this.confirmDelete.current.open(connection)}
-                        Component={ConnectionItem}
+                        Component={ModelItem}
                         items={this.props.connections} />
                 </div>
 
                 <div className = "model_history">
                     {currTrainRecord &&
                         <div>
-                            <h3> Train Result </h3>
-                            <span> Model ID: {currTrainRecord.modelInfo.modelId} </span>
+                            <h3> Model Message </h3>
+                            <h4> Model ID: {currTrainRecord.modelInfo.modelId} </h4>
                         </div>
                     }
                     {this.state.viewType === "tableView" &&
@@ -137,19 +146,7 @@ export default class ModelsPage extends React.Component<IModelPageProps, IModelP
                 </div>
 
 
-                <div className="datas-sidebar bg-lighter-1">
-                    <div className="condensed-list">
-                        <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
-                            <FontIcon className="mr-1" iconName="Insights" />
-                            <span className="condensed-list-title">History Models</span>
-                        </h6>
-                        <div className="p-3">
-                            <h5>
-                                {strings.models.Listmodels}
-                            </h5>
-                        </div>
-                    </div>
-                </div>
+
             </div>
         );
     }

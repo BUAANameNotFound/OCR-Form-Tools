@@ -57,7 +57,7 @@ export function Sidebar({ project }) {
                     <ConditionalNavLink disabled={!projectId}
                         title={strings.models.title}
                         to={`/projects/${projectId}/models`}>
-                        <FontIcon iconName="Formodels" />
+                        <FontIcon iconName="BranchMerge" />
                     </ConditionalNavLink>
                 </li>
                 <li>
