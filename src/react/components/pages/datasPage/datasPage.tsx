@@ -10,9 +10,8 @@ import "./datasPage.scss";
 import {
     AppError, ErrorCode, 
     AssetState, AssetType, EditorMode, IApplicationState,IConnection,
-    IAppSettings, IAsset, IAssetMetadata, IProject, IRegion,
-    ISize, ITag,
-    ILabel,
+    IAppSettings, IAsset, IAssetMetadata, IProject,
+    ISize,ILabel,
 } from "../../../../models/applicationState";
 import { ImageMap } from "../../common/imageMap/imageMap";
 import Style from "ol/style/Style";
@@ -26,9 +25,7 @@ import HtmlFileReader from "../../../../common/htmlFileReader";
 import { Feature } from "ol";
 import Polygon from "ol/geom/Polygon";
 import { strings, interpolate } from "../../../../common/strings";
-import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
-import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme } from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
@@ -64,18 +61,10 @@ export interface IDatasPageState {
     shouldShowAlert: boolean;
     alertTitle: string;
     alertMessage: string;
-
     thumbnailSize: ISize;
-
     isValid: boolean;
-
     editorMode: EditorMode;
-
-
-    selectedTag: string;
-
     lockedTags: string[];
-
     hoveredLabel: ILabel;
 }
 
@@ -113,7 +102,6 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         thumbnailSize: { width: 175, height: 155 },
         isValid: true,
         editorMode: EditorMode.Select,
-        selectedTag: null,
         lockedTags: [],
         hoveredLabel: null,
     };
@@ -386,18 +374,20 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         );
 
         const headers = { "responseType" : "blob"};
-        this.poll(() =>
-        ServiceHelper.postWithAutoRetry(
-                endpointURL, {}, { headers }, this.props.project.apiKey as string), 120000, 500)
-        .then((res) => {
-            let url = window.URL.createObjectURL(new Blob([res.data]));
-            let link= document.createElement('a');
-            link.style.display='none';
-            link.href=url;
-            link.setAttribute('download', "datas.zip");
-            document.body.appendChild(link);
-            link.click();
-        }).catch((error) => {
+
+        try {
+            this.poll(() =>
+                ServiceHelper.postWithAutoRetry(
+                    endpointURL, {}, { headers }, this.props.project.apiKey as string), 120000, 500)
+            .then((res) => {
+                let url = window.URL.createObjectURL(new Blob([res.data]));
+                let link= document.createElement('a');
+                link.style.display='none';
+                link.href=url;
+                link.setAttribute('download', "datas.zip");
+                document.body.appendChild(link);
+                link.click();
+            }).catch((error) => {
                 let alertMessage = "";
                 if (error.response) {
                     alertMessage = error.response.data;
@@ -413,8 +403,10 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                     alertTitle: "Download Error",
                     alertMessage,
                 });
-        });
-
+            });
+        } catch (err) {
+            ServiceHelper.handleServiceError(err);
+        } 
     }
 
     /**

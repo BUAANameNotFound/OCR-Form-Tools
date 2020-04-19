@@ -43,7 +43,7 @@ export function Sidebar({ project }) {
                     <ConditionalNavLink disabled={!projectId}
                         title={strings.datas.title}
                         to={`/projects/${projectId}/datas`}>
-                        <FontIcon iconName="Generate" />
+                        <FontIcon iconName="Table" />
                     </ConditionalNavLink>
                 </li>
                 <li>
