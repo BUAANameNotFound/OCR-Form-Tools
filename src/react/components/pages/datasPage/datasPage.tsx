@@ -297,10 +297,22 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         if (this.quantityInput.current.value !== "") {
             const quantityNumber = this.quantityInput.current.value;
             if (quantityNumber !== "") {
+                if (this.isInteger(quantityNumber)) {
+                    this.setState({
+                        dataQuantity: Number(quantityNumber),
+                        dataQuantityLoaded: true,
+                    });
+                } else {
+                    this.setState({
+                        dataQuantity: 0,
+                        dataQuantityLoaded: false,
+                    }); 
+                }
+            } else {
                 this.setState({
-                    dataQuantity: Number(quantityNumber),
-                    dataQuantityLoaded: true,
-                });
+                    dataQuantity: 0,
+                    dataQuantityLoaded: false,
+                });               
             }
         } else {
             this.setState({
@@ -618,5 +630,13 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
 
     private onFocused = () => {
         this.loadProjectAssets();
+    }
+
+    private isInteger = (quantity : string) => {
+        let reg = /^[+]?0*[1-9][0-9]*$/;
+        if(reg.test(quantity)){
+            return true;//手机号码正确
+        }
+        return false;
     }
 }
