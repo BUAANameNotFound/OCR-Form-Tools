@@ -66,6 +66,7 @@ export interface IDatasPageState {
     editorMode: EditorMode;
     lockedTags: string[];
     hoveredLabel: ILabel;
+    backendBaseURL: string;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -104,6 +105,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         editorMode: EditorMode.Select,
         lockedTags: [],
         hoveredLabel: null,
+        backendBaseURL: "https://lyniupi.azurewebsites.net/",
     };
 
 
@@ -312,74 +314,78 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
 
     private handleGenerateClick = () => {
         this.setState({dataGenerateLoaded: false, isGenerating: true,});
-        const endpointURL = url.resolve(
-            this.props.project.apiUriBase,
-            `/generate/pdf`,
-        );
-        
-        const headers = {"Content-Type": "json", "cache-control": "no-cache" };
-        let jsonforsend = "";
-        let response;
 
+        const endpointURL = url.resolve(
+            this.state.backendBaseURL,
+            `/api/HttpTryLy1?genNum=${this.state.dataQuantity}`,
+        );
+        const requestOptions = {
+            method: 'GET',
+        };
+        //console.log(endpointURL);
         try {
             this.poll(() =>
-            ServiceHelper.postWithAutoRetry(
-                endpointURL, jsonforsend, { headers }, this.props.project.apiKey as string), 120000, 500)
-            .then((result) => {
-                let lastQuantity = this.state.dataQuantity;
-                this.setState({
-                    isGenerating: false,
-                    dataGenerateLoaded: true,
-                    lastDataQuantity : lastQuantity,
+                fetch(endpointURL, requestOptions), 120000, 500)
+                .then((result) => {
+                    //console.log(this.props.project.sourceConnection.providerOptions["sas"]);
+                    let lastQuantity = this.state.dataQuantity;
+                    this.setState({
+                        isGenerating: false,
+                        dataGenerateLoaded: true,
+                        lastDataQuantity : lastQuantity,
+                    });
+                }).catch((error) => {
+                    let alertMessage = "";
+                    if (error.response) {
+                        alertMessage = error.response.data;
+                    } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
+                        alertMessage = strings.errors.predictWithoutTrainForbidden.message;
+                    } else if (error.errorCode === ErrorCode.ModelNotFound) {
+                        alertMessage = error.message;
+                    } else {
+                        alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
+                    }
+                    /*
+                    let lastQuantity = this.state.dataQuantity;
+                    this.setState({
+                        isGenerating: false,
+                        dataGenerateLoaded: true,
+                        lastDataQuantity : lastQuantity,
+                    });
+                    */
+                      
+                    this.setState({
+                        shouldShowAlert: true,
+                        alertTitle: "Generate Error",
+                        alertMessage,
+                        isGenerating: false,
+                        dataGenerateLoaded: false,
+                    });
+                    
                 });
-            }).catch((error) => {
-                let alertMessage = "";
-                if (error.response) {
-                    alertMessage = error.response.data;
-                } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
-                    alertMessage = strings.errors.predictWithoutTrainForbidden.message;
-                } else if (error.errorCode === ErrorCode.ModelNotFound) {
-                    alertMessage = error.message;
-                } else {
-                    alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
-                }
-                /*
-                let lastQuantity = this.state.dataQuantity;
-                this.setState({
-                    isGenerating: false,
-                    dataGenerateLoaded: true,
-                    lastDataQuantity : lastQuantity,
-                });
-                */
-                  
-                this.setState({
-                    shouldShowAlert: true,
-                    alertTitle: "Generate Error",
-                    alertMessage,
-                    isGenerating: false,
-                    dataGenerateLoaded: false,
-                });
-                
-            });
-        } catch (err) {
+        } 
+        catch (err) {
             ServiceHelper.handleServiceError(err);
         }
+    
     }
 
     private handleDownloadClick = () => {
 
         const endpointURL = url.resolve(
-            this.props.project.apiUriBase,
-            `/download/pdf`,
+            this.state.backendBaseURL,
+            `/api/HttpTryLy1`,
         );
 
-        const headers = { "responseType" : "blob"};
-
+        const requestOptions = {
+            method: 'GET',
+            headers: { "responseType" : "blob"},
+        };
         try {
             this.poll(() =>
-                ServiceHelper.postWithAutoRetry(
-                    endpointURL, {}, { headers }, this.props.project.apiKey as string), 120000, 500)
+            fetch(endpointURL, requestOptions), 120000, 500)
             .then((res) => {
+                console.log(res);
                 let url = window.URL.createObjectURL(new Blob([res.data]));
                 let link= document.createElement('a');
                 link.style.display='none';
@@ -422,9 +428,10 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         const checkSucceeded = (resolve, reject) => {
             const ajax = func();
             ajax.then((response) => {
-                if (response.data.status.toLowerCase() === constants.statusCodeSucceeded) {
-                    resolve(response.data);
-                } else if (response.data.status.toLowerCase() === constants.statusCodeFailed) {
+                //console.log(response);
+                if (response.status === 200) {
+                    resolve(response);
+                } else if (response.status != 200) {
                     reject("Error");
                 } else if (Number(new Date()) < endTime) {
                     // If the request isn't succeeded and the timeout hasn't elapsed, go again
