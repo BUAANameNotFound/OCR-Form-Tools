@@ -48,7 +48,7 @@ export interface IModelPageProps extends RouteComponentProps, React.Props<Models
 }
 
 export interface IModelPageState {
-    currTrainRecord: IModelRecordProps;
+    currTrainRecord: [];
     viewType: "chartView" | "tableView";
     modelMessage:string;
 
@@ -82,16 +82,18 @@ function mapDispatchToProps(dispatch) {
 export default class ModelsPage extends React.Component<IModelPageProps, IModelPageState> {
     private confirmDelete: React.RefObject<Confirm>;
 
+    
     constructor(props) {
         super(props);
 
         this.state = {
             modelMessage: "OK!",
-            currTrainRecord: null,
+            currTrainRecord: [],
             viewType: "tableView",
+
         };
     }
-
+    
     public async componentDidMount() {
         const projectId = this.props.match.params["projectId"];
         if (projectId) {
@@ -99,7 +101,22 @@ export default class ModelsPage extends React.Component<IModelPageProps, IModelP
             await this.props.actions.loadProject(project);
 
             this.props.appTitleActions.setTitle(project.name);
-            this.updateCurrTrainRecord(this.getProjectTrainRecord());
+            // this.updateCurrTrainRecord(this.getProjectTrainRecord());
+            const endpointURL = url.resolve(
+                this.props.project.apiUriBase,
+                `${constants.apiModelsPath}?op=full`,
+            );
+            let response;
+            response = await ServiceHelper.getWithAutoRetry(
+                endpointURL, 
+                { headers: { "cache-control": "no-cache" } },
+                this.props.project.apiKey as string);
+            console.log("response:")
+            console.log(response)
+            console.log(response.data.modelList)
+            this.setState({
+                currTrainRecord: response.data.modelList
+            })
         }
         document.title = strings.train.title + " - " + strings.appName;
     }
@@ -108,7 +125,7 @@ export default class ModelsPage extends React.Component<IModelPageProps, IModelP
         const currTrainRecord = this.state.currTrainRecord;
 
         return (
-            <div className="models" id="pageModels">
+            <div className="models" id="pageModels" style={{margin: '24px'}}>
                 <div className="models-main">
                 </div>
 
@@ -121,7 +138,7 @@ export default class ModelsPage extends React.Component<IModelPageProps, IModelP
                     </div>
                 </div> */}
 
-                <div className="app-connections-page-list-bg-lighter-1">
+                {/* <div className="app-connections-page-list-bg-lighter-1">
                     <CondensedList
                         title={strings.models.title}
                         //newLinkTo={"/connections/create"}
@@ -129,36 +146,47 @@ export default class ModelsPage extends React.Component<IModelPageProps, IModelP
                         onDelete={(connection) => this.confirmDelete.current.open(connection)}
                         Component={ModelItem}
                         items={this.props.connections} />
-                </div>
+                </div> */}
 
-                <div className = "model_history">
-                    {currTrainRecord &&
+                <div className = "model_history" >
+                    {/* {currTrainRecord &&
                         <div>
-                            <h3> Model Message </h3>
+                            <h3> Model Messag </h3>
                             <h4> Model ID: {currTrainRecord.modelInfo.modelId} </h4>
                         </div>
-                    }
-                    {this.state.viewType === "tableView" &&
-                        <ModelTable
-                            trainMessage={this.state.modelMessage}
-                            accuracies={currTrainRecord && currTrainRecord.accuracies} />}
-
+                    } */}
+                        <table className="accuracytable table-sm">
+                        <tbody>
+                            <tr>
+                                <th>modelId</th>
+                                <th>status</th>
+                                <th>createdDateTime</th>
+                                <th className="text-right">lastUpdatedDateTime</th>
+                            </tr>
+                            { currTrainRecord && 
+                            currTrainRecord.map((item:any) =>
+                                    <tr >
+                                        <td>{item.modelId}</td>
+                                        <td>{item.status}</td>
+                                        <td>{item.createdDateTime}</td>
+                                        <td className="text-right">{item.lastUpdatedDateTime}</td>
+                                    </tr>)
+                            }
+                        </tbody>
+                    </table>
                 </div>
 
+                
 
 
             </div>
         );
     }
 
-    private async getDatasGenerate(): Promise<any> {
-    }
 
-    private updateCurrTrainRecord = (curr: IModelRecordProps): void => {
-        this.setState({ currTrainRecord: curr });
-    }
 
     private getProjectTrainRecord = (): IModelRecordProps => {
         return _.get(this, "props.project.trainRecord", null);
     }
+
 }
