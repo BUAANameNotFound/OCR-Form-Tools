@@ -317,8 +317,9 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
 
         const endpointURL = url.resolve(
             this.state.backendBaseURL,
-            `/api/HttpTryLy1?genNum=${this.state.dataQuantity}`,
+            `/api/GenFile?genNum=${this.state.dataQuantity}`,
         );
+        console.log(endpointURL);
         const requestOptions = {
             method: 'GET',
         };
@@ -374,7 +375,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
 
         const endpointURL = url.resolve(
             this.state.backendBaseURL,
-            `/api/HttpTryLy1`,
+            `/api/DownLoadFile`,
         );
 
         const requestOptions = {
@@ -384,16 +385,17 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         try {
             this.poll(() =>
             fetch(endpointURL, requestOptions), 120000, 500)
-            .then((res) => {
-                console.log(res);
-                let url = window.URL.createObjectURL(new Blob([res.data]));
-                let link= document.createElement('a');
-                link.style.display='none';
-                link.href=url;
-                link.setAttribute('download', "datas.zip");
-                document.body.appendChild(link);
-                link.click();
-            }).catch((error) => {
+            .then((res) => res.blob())
+            .then((blob)=>{
+                let a = document.createElement("a");
+                const url = window.URL || window.webkitURL
+                a.href = url.createObjectURL(blob)
+                a.download = "datas.zip";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            })
+            .catch((error) => {
                 let alertMessage = "";
                 if (error.response) {
                     alertMessage = error.response.data;
