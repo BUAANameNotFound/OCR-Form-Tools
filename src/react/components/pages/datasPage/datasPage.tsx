@@ -317,7 +317,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
 
         const endpointURL = url.resolve(
             this.state.backendBaseURL,
-            `/api/GenFile?genNum=${this.state.dataQuantity}`,
+            `/api/Generate?genNum=${this.state.dataQuantity}`,
         );
         console.log(endpointURL);
         const requestOptions = {
@@ -375,7 +375,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
 
         const endpointURL = url.resolve(
             this.state.backendBaseURL,
-            `/api/DownLoadFile`,
+            `/api/DownLoad`,
         );
 
         const requestOptions = {
