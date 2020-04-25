@@ -20,7 +20,6 @@ import Icon from "ol/style/Icon";
 import Point from "ol/geom/Point";
 import Stroke from "ol/style/Stroke";
 import Fill from "ol/style/Fill";
-import { OCRService, OcrStatus } from "../../../../services/ocrService";
 import { Feature } from "ol";
 import { Extent } from "ol/extent";
 import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
@@ -48,7 +47,6 @@ export interface ICanvasProps extends React.Props<Canvas> {
     onAssetMetadataChanged?: (assetMetadata: IAssetMetadata) => void;
     onSelectedRegionsChanged?: (regions: IRegion[]) => void;
     onCanvasRendered?: (canvas: HTMLCanvasElement) => void;
-    onRunningOCRStatusChanged?: (isRunning: boolean) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
 }
 
@@ -59,14 +57,11 @@ export interface ICanvasState {
     imageHeight: number;
     numPages: number;
     currentPage: number;
-    ocr: any;
-    ocrForCurrentPage: any;
     pdfFile: any;
     tiffImages: any[];
     isError: boolean;
     errorTitle?: string;
     errorMessage: string;
-    ocrStatus: OcrStatus;
     layers: any;
     tableIconTooltip: any;
     hoveringFeature: string;
@@ -111,21 +106,16 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         imageHeight: 768,
         numPages: 1,
         currentPage: 1,
-        ocr: null,
-        ocrForCurrentPage: {},
         pdfFile: null,
         tiffImages: [],
         isError: false,
         errorMessage: undefined,
-        ocrStatus: OcrStatus.done,
         layers: {text: true, tables: true, checkboxes: true, label: true},
         tableIconTooltip: { display: "none", width: 0, height: 0, top: 0, left: 0},
         hoveringFeature: null,
     };
 
     private imageMap: ImageMap;
-
-    private ocrService: OCRService;
 
     private selectedRegionIds: string[] = [];
 
@@ -140,7 +130,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private pendingFlag: boolean = false;
 
     public componentDidMount = async () => {
-        this.ocrService = new OCRService(this.props.project);
         const asset = this.state.currentAsset.asset;
         await this.loadImage();
         this.loadLabelData(asset);
@@ -154,8 +143,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.imageMap.removeAllFeatures();
             this.setState({
                 currentAsset: this.props.selectedAsset,
-                ocr: null,
-                ocrForCurrentPage: {},
                 numPages: 1,
                 currentPage: 1,
                 pdfFile: null,
@@ -333,7 +320,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             id: region.id,
             text: region.value,
             highlighted: false,
-            isOcrProposal,
         });
         feature.setId(region.id);
 
@@ -464,19 +450,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const polygonPoints: number[] = [];
         const imageWidth = imageExtent[2] - imageExtent[0];
         const imageHeight = imageExtent[3] - imageExtent[1];
-        const ocrWidth = ocrExtent[2] - ocrExtent[0];
-        const ocrHeight = ocrExtent[3] - ocrExtent[1];
-
-        for (let i = 0; i < boundingBox.length; i += 2) {
-            // An array of numbers representing an extent: [minx, miny, maxx, maxy]
-            coordinates.push([
-                Math.round((boundingBox[i] / ocrWidth) * imageWidth),
-                Math.round((1 - (boundingBox[i + 1] / ocrHeight)) * imageHeight),
-            ]);
-
-            polygonPoints.push(boundingBox[i] / ocrWidth);
-            polygonPoints.push(boundingBox[i + 1] / ocrHeight);
-        }
 
         const featureId = this.createRegionIdFromBoundingBox(polygonPoints, page);
         const feature = new Feature({
@@ -487,7 +460,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             text,
             boundingbox: boundingBox,
             highlighted: false,
-            isOcrProposal: true,
         });
         feature.setId(featureId);
 
@@ -853,14 +825,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
     }
 
-    private setOCRStatus = (ocrStatus: OcrStatus) => {
-        this.setState({ ocrStatus }, () => {
-            if (this.props.onRunningOCRStatusChanged) {
-                this.props.onRunningOCRStatusChanged(ocrStatus === OcrStatus.runningOCR);
-            }
-        });
-    }
-
     private loadTiffFile = async (asset: IAsset) => {
         const assetArrayBuffer = await HtmlFileReader.getAssetArray(asset);
         const tiffImages = parseTiffData(assetArrayBuffer);
@@ -953,14 +917,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         // switch image
         await this.switchToTargetPage(targetPage);
 
-        // switch OCR
-        this.setState({
-            ocrForCurrentPage: this.getOcrResultForCurrentPage(this.state.ocr),
-        }, () => {
-            this.imageMap.removeAllFeatures();
-            this.drawOcr();
-            this.loadLabelData(this.state.currentAsset.asset);
-        });
     }
 
     private convertLabelDataToRegions = (labelData: ILabelData): IRegion[] => {
@@ -1175,23 +1131,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         this.lastKeyBoardRegionId = nextRegionId;
     }
 
-    private getOcrResultForCurrentPage = (ocr: any): any => {
-        if (!ocr || !this.state.imageUri) {
-            return {};
-        }
-
-        if (ocr.analyzeResult && ocr.analyzeResult.readResults) {
-            // OCR schema with analyzeResult/readResults property
-            const ocrResultsForCurrentPage = {};
-            if (ocr.analyzeResult.pageResults) {
-                ocrResultsForCurrentPage["pageResults"] = ocr.analyzeResult.pageResults[this.state.currentPage - 1];
-            }
-            ocrResultsForCurrentPage["readResults"] = ocr.analyzeResult.readResults[this.state.currentPage - 1];
-            return ocrResultsForCurrentPage;
-        }
-
-        return {};
-    }
 
     private isLabelDataChanged = (newProps: ICanvasProps, prevProps: ICanvasProps): boolean => {
         const newLabels = _.get(newProps, "selectedAsset.labelData.labels", []) as ILabel[];
@@ -1314,43 +1253,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
     }
 
-    private buildRegionOrders = () => {
-        // Build order index here instead of building it during 'drawOcr' for two reasons.
-        // 1. Build order index for all pages at once. This allow us to support cross page
-        //    tagging if it's supported by FR service.
-        // 2. Avoid rebuilding order index when users switch back and forth between pages.
-        const ocrs = this.state.ocr;
-        const ocrReadResults = (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.readResults));
-        const ocrPageResults =  (ocrs.recognitionResults || (ocrs.analyzeResult && ocrs.analyzeResult.pageResults));
-        const imageExtent = this.imageMap.getImageExtent();
-        ocrReadResults.map((ocr) => {
-            const ocrExtent = [0, 0, ocr.width, ocr.height];
-            const pageIndex = ocr.page - 1;
-            this.regionOrders[pageIndex] = {};
-            this.regionOrderById[pageIndex] = [];
-            let order = 0;
-            if (ocr.lines) {
-                ocr.lines.forEach((line) => {
-                    if (line.words) {
-                        line.words.forEach((word) => {
-                            if (this.shouldDisplayOcrWord(word.text)) {
-                                const feature = this.createBoundingBoxVectorFeature(
-                                    word.text, word.boundingBox, imageExtent, ocrExtent, ocr.page);
-                                this.regionOrders[pageIndex][feature.getId()] = order++;
-                                this.regionOrderById[pageIndex].push(feature.getId());
-                            }
-                        });
-                    }
-                });
-            }
-            const checkboxes = ocrPageResults && ocrPageResults[pageIndex] && ocrPageResults[pageIndex].checkboxes;
-            if (checkboxes) {
-                this.addCheckboxToRegionOrder(checkboxes, pageIndex, order, imageExtent, ocrExtent);
-            }
-            return ocr;
-        });
-    }
-
     private addCheckboxToRegionOrder = (
         checkboxes: any[],
         pageIndex: number,
@@ -1363,70 +1265,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.regionOrders[pageIndex][checkboxFeature.getId()] = order++;
             this.regionOrderById[pageIndex].push(checkboxFeature.getId());
         });
-    }
-
-    private drawOcr = () => {
-        const textFeatures = [];
-        const tableBorderFeatures = [];
-        const tableIconFeatures = [];
-        const tableIconBorderFeatures = [];
-        const checkboxFeatures = [];
-        const ocrReadResults = this.state.ocrForCurrentPage["readResults"];
-        const ocrPageResults = this.state.ocrForCurrentPage["pageResults"];
-        const imageExtent = this.imageMap.getImageExtent();
-        const ocrExtent = [0, 0, ocrReadResults.width, ocrReadResults.height];
-        if (ocrReadResults.lines) {
-            ocrReadResults.lines.forEach((line) => {
-                if (line.words) {
-                    line.words.forEach((word) => {
-                        if (this.shouldDisplayOcrWord(word.text)) {
-                            textFeatures.push(this.createBoundingBoxVectorFeature(
-                                word.text, word.boundingBox, imageExtent, ocrExtent, ocrReadResults.page));
-                        }
-                    });
-                }
-            });
-        }
-        if (ocrPageResults && ocrPageResults.tables) {
-            ocrPageResults.tables.forEach((table) => {
-                if (table.cells && table.columns && table.rows) {
-                    const tableBoundingBox = this.getTableBoundingBox(table.cells.map((cell) => cell.boundingBox));
-                    const createdTableFeatures = this.createBoundingBoxVectorTable(
-                        tableBoundingBox,
-                        imageExtent,
-                        ocrExtent,
-                        ocrPageResults.page, table.rows, table.columns);
-                    tableBorderFeatures.push(createdTableFeatures["border"]);
-                    tableIconFeatures.push(createdTableFeatures["icon"]);
-                    tableIconBorderFeatures.push(createdTableFeatures["iconBorder"]);
-                }
-            });
-        }
-
-        if (ocrPageResults && ocrPageResults.checkboxes) {
-            ocrPageResults.checkboxes.forEach((checkbox) => {
-                checkboxFeatures.push(this.createBoundingBoxVectorFeature(
-                    checkbox.state, checkbox.boundingBox, imageExtent, ocrExtent, ocrPageResults.page));
-            });
-        }
-
-        if (tableBorderFeatures.length > 0 && tableBorderFeatures.length === tableIconFeatures.length
-            && tableBorderFeatures.length === tableIconBorderFeatures.length) {
-            this.imageMap.addTableBorderFeatures(tableBorderFeatures);
-            this.imageMap.addTableIconFeatures(tableIconFeatures);
-            this.imageMap.addTableIconBorderFeatures(tableIconBorderFeatures);
-        }
-        if (textFeatures.length > 0) {
-            this.imageMap.addFeatures(textFeatures);
-        }
-        if (checkboxFeatures.length > 0) {
-            this.imageMap.addCheckboxFeatures(checkboxFeatures);
-        }
-    }
-
-    private shouldDisplayOcrWord = (text: string) => {
-        const regex = new RegExp(/^[_]+$/);
-        return !text.match(regex);
     }
 
     private redrawFeatures = (features: Feature[]) => {
