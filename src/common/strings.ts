@@ -313,6 +313,11 @@ export interface IAppStrings {
     profile: {
         settings: string;
     };
+    datas: {
+        title: string,
+        inputNumber: string,
+        inProgress: string,
+    };
     errors: {
         unknown: IErrorMetadata,
         projectInvalidJson: IErrorMetadata,
