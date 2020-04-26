@@ -745,7 +745,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(this.state.selectedAsset.labelData, null, 4),
         };
-        fetch('https://lyniupi.azurewebsites.net/api/HttpTryLy1', requestOptions)
+        fetch('https://lyniupi.azurewebsites.net/api/UpLoadJson', requestOptions)
             .then(response => console.log(response))
         // console.log(data);
     }
