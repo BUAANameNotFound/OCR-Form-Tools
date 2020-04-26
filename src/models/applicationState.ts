@@ -386,9 +386,11 @@ export enum FieldFormat {
     MDY = "mdy",
     YMD = "ymd",
 
-    Name = "name",
-    Number = "number",
-    Address = "address",
+    Name = "NAME",
+    Number = "NUMBER",
+    Address = "ADDRESS",
+    Date = "DATE",
+    CurrencyG = "CURRENCY",
 }
 
 export enum FeatureCategory {

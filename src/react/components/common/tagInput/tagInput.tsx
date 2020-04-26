@@ -109,6 +109,9 @@ function filterFormat(type: FieldType): FieldFormat[] {
               FieldFormat.Name,
               FieldFormat.Number,
               FieldFormat.Address,
+              FieldFormat.CurrencyG,
+              FieldFormat.Date,
+                
             ];
         default:
             return [ FieldFormat.NotSpecified ];
