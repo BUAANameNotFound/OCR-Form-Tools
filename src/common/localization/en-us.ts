@@ -318,6 +318,11 @@ export const english: IAppStrings = {
     profile: {
         settings: "Profile Settings",
     },
+    datas: {
+        title: "Datas",
+        inputNumber: "Input Data Quantity",
+        inProgress: "generating datas in progress...",
+    },
     errors: {
         unknown: {
             title: "Unknown Error",

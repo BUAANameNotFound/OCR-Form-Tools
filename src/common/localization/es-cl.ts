@@ -321,6 +321,11 @@ export const spanish: IAppStrings = {
     profile: {
         settings: "Configuración de Perfíl",
     },
+    datas: {
+        title: "Datas",
+        inputNumber: "Generate datas",
+        inProgress: "generating datas in progress...",
+    },
     errors: {
         unknown: {
             title: "Error desconocido",
