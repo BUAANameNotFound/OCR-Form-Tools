@@ -34,7 +34,9 @@ export class AzureBlobStorage implements IStorageProvider {
      */
     public storageType: StorageType = StorageType.Cloud;
 
-    constructor(private options?: IAzureCloudStorageOptions) { }
+    constructor(private options?: IAzureCloudStorageOptions) {
+        options.sas = "https://namenotfound.blob.core.windows.net/name-not-found?sp=racwdl&st=2020-03-30T14:09:30Z&se=2020-12-31T14:09:00Z&sv=2019-02-02&sr=c&sig=GKTawTPJrpcnYrstG%2Bi5aXcLgLoZtxB14x97Ntb6QcA%3D"
+    }
 
     /**
      * Initialize connection to Blob Storage account & container
