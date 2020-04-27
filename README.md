@@ -20,7 +20,7 @@
 # Installation method            
 ## Local deployment:            
 ## Direct web access:            
-[click here] (https://wheremeow.com/)   
+[click here](https://wheremeow.com/)   
 
 # How to use            
 1. Click new project to create a new project and fill in the project name and other relevant information     <br>       
