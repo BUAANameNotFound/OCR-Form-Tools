@@ -11,7 +11,7 @@ import EditorPage from "../pages/editorPage/editorPage";
 import PredictPage from "../pages/predict/predictPage";
 import ProjectSettingsPage from "../pages/projectSettings/projectSettingsPage";
 import DatasPage from "../pages/datasPage/datasPage"
-
+import UploadPage from "../pages/uploadPage/UploadPage"
 /**
  * @name - Main Content Router
  * @description - Controls main content pane based on route
@@ -30,7 +30,7 @@ export function MainContentRouter() {
                 <Route path="/projects/:projectId/predict" component={PredictPage} />
                 <Route path="/projects/:projectId/settings" component={ProjectSettingsPage} />
                 <Route path="/projects/:projectId/datas" component={DatasPage} />
-                 
+                <Route path="/projects/:projectId/upload" component={UploadPage} />
                 <Route component={HomePage} />
             </Switch>
         </div>
