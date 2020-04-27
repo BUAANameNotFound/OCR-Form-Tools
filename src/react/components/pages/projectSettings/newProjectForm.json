@@ -16,11 +16,6 @@
             "description": "${strings.projectSettings.sourceConnection.description}",
             "type": "object"
         },
-        "folderPath": {
-            "title": "Folder path",
-            "description": "Subfolder path to your files",
-            "type": "string"
-        },
         "description": {
             "title": "${strings.common.description}",
             "type": "string"

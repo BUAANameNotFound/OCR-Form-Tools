@@ -20,6 +20,7 @@ import IApplicationActions, * as applicationActions from "../../../../redux/acti
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
+import { AssetService } from "../../../../services/assetService";
 import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
 import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
 import { TagInput } from "../../common/tagInput/tagInput";
@@ -37,6 +38,7 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
 import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
+import {StorageProviderFactory} from "../../../../providers/storage/storageProviderFactory";
 
 /**
  * Properties for Editor Page
@@ -270,6 +272,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                 onLabelLeave={this.onLabelLeave}
                                 onTagChanged={this.onTagChanged}
                                 onGeneration={this.onGeneration}
+                                onUpLoadFile={this.onUpLoadFile}
                                 ref = {this.tagInputRef}
                             />
                         </div>
@@ -713,6 +716,21 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
     }
 
+
+
+    private onUpLoadFile = async() => {
+        console.log(this.props.project.sourceConnection);
+        console.log(this.props.project);
+        console.log(this.props.actions);
+        const storageProvider = StorageProviderFactory.createFromConnection(this.props.project.sourceConnection);
+
+
+
+        // const filePath = joinPath("/", this.props.project.folderPath, fileName);
+        // await storageProvider.writeBinary(filePath, data);
+
+    }
+
     private onGeneration = async () => {
         const fields =
             this.props.project.tags.map((tag) => ({
@@ -745,7 +763,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(this.state.selectedAsset.labelData, null, 4),
         };
-        fetch('https://lyniupi.azurewebsites.net/api/UpLoadJson', requestOptions)
+        fetch(`https://lyniupi.azurewebsites.net/api/UpLoadJson&path=${this.props.project.folderPath}`, requestOptions)
             .then(response => console.log(response))
         // console.log(data);
     }

@@ -195,7 +195,8 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
         const project: IProject = {
             ...args.formData,
             sourceConnection: args.formData.sourceConnection,
-            folderPath: this.normalizeFolderPath(args.formData.folderPath),
+            // folderPath: this.normalizeFolderPath(args.formData.folderPath),
+            folderPath: this.normalizeFolderPath(args.formData.name),
         };
         project.name = project.name.replace(/\s+/g, " ").trim();
         this.props.onSubmit(project);

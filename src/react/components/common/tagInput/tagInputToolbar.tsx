@@ -10,6 +10,7 @@ enum Categories {
     General,
     Separator,
     Modifier,
+    File,
 }
 
 /** Properties for tag input toolbar */
@@ -30,6 +31,8 @@ export interface ITagInputToolbarProps {
     onReorder: (tag: ITag, displacement: number) => void;
 
     onGeneration: any;
+
+    onUpLoadFile: any;
 }
 
 interface ITagInputToolbarItemProps {
@@ -51,6 +54,13 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
 
     private getToolbarItems = (): ITagInputToolbarItemProps[] => {
         return [
+            // {
+            //     // TODO: remove hard code
+            //     displayName: "UploadFile",
+            //     icon: "Link",
+            //     category: Categories.File,
+            //     handler: this.upLoadFile,
+            // },
             {
                 displayName: strings.tags.toolbar.add,
                 icon: "Add",
@@ -66,7 +76,7 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
             {
                 // TODO: remove hard code
                 displayName: "Generation",
-                icon: "Add",
+                icon: "Cloud",
                 category: Categories.General,
                 handler: this.handleGeneration,
             },
@@ -136,6 +146,17 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
                             iconProps={{iconName: itemConfig.icon}}
                             onClick={(e) => this.onToolbarItemClick(e, itemConfig)} />
                     );
+                } else if (itemConfig.category === Categories.File) {
+                    return (
+                        <IconButton
+                        key={itemConfig.displayName}
+                        title={itemConfig.displayName}
+                        ariaLabel={itemConfig.displayName}
+                        className="tag-input-toolbar-iconbutton"
+                        iconProps={{iconName: itemConfig.icon}}
+                        autoFocus={!index}
+                        onClick={(e) => this.onToolbarItemClick(e, itemConfig)} />
+                    );
                 } else {
                     throw new Error(`Unsupported item category ${itemConfig.category}`);
                 }
@@ -158,6 +179,10 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
 
     private handleGeneration = () => {
         this.props.onGeneration();
+    }
+
+    private upLoadFile = () => {
+        this.props.onUpLoadFile();
     }
 
     private handleRename = () => {

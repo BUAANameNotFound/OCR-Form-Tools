@@ -73,6 +73,8 @@ export interface ITagInputProps {
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
 
     onGeneration: any;
+
+    onUpLoadFile: any;
 }
 
 export interface ITagInputState {
@@ -111,7 +113,7 @@ function filterFormat(type: FieldType): FieldFormat[] {
               FieldFormat.Address,
               FieldFormat.CurrencyG,
               FieldFormat.Date,
-                
+
             ];
         default:
             return [ FieldFormat.NotSpecified ];
@@ -184,6 +186,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                         onDelete={this.onDeleteTag}
                         onReorder={this.onReOrder}
                         onGeneration={this.props.onGeneration}
+                        onUpLoadFile={this.props.onUpLoadFile}
                     />
                 </div>
                 <div className="tag-input-body-container">
