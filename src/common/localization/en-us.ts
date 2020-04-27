@@ -319,9 +319,9 @@ export const english: IAppStrings = {
         settings: "Profile Settings",
     },
     datas: {
-        title: "Datas",
+        title: "Data",
         inputNumber: "Input Data Quantity",
-        inProgress: "generating datas in progress...",
+        inProgress: "generating data in progress...",
     },
     errors: {
         unknown: {
