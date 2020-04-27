@@ -317,7 +317,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
 
         const endpointURL = url.resolve(
             this.state.backendBaseURL,
-            `/api/Generate?genNum=${this.state.dataQuantity}`,
+            `/api/Generate?genNum=${this.state.dataQuantity}&path=${this.props.project.folderPath}`,
         );
         console.log(endpointURL);
         const requestOptions = {
@@ -375,7 +375,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
 
         const endpointURL = url.resolve(
             this.state.backendBaseURL,
-            `/api/DownLoad`,
+            `/api/DownLoad?path=${this.props.project.folderPath}`,
         );
 
         const requestOptions = {
@@ -622,9 +622,9 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
     }
 
     private isInteger = (quantity : string) => {
-        let reg = /^[+]?0*[1-9][0-9]*$/;
+        let reg = /^[+]?0*(([1-4][0-9])|([1-9]))$/;
         if(reg.test(quantity)){
-            return true;//手机号码正确
+            return true;
         }
         return false;
     }
