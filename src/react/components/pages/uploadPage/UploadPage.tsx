@@ -9,7 +9,7 @@ import { FontIcon, PrimaryButton, Spinner, SpinnerSize, IconButton} from "office
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
-import "./predictPage.scss";
+import "./uploadPage.scss";
 import {
     IApplicationState, IConnection, IProject, IAppSettings, AppError, ErrorCode,
 } from "../../../../models/applicationState";
@@ -17,7 +17,6 @@ import { ImageMap } from "../../common/imageMap/imageMap";
 import Style from "ol/style/Style";
 import Stroke from "ol/style/Stroke";
 import Fill from "ol/style/Fill";
-import PredictResult from "./predictResult";
 import _ from "lodash";
 import pdfjsLib from "pdfjs-dist";
 import Alert from "../../common/alert/alert";
@@ -47,9 +46,8 @@ export interface IUploadPageProps extends RouteComponentProps, React.Props<Uploa
 }
 
 export interface IUploadPageState {
-    analyzeResult: {};
     fileLabel: string;
-    predictionLoaded: boolean;
+    projectLoaded: boolean;
     currPage: number;
     imageUri: string;
     imageWidth: number;
@@ -58,8 +56,8 @@ export interface IUploadPageState {
     alertTitle: string;
     alertMessage: string;
     fileChanged: boolean;
-    predictRun: boolean;
-    isPredicting: boolean;
+    uploadRun: boolean;
+    isUploading: boolean;
     file?: File;
     highlightedField: string;
     backendBaseURL: string;
@@ -86,9 +84,8 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class UploadPage extends React.Component<IUploadPageProps, IUploadPageState> {
     public state: IUploadPageState = {
-        analyzeResult: {},
         fileLabel: "Browse for a file...",
-        predictionLoaded: true,
+        projectLoaded: true,
         currPage: undefined,
         imageUri: null,
         imageWidth: 0,
@@ -97,11 +94,11 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
         alertTitle: "",
         alertMessage: "",
         fileChanged: false,
-        predictRun: false,
-        isPredicting: false,
+        uploadRun: false,
+        isUploading: false,
         highlightedField: "",
         backendBaseURL: "https://lyniupi.azurewebsites.net/",
-        uploadSucceeded: false,       
+        uploadSucceeded: false,
     };
 
     private fileInput: React.RefObject<HTMLInputElement> = React.createRef();
@@ -132,52 +129,28 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
                 } else if (this.tiffImages.length !== 0) {
                     this.loadTiffPage(this.tiffImages, this.state.currPage);
                 }
-            } else if (this.getOcrFromAnalyzeResult(this.state.analyzeResult).length > 0 &&
-                prevState.imageUri !== this.state.imageUri) {
-                this.imageMap.removeAllFeatures();
-                this.drawPredictionResult();
-            }
-
-            if (prevState.highlightedField !== this.state.highlightedField) {
-                this.setPredictedFieldHighlightStatus(this.state.highlightedField);
             }
         }
     }
 
     public render() {
-        const browseFileDisabled: boolean = !this.state.predictionLoaded;
-        const predictDisabled: boolean = !this.state.predictionLoaded || !this.state.file;
-        const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
+        const browseFileDisabled: boolean = !this.state.projectLoaded;
+        const uploadDisabled: boolean = !this.state.projectLoaded || !this.state.file;
 
         return (
-            <div className="predict" id="pagePredict">
-                <div className="predict-main">
+            <div className="upload" id="pageUpload">
+                <div className="upload-main">
                     {this.state.file && this.state.imageUri && this.renderImageMap()}
                     {this.renderPrevPageButton()}
                     {this.renderNextPageButton()}
                 </div>
-                <div className="predict-sidebar bg-lighter-1">
+                <div className="upload-sidebar bg-lighter-1">
                     <div className="condensed-list">
                         <h6 className="condensed-list-header bg-darker-2 p-2 flex-center">
                             <FontIcon className="mr-1" iconName="Insights" />
                             <span className="condensed-list-title">Upload</span>
                         </h6>
                         <div className="p-3">
-                            {/* <h5>
-                                {strings.predict.downloadScript}
-                            </h5>
-                            <PrimaryButton
-                                theme={getPrimaryGreenTheme()}
-                                text="Download python script"
-                                allowDisabledFocus
-                                autoFocus={true}
-                                onClick={this.handleDownloadClick}
-                            />
-                            <div className="alight-vertical-center mt-2">
-                                <div className="seperator"/>
-                                or
-                                <div className="seperator"/>
-                            </div> */}
                             <h5>
                                 Upload template
                             </h5>
@@ -192,12 +165,12 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
                                     disabled={browseFileDisabled} />
                                 <input
                                     type="text"
-                                    id="inputPredictFile"
+                                    id="inputTempFile"
                                     style = {{cursor: (browseFileDisabled ? "default" : "pointer")}}
                                     onClick={this.handleDummyInputClick}
                                     readOnly={true}
                                     className="dummyInputFile"
-                                    aria-label={strings.predict.uploadFile}
+                                    aria-label="Upload file"
                                     value={this.state.fileLabel}/>
                                 <div className="rlMargin10">
                                     <PrimaryButton
@@ -212,13 +185,13 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
                                 <PrimaryButton
                                     theme={getPrimaryWhiteTheme()}
                                     text="Upload"
-                                    aria-label={!this.state.predictionLoaded ? strings.predict.inProgress : ""}
+                                    aria-label={!this.state.projectLoaded ? "inproessing" : ""}
                                     allowDisabledFocus
-                                    disabled={predictDisabled}
+                                    disabled={uploadDisabled}
                                     onClick={this.handleClick}
                                 />
                             </div>
-                            {!this.state.predictionLoaded &&
+                            {!this.state.projectLoaded &&
                                 <div className="loading-container">
                                     <Spinner
                                         label="Uploading"
@@ -244,14 +217,14 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
                         shouldShowAlert: false,
                         alertTitle: "",
                         alertMessage: "",
-                        predictionLoaded: true,
+                        projectLoaded: true,
                     })}
                 />
                 <PreventLeaving
-                    when={this.state.isPredicting}
+                    when={this.state.isUploading}
                     message={"A Upload operation is currently in progress, are you sure you want to leave?"}
                 />
-                <SkipButton skipTo="pagePredict">{strings.common.skipToMainContent}</SkipButton>
+                <SkipButton skipTo="pageUpload">{strings.common.skipToMainContent}</SkipButton>
             </div>
         );
     }
@@ -331,10 +304,9 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
                 this.setState({
                     fileLabel: fileName,
                     currPage: 1,
-                    analyzeResult: {},
                     fileChanged: true,
                     file: this.fileInput.current.files[0],
-                    predictRun: false,
+                    uploadRun: false,
                     uploadSucceeded: false,
                 }, () => {
                     if (this.imageMap) {
@@ -346,7 +318,7 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
     }
 
     private handleClick = () => {
-        this.setState({ predictionLoaded: false, isPredicting: true, uploadSucceeded: false });
+        this.setState({ projectLoaded: false, isUploading: true, uploadSucceeded: false });
         const endpointURL = url.resolve(
             this.state.backendBaseURL,
             `/api/UpLoadPdf?path=${this.props.project.folderPath}`,
@@ -364,22 +336,15 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
                 .then((result) => {
                     console.log(result);
                     this.setState({
-                        analyzeResult: result,
-                        predictionLoaded: true,
-                        predictRun: true,
-                        isPredicting: false,
+                        projectLoaded: true,
+                        uploadRun: true,
+                        isUploading: false,
                         uploadSucceeded: true,
-                    }, () => {
-                        
                     });
             }).catch((error) => {
                 let alertMessage = "";
                 if (error.response) {
                     alertMessage = error.response.data;
-                } else if (error.errorCode === ErrorCode.PredictWithoutTrainForbidden) {
-                    alertMessage = strings.errors.predictWithoutTrainForbidden.message;
-                } else if (error.errorCode === ErrorCode.ModelNotFound) {
-                    alertMessage = error.message;
                 } else {
                     alertMessage = interpolate(strings.errors.endpointConnectionError.message, { endpoint: "form recognizer backend URL" });
                 }
@@ -387,7 +352,7 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
                     shouldShowAlert: true,
                     alertTitle: "Upload Failed",
                     alertMessage,
-                    isPredicting: false,
+                    isUploading: false,
                     uploadSucceeded: false,
                 });
             });
@@ -518,36 +483,6 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
         });
     }
 
-    private createBoundingBoxVectorFeature = (text, boundingBox, imageExtent, ocrExtent) => {
-        const coordinates: number[][] = [];
-
-        // extent is int[4] to represent image dimentions: [left, bottom, right, top]
-        const imageWidth = imageExtent[2] - imageExtent[0];
-        const imageHeight = imageExtent[3] - imageExtent[1];
-        const ocrWidth = ocrExtent[2] - ocrExtent[0];
-        const ocrHeight = ocrExtent[3] - ocrExtent[1];
-
-        for (let i = 0; i < boundingBox.length; i += 2) {
-            coordinates.push([
-                Math.round((boundingBox[i] / ocrWidth) * imageWidth),
-                Math.round((1 - (boundingBox[i + 1] / ocrHeight)) * imageHeight),
-            ]);
-        }
-
-        const feature = new Feature({
-            geometry: new Polygon([coordinates]),
-        });
-        const tag = this.props.project.tags.find((tag) => tag.name.toLocaleLowerCase() === text.toLocaleLowerCase());
-        const isHighlighted = (text.toLocaleLowerCase() === this.state.highlightedField.toLocaleLowerCase());
-        feature.setProperties({
-            color: _.get(tag, "color", "#333333"),
-            fieldName: text,
-            isHighlighted,
-        });
-
-        return feature;
-    }
-
     private featureStyler = (feature) => {
         return new Style({
             stroke: new Stroke({
@@ -560,24 +495,6 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
         });
     }
 
-    private drawPredictionResult = (): void => {
-        const features = [];
-        const imageExtent = [0, 0, this.state.imageWidth, this.state.imageHeight];
-        const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[this.state.currPage - 1];
-        const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
-        const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
-
-        for (const fieldName of Object.keys(predictions)) {
-            const field = predictions[fieldName];
-            if (_.get(field, "page", null) === this.state.currPage) {
-                const text = fieldName;
-                const boundingbox = _.get(field, "boundingBox", []);
-                const feature = this.createBoundingBoxVectorFeature(text, boundingbox, imageExtent, ocrExtent);
-                features.push(feature);
-            }
-        }
-        this.imageMap.addFeatures(features);
-    }
 
     /**
      * Poll function to repeatly check if request succeeded
@@ -612,14 +529,6 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
         return new Promise(checkSucceeded);
     }
 
-    private getPredictionsFromAnalyzeResult(analyzeResult: any) {
-        return _.get(analyzeResult, "analyzeResult.documentResults[0].fields", {});
-    }
-
-    private getOcrFromAnalyzeResult(analyzeResult: any) {
-        return _.get(analyzeResult, "analyzeResult.readResults", []);
-    }
-
     private createObjectURL = (object: File) => {
         // generate a URL for the object
         return (window.URL) ? window.URL.createObjectURL(object) : "";
@@ -627,38 +536,5 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
 
     private noOp = () => {
         // no operation
-    }
-
-    private onPredictionClick = (predictedItem: any) => {
-        const targetPage = predictedItem.page;
-        if (Number.isInteger(targetPage) && targetPage !== this.state.currPage) {
-            this.setState({
-                currPage: targetPage,
-                highlightedField: predictedItem.fieldName,
-            });
-        }
-    }
-
-    private onPredictionMouseEnter = (predictedItem: any) => {
-        this.setState({
-            highlightedField: predictedItem.fieldName,
-        });
-    }
-
-    private onPredictionMouseLeave = (predictedItem: any) => {
-        this.setState({
-            highlightedField: "",
-        });
-    }
-
-    private setPredictedFieldHighlightStatus = (highlightedField: string) => {
-        const features = this.imageMap.getAllFeatures();
-        for (const feature of features) {
-            if (feature.get("fieldName").toLocaleLowerCase() === highlightedField.toLocaleLowerCase()) {
-                feature.set("isHighlighted", true);
-            } else {
-                feature.set("isHighlighted", false);
-            }
-        }
     }
 }

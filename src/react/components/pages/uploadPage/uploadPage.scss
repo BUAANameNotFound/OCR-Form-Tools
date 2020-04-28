@@ -4,14 +4,14 @@
   margin: 5px 0 5px 0;
 }
 
-.predict {
+.upload {
   display: flex;
   flex-grow: 1;
   flex-direction: row;
   height: 10px; // Not sure why it helps
 }
 
-.predict-main {
+.upload-main {
   position: relative;
   display: flex;
   flex-grow: 1;
@@ -22,7 +22,7 @@
   }
 }
 
-.predict-sidebar {
+.upload-sidebar {
   height: 100%;
   display: flex;
   width: 400px;
