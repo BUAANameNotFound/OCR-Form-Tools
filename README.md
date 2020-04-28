@@ -5,7 +5,7 @@
 ## 本地部署：
 需要下载 NodeJS (>= 10.x, Dubnium) 和 NPM
 ```
- git clone https://github.com/Microsoft/OCR-Form-Tools.git
+ git clone https://github.com/BUAANameNotFound/OCR-Form-Tools.git
  cd OCR-Form-Tools
  npm install
  npm run build
@@ -29,7 +29,7 @@
 ## Local deployment:    
 Form Labeling Tool requires NodeJS (>= 10.x, Dubnium) and NPM
 ```
- git clone https://github.com/Microsoft/OCR-Form-Tools.git
+ git clone https://github.com/BUAANameNotFound/OCR-Form-Tools.git
  cd OCR-Form-Tools
  npm install
  npm run build
