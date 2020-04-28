@@ -334,6 +334,8 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                         isGenerating: false,
                         dataGenerateLoaded: true,
                         lastDataQuantity : lastQuantity,
+                    }, () => {
+                        this.loadProjectAssets();
                     });
                 }).catch((error) => {
                     let alertMessage = "";
