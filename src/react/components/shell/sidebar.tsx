@@ -60,13 +60,13 @@ export function Sidebar({ project }) {
                         <FontIcon iconName="Insights" />
                     </ConditionalNavLink>
                 </li>
-                <li>
-                    <ConditionalNavLink disabled={!projectId}
-                        title={strings.projectSettings.title}
-                        to={`/projects/${projectId}/settings`}>
-                        <FontIcon iconName="DocumentManagement" />
-                    </ConditionalNavLink>
-                </li>
+                {/*<li>*/}
+                {/*    <ConditionalNavLink disabled={!projectId}*/}
+                {/*        title={strings.projectSettings.title}*/}
+                {/*        to={`/projects/${projectId}/settings`}>*/}
+                {/*        <FontIcon iconName="DocumentManagement" />*/}
+                {/*    </ConditionalNavLink>*/}
+                {/*</li>*/}
                 {/*<li>*/}
                 {/*    <NavLink title={strings.connections.title} to={`/connections`} role="button">*/}
                 {/*        <FontIcon iconName="Plug" />*/}
