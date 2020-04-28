@@ -14,7 +14,7 @@ import {
     AssetState, AssetType, EditorMode, IApplicationState,
     IAppSettings, IAsset, IAssetMetadata, IProject, IRegion,
     ISize, ITag,
-    ILabel, FieldType, FieldFormat, IField,
+    ILabel, FieldType, FieldFormat, IField, AppError, ErrorCode,
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
@@ -764,7 +764,14 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             body: JSON.stringify(this.state.selectedAsset.labelData, null, 4),
         };
         fetch(`https://lyniupi.azurewebsites.net/api/UpLoadJson?path=${this.props.project.folderPath}`, requestOptions)
-            .then(response => console.log(response))
+            .then(response => {
+                console.log(response);
+                if (response.ok) {
+                    alert("Upload success.");
+                } else {
+                    alert("Upload failed.");
+                }
+            })
         // console.log(data);
     }
 }
