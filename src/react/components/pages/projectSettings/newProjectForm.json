@@ -11,18 +11,12 @@
             "description": "${strings.projectSettings.securityToken.description}",
             "type": "string"
         },
-        "sourceConnection": {
-            "title": "${strings.projectSettings.sourceConnection.title}",
-            "description": "${strings.projectSettings.sourceConnection.description}",
-            "type": "object"
-        },
         "description": {
             "title": "${strings.common.description}",
             "type": "string"
         }
     },
     "required": [
-        "name",
-        "sourceConnection"
+        "name"
     ]
 }

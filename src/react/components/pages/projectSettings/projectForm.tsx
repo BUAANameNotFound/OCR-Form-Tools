@@ -16,6 +16,7 @@ import { ProjectSettingAction } from "./projectSettingAction";
 import { ProtectedInput } from "../../common/protectedInput/protectedInput";
 import { PrimaryButton } from "office-ui-fabric-react";
 import { getPrimaryGreenTheme, getPrimaryGreyTheme } from "../../../../common/themes";
+import MockFactory from "../../../../common/mockFactory";
 
 // tslint:disable-next-line:no-var-requires
 const newFormSchema = addLocValues(require("./newProjectForm.json"));
@@ -194,10 +195,20 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
     private onFormSubmit(args: ISubmitEvent<IProject>) {
         const project: IProject = {
             ...args.formData,
-            sourceConnection: args.formData.sourceConnection,
+            // sourceConnection: args.formData.sourceConnection,
+            sourceConnection: {
+                id: `r-i7X-bpb`,
+                name: `name-not-found`,
+                description: `Description for Connection`,
+                providerType: "azureBlobStorage",
+                providerOptions: {
+                    sas: "https://lyniupi.blob.core.windows.net/wudi?st=2020-04-27T13%3A44%3A48Z&se=2021-01-30T13%3A44%3A00Z&sp=racwdl&sv=2018-03-28&sr=c&sig=a05qev4hjg17uPbbFShbCidZ%2BjfGMEYDw2SKgaMJMQ8%3D"
+                },
+            },
             // folderPath: this.normalizeFolderPath(args.formData.folderPath),
             folderPath: this.normalizeFolderPath(args.formData.name),
         };
+
         project.name = project.name.replace(/\s+/g, " ").trim();
         this.props.onSubmit(project);
     }

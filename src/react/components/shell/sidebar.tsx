@@ -67,11 +67,11 @@ export function Sidebar({ project }) {
                         <FontIcon iconName="DocumentManagement" />
                     </ConditionalNavLink>
                 </li>
-                <li>
-                    <NavLink title={strings.connections.title} to={`/connections`} role="button">
-                        <FontIcon iconName="Plug" />
-                    </NavLink>
-                </li>
+                {/*<li>*/}
+                {/*    <NavLink title={strings.connections.title} to={`/connections`} role="button">*/}
+                {/*        <FontIcon iconName="Plug" />*/}
+                {/*    </NavLink>*/}
+                {/*</li>*/}
             </ul>
             <div className="app-sidebar-fill"></div>
             <ul>
