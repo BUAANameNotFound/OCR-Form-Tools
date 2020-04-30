@@ -824,7 +824,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const boundingBox = this.polygonPointsToBoundingBox(polygonPoints, ocrWidth, ocrHeight);
 
         let feature = this.createBoundingBoxVectorFeature(
-            "__GENERATION", boundingBox, imageExtent, ocrExtent, ocrReadResults.page);
+            "generated", boundingBox, imageExtent, ocrExtent, ocrReadResults.page);
         this.imageMap.addFeature(feature);
     }
 

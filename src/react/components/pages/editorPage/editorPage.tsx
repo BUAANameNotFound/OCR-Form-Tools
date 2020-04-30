@@ -32,7 +32,7 @@ import EditorSideBar from "./editorSideBar";
 import Alert from "../../common/alert/alert";
 import Confirm from "../../common/confirm/confirm";
 import { OCRService } from "../../../../services/ocrService";
-import {joinPath, throttle} from "../../../../common/utils";
+import {delay, joinPath, throttle} from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
@@ -705,16 +705,36 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private onTagChanged = async (oldTag: ITag, newTag: ITag) => {
+
+        const temp = this.props.project.tags;
+
+        this.props.project.tags =
+            JSON.parse(JSON.stringify(this.props.project.tags.map((t) => (t.name === oldTag.name) ? {...newTag} : t)));
+        this.setState({
+            selectedAsset: this.state.selectedAsset
+        });
+
+        await delay(300);
+
+        this.props.project.tags = temp;
+
+        console.log(newTag);
+        console.log(this.state);
+
+
+        // this.props.project.tags = this.props.project.tags.map((t) => (t.name === oldTag.name) ? { ...oldTag } : t);
+
         const assetUpdates = await this.props.actions.updateProjectTag(this.props.project, oldTag, newTag);
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
 
-        if (selectedAsset) {
-            if (selectedAsset) {
-                this.setState({
-                    selectedAsset,
-                });
-            }
-        }
+        // if (selectedAsset) {
+        //     if (selectedAsset) {
+        //         this.setState({
+        //             selectedAsset,
+        //         });
+        //     }
+        // }
+
     }
 
 
@@ -733,6 +753,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private onGeneration = async () => {
+        alert("Uploading...")
+
+        await delay(1000);
+
         const fields =
             this.props.project.tags.map((tag) => ({
                 fieldKey: tag.name,
@@ -743,6 +767,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // const fieldFilePath = joinPath("/", project.folderPath, constants.fieldsFileName);
         // await storageProvider.writeText(fieldFilePath, JSON.stringify(fieldInfo, null, 4));
         // "__GENERATION"
+        if (this.state.selectedAsset.labelData == null) {
+            console.log("no label data");
+            return;
+        }
+
         let labels = this.state.selectedAsset.labelData.labels;
 
         for (let label of labels) {

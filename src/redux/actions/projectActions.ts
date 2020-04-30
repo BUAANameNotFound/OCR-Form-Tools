@@ -83,7 +83,7 @@ export function saveProject(project: IProject)
         }
 
         const savedProject = await projectService.save(project, projectToken);
-        dispatch(saveProjectAction(savedProject));
+        // dispatch(saveProjectAction(savedProject));
 
         // Reload project after save actions
         await loadProject(savedProject)(dispatch, getState);
