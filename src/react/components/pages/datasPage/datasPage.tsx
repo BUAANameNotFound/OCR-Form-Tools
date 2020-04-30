@@ -330,12 +330,13 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                 .then((result) => {
                     //console.log(this.props.project.sourceConnection.providerOptions["sas"]);
                     let lastQuantity = this.state.dataQuantity;
-                    this.setState({
-                        isGenerating: false,
-                        dataGenerateLoaded: true,
-                        lastDataQuantity : lastQuantity,
-                    }, () => {
-                        this.loadProjectAssets();
+                    this.loadProjectAssets()
+                    .then(() => {
+                        this.setState({
+                            isGenerating: false,
+                            dataGenerateLoaded: true,
+                            lastDataQuantity : lastQuantity,
+                        });
                     });
                 }).catch((error) => {
                     let alertMessage = "";
