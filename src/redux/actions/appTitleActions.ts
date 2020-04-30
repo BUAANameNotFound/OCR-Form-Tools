@@ -4,6 +4,7 @@
 import { Dispatch } from "redux";
 import { createPayloadAction, IPayloadAction } from "./actionCreators";
 import { ActionTypes } from "./actionTypes";
+import {getDisableDispatch} from "./projectActions";
 
 /**
  * Action to set app title
@@ -21,6 +22,7 @@ export default interface IAppTitleActions {
  */
 export function setTitle(title: string): (dispatch: Dispatch) => void {
     return (dispatch: Dispatch) => {
+        if (!getDisableDispatch())
         dispatch(setTitleAction(title));
     };
 }

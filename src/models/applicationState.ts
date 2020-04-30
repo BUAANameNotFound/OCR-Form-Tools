@@ -393,6 +393,7 @@ export enum FieldFormat {
     CurrencyG = "CURRENCY",
     String = "STRING",
     Email = "EMAIL",
+    Signature = "SIGNATURE",
 }
 
 export enum FeatureCategory {

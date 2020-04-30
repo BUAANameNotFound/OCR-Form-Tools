@@ -39,7 +39,11 @@ import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
 import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
 import {StorageProviderFactory} from "../../../../providers/storage/storageProviderFactory";
-import {saveProject, updateProjectTagAction} from "../../../../redux/actions/projectActions";
+import {
+    disableDispatch, enableDispatch,
+    saveProject,
+    updateProjectTagAction
+} from "../../../../redux/actions/projectActions";
 
 /**
  * Properties for Editor Page
@@ -705,6 +709,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private onTagChanged = async (oldTag: ITag, newTag: ITag) => {
+        disableDispatch();
 
         const temp = this.props.project.tags;
 
@@ -734,6 +739,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 });
             }
         }
+
+        enableDispatch();
 
     }
 

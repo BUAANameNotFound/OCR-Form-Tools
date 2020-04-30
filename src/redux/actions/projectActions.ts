@@ -33,6 +33,8 @@ export default interface IProjectActions {
     updateProjectTagsFromFiles(project: IProject): Promise<void>;
 }
 
+var disable_dispatch = false;
+
 /**
  * Dispatches Load Project action and resolves with IProject
  * @param project - Project to load
@@ -52,9 +54,23 @@ export function loadProject(project: IProject):
         }
         const loadedProject = await projectService.load(project, projectToken);
 
+        if (!disable_dispatch)
         dispatch(loadProjectAction(loadedProject));
         return loadedProject;
     };
+}
+
+
+export function disableDispatch() {
+    disable_dispatch = true;
+}
+
+export function enableDispatch() {
+    disable_dispatch = false;
+}
+
+export function getDisableDispatch() {
+    return disable_dispatch
 }
 
 /**
@@ -83,6 +99,7 @@ export function saveProject(project: IProject)
         }
 
         const savedProject = await projectService.save(project, projectToken);
+        if (!disable_dispatch)
         dispatch(saveProjectAction(savedProject));
 
         // Reload project after save actions
@@ -96,6 +113,7 @@ export function updateProjectTagsFromFiles(project: IProject): (dispatch: Dispat
     return async (dispatch: Dispatch) => {
         const projectService = new ProjectService();
         const updatedProject = await projectService.updateProjectTagsFromFiles(project);
+        if (!disable_dispatch)
         dispatch(updateProjectTagsFromFilesAction(updatedProject));
     };
 }
@@ -212,6 +230,7 @@ export function updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag)
 
         // Save updated project tags
         await saveProject(updatedProject)(dispatch, getState);
+        if (!disable_dispatch)
         dispatch(updateProjectTagAction(updatedProject));
 
         return assetUpdates;

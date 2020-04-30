@@ -115,6 +115,7 @@ function filterFormat(type: FieldType): FieldFormat[] {
               FieldFormat.Date,
               FieldFormat.String,
               FieldFormat.Email,
+              FieldFormat.Signature,
 
             ];
         default:
