@@ -160,6 +160,7 @@ export function loadAssets(project: IProject): (dispatch: Dispatch) => Promise<I
     return async (dispatch: Dispatch) => {
         const assetService = new AssetService(project);
         const assets = await assetService.getAssets();
+        if (!disable_dispatch)
         dispatch(loadProjectAssetsAction(assets));
 
         return assets;
