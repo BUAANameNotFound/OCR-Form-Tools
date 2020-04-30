@@ -709,22 +709,22 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private onTagChanged = async (oldTag: ITag, newTag: ITag) => {
-        disableDispatch();
-
-        const temp = this.props.project.tags;
-
-        this.props.project.tags =
-            JSON.parse(JSON.stringify(this.props.project.tags.map((t) => (t.name === oldTag.name) ? {...newTag} : t)));
-        this.setState({
-            selectedAsset: this.state.selectedAsset
-        });
-
-        await delay(300);
-
-        this.props.project.tags = temp;
-
-        console.log(newTag);
-        console.log(this.state);
+        // disableDispatch();
+        //
+        // const temp = this.props.project.tags;
+        //
+        // this.props.project.tags =
+        //     JSON.parse(JSON.stringify(this.props.project.tags.map((t) => (t.name === oldTag.name) ? {...newTag} : t)));
+        // this.setState({
+        //     selectedAsset: this.state.selectedAsset
+        // });
+        //
+        // await delay(300);
+        //
+        // this.props.project.tags = temp;
+        //
+        // console.log(newTag);
+        // console.log(this.state);
 
 
         // this.props.project.tags = this.props.project.tags.map((t) => (t.name === oldTag.name) ? { ...oldTag } : t);
@@ -740,7 +740,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             }
         }
 
-        enableDispatch();
+        // enableDispatch();
 
     }
 
@@ -760,9 +760,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private onGeneration = async () => {
-        alert("Uploading...")
-
-        await delay(1000);
+        // alert("Uploading...")
+        //
+        // await delay(1000);
 
         const fields =
             this.props.project.tags.map((tag) => ({
