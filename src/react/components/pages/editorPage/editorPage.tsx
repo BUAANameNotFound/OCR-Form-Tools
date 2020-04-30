@@ -39,6 +39,7 @@ import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
 import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
 import {StorageProviderFactory} from "../../../../providers/storage/storageProviderFactory";
+import {saveProject, updateProjectTagAction} from "../../../../redux/actions/projectActions";
 
 /**
  * Properties for Editor Page
