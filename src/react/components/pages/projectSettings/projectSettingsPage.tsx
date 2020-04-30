@@ -192,7 +192,7 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
         toast.success(interpolate(strings.projectSettings.messages.saveSuccess, { project }));
 
         if (isNew) {
-            this.props.history.push(`/projects/${this.props.project.id}/upload`);
+            this.props.history.push(`/projects/${this.props.project.id}/edit`);
         } else {
             this.props.history.goBack();
         }
