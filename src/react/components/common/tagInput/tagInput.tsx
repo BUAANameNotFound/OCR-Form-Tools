@@ -113,6 +113,8 @@ function filterFormat(type: FieldType): FieldFormat[] {
               FieldFormat.Address,
               FieldFormat.CurrencyG,
               FieldFormat.Date,
+              FieldFormat.String,
+              FieldFormat.Email,
 
             ];
         default:

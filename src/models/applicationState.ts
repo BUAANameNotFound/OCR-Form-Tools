@@ -391,6 +391,8 @@ export enum FieldFormat {
     Address = "ADDRESS",
     Date = "DATE",
     CurrencyG = "CURRENCY",
+    String = "STRING",
+    Email = "EMAIL",
 }
 
 export enum FeatureCategory {
