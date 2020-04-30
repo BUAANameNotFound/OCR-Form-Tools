@@ -727,13 +727,13 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const assetUpdates = await this.props.actions.updateProjectTag(this.props.project, oldTag, newTag);
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
 
-        // if (selectedAsset) {
-        //     if (selectedAsset) {
-        //         this.setState({
-        //             selectedAsset,
-        //         });
-        //     }
-        // }
+        if (selectedAsset) {
+            if (selectedAsset) {
+                this.setState({
+                    selectedAsset,
+                });
+            }
+        }
 
     }
 
