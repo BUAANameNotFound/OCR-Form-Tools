@@ -46,20 +46,21 @@ export function Sidebar({ project }) {
                         <FontIcon iconName="Table" />
                     </ConditionalNavLink>
                 </li>
-               <li>
-                    <ConditionalNavLink disabled={!projectId}
-                        title={strings.train.title}
-                        to={`/projects/${projectId}/train`}>
-                        <FontIcon iconName="MachineLearning" />
-                    </ConditionalNavLink>
-                </li>
-                <li>
-                    <ConditionalNavLink disabled={!projectId}
-                        title={`Predict`}
-                        to={`/projects/${projectId}/predict`}>
-                        <FontIcon iconName="Insights" />
-                    </ConditionalNavLink>
-                </li>
+
+                {/*<li>*/}
+                {/*    <ConditionalNavLink disabled={!projectId}*/}
+                {/*        title={strings.train.title}*/}
+                {/*        to={`/projects/${projectId}/train`}>*/}
+                {/*        <FontIcon iconName="MachineLearning" />*/}
+                {/*    </ConditionalNavLink>*/}
+                {/*</li>*/}
+                {/*<li>*/}
+                {/*    <ConditionalNavLink disabled={!projectId}*/}
+                {/*        title={`Predict`}*/}
+                {/*        to={`/projects/${projectId}/predict`}>*/}
+                {/*        <FontIcon iconName="Insights" />*/}
+                {/*    </ConditionalNavLink>*/}
+                {/*</li>*/}
                 {/*<li>*/}
                 {/*    <ConditionalNavLink disabled={!projectId}*/}
                 {/*        title={strings.projectSettings.title}*/}
