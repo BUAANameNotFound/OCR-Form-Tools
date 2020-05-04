@@ -11,7 +11,7 @@ import IApplicationActions, * as applicationActions from "../../../../redux/acti
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import "./uploadPage.scss";
 import {
-    IApplicationState, IConnection, IProject, IAppSettings, AppError, ErrorCode,
+    IApplicationState, IConnection, IProject, IAppSettings,
 } from "../../../../models/applicationState";
 import { ImageMap } from "../../common/imageMap/imageMap";
 import Style from "ol/style/Style";
@@ -22,8 +22,6 @@ import pdfjsLib from "pdfjs-dist";
 import Alert from "../../common/alert/alert";
 import url from "url";
 import HtmlFileReader from "../../../../common/htmlFileReader";
-import { Feature } from "ol";
-import Polygon from "ol/geom/Polygon";
 import { strings, interpolate } from "../../../../common/strings";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
@@ -31,7 +29,7 @@ import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../.
 import { constants } from "../../../../common/constants";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme } from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
-import axios from "axios";
+
 
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
 
@@ -113,7 +111,7 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
             await this.props.actions.loadProject(project);
             this.props.appTitleActions.setTitle(project.name);
         }
-        document.title = "upload" + " - " + strings.appName;
+        document.title = "upload - " + strings.appName;
     }
 
     public componentDidUpdate(prevProps, prevState) {
@@ -512,7 +510,7 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
                 //console.log(response);
                 if (response.status === 200) {
                     resolve(response);
-                } else if (response.status != 200) {
+                } else if (response.status !== 200) {
                     reject("Error");
                 } else if (Number(new Date()) < endTime) {
                     // If the request isn't succeeded and the timeout hasn't elapsed, go again

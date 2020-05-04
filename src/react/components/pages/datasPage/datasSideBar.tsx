@@ -3,10 +3,8 @@
 
 import React from "react";
 import { AutoSizer, List } from "react-virtualized";
-import { FontIcon } from "office-ui-fabric-react";
-import { IAsset, AssetState, ISize } from "../../../../models/applicationState";
+import { IAsset, ISize } from "../../../../models/applicationState";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
-import { strings } from "../../../../common/strings";
 
 /**
  * Properties for Editor Side Bar
