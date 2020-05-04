@@ -44,21 +44,36 @@ export interface IUploadPageProps extends RouteComponentProps, React.Props<Uploa
 }
 
 export interface IUploadPageState {
+    /** The filetype of uploaded file */
     fileLabel: string;
+    /** whether the project was created successfully*/
     projectLoaded: boolean;
+    /** The current page of the file for show */
     currPage: number;
+    /** The image url for show the uploaded file */
     imageUri: string;
+    /** The image width for show the uploaded file */
     imageWidth: number;
+    /** The image height for show the uploaded file */
     imageHeight: number;
+    /** whether show alert window */
     shouldShowAlert: boolean;
+    /** the title of alert window */
     alertTitle: string;
+    /** the message in alert window */
     alertMessage: string;
-    fileChanged: boolean;
-    uploadRun: boolean;
-    isUploading: boolean;
-    file?: File;
     highlightedField: string;
+    /** whether the file for upload was changed */
+    fileChanged: boolean;
+    /** whether upload can be clicked */
+    uploadRun: boolean;
+    /** whether the file is uploading */
+    isUploading: boolean;
+    /** The file uploaded */
+    file?: File;
+    /** the base url of our service */
     backendBaseURL: string;
+    /** whether upload successfully */
     uploadSucceeded: boolean;
 }
 

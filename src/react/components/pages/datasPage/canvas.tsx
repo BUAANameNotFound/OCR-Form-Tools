@@ -21,16 +21,26 @@ export interface ICanvasProps extends React.Props<Canvas> {
 }
 
 export interface ICanvasState {
+    /** The current assetmetadata */
     currentAsset: IAssetMetadata;
+    /** The imgurl for show pdf or other asset */
     imageUri: string;
+    /** The img width for show */
     imageWidth: number;
+    /** The img height for show */
     imageHeight: number;
+    /** The number of pages of this asset(pdf) */
     numPages: number;
+    /** The current page for show */
     currentPage: number;
+    /** The pdf file loaded */
     pdfFile: any;
     tiffImages: any[];
+    /** whether load error */
     isError: boolean;
+    /** the title of error */
     errorTitle?: string;
+    /** the message in error */
     errorMessage: string;
 
 }

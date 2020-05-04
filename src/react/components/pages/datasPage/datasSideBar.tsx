@@ -14,10 +14,15 @@ import { AssetPreview } from "../../common/assetPreview/assetPreview";
  * @member thumbnailSize - The size of the asset thumbnails
  */
 export interface IDatasSideBarProps {
+    /** Array of assets in project */
     assets: IAsset[];
+    /** the function when select an asset */
     onAssetSelected: (asset: IAsset) => void;
+    /** the function whether select before asset */
     onBeforeAssetSelected?: () => boolean;
+    /** the selected asset */
     selectedAsset?: IAsset;
+    /** Size of the asset thumbnails to display in the side bar */
     thumbnailSize?: ISize;
 }
 

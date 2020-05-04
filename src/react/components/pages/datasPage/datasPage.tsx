@@ -22,7 +22,6 @@ import { getPrimaryGreenTheme, getPrimaryWhiteTheme } from "../../../../common/t
 import SplitPane from "react-split-pane";
 import DatasSideBar from "./datasSideBar"
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
-
 import Canvas from "./canvas";
 
 
@@ -37,20 +36,32 @@ export interface IDatasPageProps extends RouteComponentProps, React.Props<DatasP
 }
 
 export interface IDatasPageState {
-
+    /** Array of assets in project */
     assets: IAsset[];
+    /** The selected asset for the primary editing experience */
     selectedAsset?: IAssetMetadata;
+    /** The string in input textarea */
     NumberLabel: string;
+    /** The quantity of data inputed */
     dataQuantity: number; 
+    /** The quantity of data last time */
     lastDataQuantity: number;
+    /** whether input the quantity of data with correct format*/
     dataQuantityLoaded: boolean;
+    /** whether be generated successfully */
     dataGenerateLoaded: boolean;
+    /** whether be generating */
     isGenerating: boolean;
+    /** whether show alert window */
     shouldShowAlert: boolean;
+    /** the title of alert window */
     alertTitle: string;
+    /** the message in alert window */
     alertMessage: string;
+    /** Size of the asset thumbnails to display in the side bar */
     thumbnailSize: ISize;
     isValid: boolean;
+    /** the base url of our service */
     backendBaseURL: string;
 }
 
@@ -256,6 +267,10 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         );
     }
 
+    /**
+     * Handle input change event when change the quantity of data inputed
+     */
+
     private handleQuantityChange = () => {
         if (this.quantityInput.current.value !== "") {
             const quantityNumber = this.quantityInput.current.value;
@@ -284,6 +299,10 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
             });
         }
     }
+
+    /**
+     * Handle click event when click the generate button
+     */
 
     private handleGenerateClick = () => {
         this.setState({dataGenerateLoaded: false, isGenerating: true,});
@@ -346,6 +365,10 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         }
     
     }
+
+    /**
+     * Handle click event when click the download button
+     */
 
     private handleDownloadClick = () => {
 
@@ -427,7 +450,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
     }
 
 
-        /**
+    /**
      * Called when the asset side bar is resized
      * @param newWidth The new sidebar width
      */
@@ -529,6 +552,10 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         this.loadProjectAssets();
     }
 
+    /**
+     * Check whether the quantity of data inputed meets the requirements
+     * @param quantity The quantity of data inputed
+     */
     private isInteger = (quantity : string) => {
         let reg = /^[+]?0*(([1-4][0-9])|([1-9]))$/;
         if(reg.test(quantity)){
