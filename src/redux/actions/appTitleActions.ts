@@ -22,8 +22,9 @@ export default interface IAppTitleActions {
  */
 export function setTitle(title: string): (dispatch: Dispatch) => void {
     return (dispatch: Dispatch) => {
-        if (!getDisableDispatch())
-        dispatch(setTitleAction(title));
+        if (!getDisableDispatch()) {
+            dispatch(setTitleAction(title));
+        }
     };
 }
 

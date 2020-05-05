@@ -35,7 +35,7 @@ export class AzureBlobStorage implements IStorageProvider {
     public storageType: StorageType = StorageType.Cloud;
 
     constructor(private options?: IAzureCloudStorageOptions) {
-        options.sas = "https://lyniupi.blob.core.windows.net/wudi?st=2020-04-27T13%3A44%3A48Z&se=2021-01-30T13%3A44%3A00Z&sp=racwdl&sv=2018-03-28&sr=c&sig=a05qev4hjg17uPbbFShbCidZ%2BjfGMEYDw2SKgaMJMQ8%3D"
+        options.sas = "https://lyniupi.blob.core.windows.net/wudi?st=2020-04-27T13%3A44%3A48Z&se=2021-01-30T13%3A44%3A00Z&sp=racwdl&sv=2018-03-28&sr=c&sig=a05qev4hjg17uPbbFShbCidZ%2BjfGMEYDw2SKgaMJMQ8%3D";
     }
 
     /**
