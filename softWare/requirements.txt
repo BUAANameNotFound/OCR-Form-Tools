@@ -1,0 +1,5 @@
+azure-functions
+azure-storage
+json5
+PyPDF2
+reportlab
