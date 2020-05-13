@@ -443,12 +443,17 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
         const textRegions = regions.filter((r) => r.category === FeatureCategory.Text);
         const checkboxRegions = regions.filter((r) => r.category === FeatureCategory.Checkbox);
+        const drawRegions = regions.filter((r) => r.value === "generated");
 
         const allFeatures = this.imageMap.getAllFeatures();
         const selectedFeatures = allFeatures
             .filter((feature) => !feature.get("isOcrProposal"))
             .filter((feature) => textRegions.findIndex((region) => region.id === feature.get("id")) !== -1);
         selectedFeatures.map(this.imageMap.removeFeature);
+
+        const selectedDrawFeatures = allFeatures
+            .filter((feature) => drawRegions.findIndex((region) => region.id === feature.get("id")) !== -1);
+        selectedDrawFeatures.map(this.imageMap.removeFeature);
 
         const allCheckboxFeatures = this.imageMap.getAllCheckboxFeatures();
         const selectdCheckboxFeatures = allCheckboxFeatures
