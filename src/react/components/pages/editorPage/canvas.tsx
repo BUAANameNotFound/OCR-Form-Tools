@@ -33,7 +33,8 @@ import HtmlFileReader from "../../../../common/htmlFileReader";
 import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./CanvasCommandBar";
-import { TooltipHost, ITooltipHostStyles } from "office-ui-fabric-react";
+import {TooltipHost, ITooltipHostStyles, PrimaryButton} from "office-ui-fabric-react";
+import {getPrimaryBlueTheme, getPrimaryGreenTheme} from "../../../../common/themes";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -70,6 +71,7 @@ export interface ICanvasState {
     layers: any;
     tableIconTooltip: any;
     hoveringFeature: string;
+    enableDraw: boolean;
 }
 
 interface IRegionOrder {
@@ -121,6 +123,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         layers: {text: true, tables: true, checkboxes: true, label: true},
         tableIconTooltip: { display: "none", width: 0, height: 0, top: 0, left: 0},
         hoveringFeature: null,
+        enableDraw: false,
     };
 
     private imageMap: ImageMap;
@@ -209,24 +212,37 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     handleZoomOut={this.handleCanvasZoomOut}
                     layers={this.state.layers}
                 />
-                <ImageMap
-                    ref={(ref) => this.imageMap = ref}
-                    imageUri={this.state.imageUri}
-                    imageWidth={this.state.imageWidth}
-                    imageHeight={this.state.imageHeight}
-                    enableFeatureSelection={true}
-                    handleFeatureSelect={this.handleFeatureSelect}
-                    handleClick={this.handleClick}
-                    featureStyler={this.featureStyler}
-                    checkboxFeatureStyler={this.checkboxFeatureStyler}
-                    labelFeatureStyler={this.labelFeatureStyler}
-                    tableBorderFeatureStyler={this.tableBorderFeatureStyler}
-                    tableIconFeatureStyler={this.tableIconFeatureStyler}
-                    tableIconBorderFeatureStyler={this.tableIconBorderFeatureStyler}
-                    onMapReady={this.noOp}
-                    handleTableToolTipChange={this.handleTableToolTipChange}
-                    hoveringFeature={this.state.hoveringFeature}
-                />
+                <div>
+                    <div>
+                        <ImageMap
+                            ref={(ref) => this.imageMap = ref}
+                            imageUri={this.state.imageUri}
+                            imageWidth={this.state.imageWidth}
+                            imageHeight={this.state.imageHeight}
+                            enableFeatureSelection={true}
+                            handleFeatureSelect={this.handleFeatureSelect}
+                            handleClick={this.handleClick}
+                            featureStyler={this.featureStyler}
+                            checkboxFeatureStyler={this.checkboxFeatureStyler}
+                            labelFeatureStyler={this.labelFeatureStyler}
+                            tableBorderFeatureStyler={this.tableBorderFeatureStyler}
+                            tableIconFeatureStyler={this.tableIconFeatureStyler}
+                            tableIconBorderFeatureStyler={this.tableIconBorderFeatureStyler}
+                            onMapReady={this.noOp}
+                            handleTableToolTipChange={this.handleTableToolTipChange}
+                            hoveringFeature={this.state.hoveringFeature}
+                        />
+                    </div>
+                    <div className="button">
+                        <PrimaryButton
+                            allowDisabledFocus autoFocus={true}
+                            theme={!this.state.enableDraw ? getPrimaryGreenTheme() : getPrimaryBlueTheme()}
+                                        text={!this.state.enableDraw ? "Edit" : "Stop"}
+                                        onClick={() => {
+                                            this.setState({enableDraw: !this.state.enableDraw});
+                                        }}/>
+                    </div>
+                </div>
                 <TooltipHost
                     content={"rows: " + this.state.tableIconTooltip.rows +
                              " columns: " + this.state.tableIconTooltip.columns}
@@ -788,11 +804,9 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private lastX;
     private lastY;
 
-    private enableDraw = false;
-
     private handleClick = (x, y) => {
-        if (this.enableDraw == false)
-            return
+        if (this.state.enableDraw === false)
+            return;
 
         console.log(`Click: x: ${x}, y: ${y}`)
 
@@ -1205,11 +1219,11 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private handleKeyDown = (keyEvent) => {
         switch (keyEvent.key) {
             case "Backspace":
-                this.enableDraw = !this.enableDraw;
-                if (this.enableDraw) {
-                    console.log("Draw enable")
+                this.setState({enableDraw: !this.state.enableDraw});
+                if (this.state.enableDraw) {
+                    console.log("Draw enable");
                 } else {
-                    console.log("Draw disable")
+                    console.log("Draw disable");
                 }
                 break;
 
