@@ -59,6 +59,11 @@ export const english: IAppStrings = {
         },
     },
     appSettings: {
+        projectType: {
+            blank: "Generate forms from a blank form (Default)",
+            completed: "Generate forms from completed forms",
+            sheet: "Generate forms from a sheet",
+        },
         title: "Application Settings",
         storageTitle: "Storage Settings",
         uiHelp: "Where your settings are stored",
@@ -144,6 +149,7 @@ export const english: IAppStrings = {
         avgTagCountPerAsset: "Average tags per asset",
     },
     tags: {
+        generated: "GENERATED",
         title: "Tags",
         placeholder: "Add new tag",
         editor: "Tags Editor",

@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import React from "react";
+import {strings} from "../../../../common/strings";
 /**
  * Properties for Connection Picker
  * @member id - ID for HTML select element
@@ -54,9 +55,9 @@ export class ProjectTypePicker extends React.Component<IProjectTypePickerProps, 
                 <select id={id} value={selectedValue} onChange={this.onChange}
                     required className="form-control">
                     <option>Select Project Type</option>
-                    <option>Generate forms from a blank form (Default)</option>
-                    <option>Generate forms from completed forms</option>
-                    <option>Generate forms from a sheet</option>
+                    <option>{strings.appSettings.projectType.blank}</option>
+                    <option>{strings.appSettings.projectType.completed}</option>
+                    <option>{strings.appSettings.projectType.sheet}</option>
                 </select>
             </div>
         );
