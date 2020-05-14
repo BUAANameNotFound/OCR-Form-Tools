@@ -85,6 +85,7 @@ export interface IProject {
     name: string;
     version: string;
     securityToken: string;
+    projectType: string;
     description?: string;
     tags: ITag[];
     sourceConnection: IConnection;
