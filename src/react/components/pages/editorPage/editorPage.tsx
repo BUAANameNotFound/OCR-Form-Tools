@@ -92,6 +92,8 @@ export interface IEditorPageState {
     isRunningOCRs?: boolean;
     /** Whether OCR is running in the main canvas */
     isCanvasRunningOCR?: boolean;
+    /** whether is loading project Assets */
+    isLoadingProjectAssets?: boolean;
     isError?: boolean;
     errorTitle?: string;
     errorMessage?: string;
@@ -128,11 +130,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         isValid: true,
         showInvalidRegionWarning: false,
         hoveredLabel: null,
+        isLoadingProjectAssets: false,
     };
 
     private tagInputRef: RefObject<TagInput>;
 
-    private loadingProjectAssets: boolean = false;
     private canvas: RefObject<Canvas> = React.createRef();
     private renameTagConfirm: React.RefObject<Confirm> = React.createRef();
     private renameCanceled: () => void;
@@ -185,10 +187,18 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             selectedAsset.labelData.labels) || [];
 
         const needRunOCRButton = assets.some((asset) => asset.state === AssetState.NotVisited);
-
-        if (!project) {
-            return (<div>Loading...</div>);
-        }
+        const loadingSpin = (label: string) => {
+            return (
+                <div style={{ width: "100%", height: "100%" }}>
+                    <div className="canvas-ocr-loading">
+                        <div className="canvas-ocr-loading-spinner">
+                            <Spinner size={SpinnerSize.large} label={label}
+                                     ariaLive="assertive" labelPosition="right"/>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
 
         return (
             <div className="editor-page" id="pageEditor">
@@ -202,98 +212,103 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                             icon={"fa-tag"}
                             handler={this.handleTagHotKey} />))
                 }
-                <SplitPane split="vertical"
-                    defaultSize={this.state.thumbnailSize.width}
-                    minSize={175}
-                    maxSize={175}
-                    paneStyle={{ display: "flex" }}
-                    onChange={this.onSideBarResize}
-                    onDragFinished={this.onSideBarResizeComplete}>
-                    <div className="editor-page-sidebar bg-lighter-1">
-                        {needRunOCRButton && <div>
-                            <PrimaryButton
-                                theme={getPrimaryGreenTheme()}
-                                className="editor-page-sidebar-run-ocr"
-                                type="button"
-                                onClick={this.loadAllOCRs}
-                                disabled={this.state.isRunningOCRs}>
-                                {this.state.isRunningOCRs ?
-                                    <div>
-                                        <Spinner
-                                            size={SpinnerSize.small}
-                                            label="Running OCR"
-                                            ariaLive="off"
-                                            labelPosition="right"
-                                        />
-                                    </div> : "Run OCR on all files"
-                                }
-                            </PrimaryButton>
-                        </div>}
-                        <EditorSideBar
-                            assets={rootAssets}
-                            selectedAsset={selectedAsset ? selectedAsset.asset : null}
-                            onBeforeAssetSelected={this.onBeforeAssetSelected}
-                            onAssetSelected={this.selectAsset}
-                            thumbnailSize={this.state.thumbnailSize}
-                        />
-                    </div>
-                    <div className="editor-page-content" onClick={this.onPageClick}>
-                        <div className="editor-page-content-main" >
-                            <div className="editor-page-content-main-body" onClick = {this.onPageContainerClick}>
-                                {selectedAsset &&
-                                    <Canvas
-                                        ref={this.canvas}
-                                        selectedAsset={this.state.selectedAsset}
-                                        onAssetMetadataChanged={this.onAssetMetadataChanged}
-                                        onCanvasRendered={this.onCanvasRendered}
-                                        onSelectedRegionsChanged={this.onSelectedRegionsChanged}
-                                        onRunningOCRStatusChanged={this.onCanvasRunningOCRStatusChanged}
-                                        onTagChanged={this.onTagChanged}
-                                        editorMode={this.state.editorMode}
-                                        project={this.props.project}
-                                        lockedTags={this.state.lockedTags}
-                                        hoveredLabel={this.state.hoveredLabel}>
-                                        <AssetPreview
-                                            controlsEnabled={this.state.isValid}
-                                            onBeforeAssetChanged={this.onBeforeAssetSelected}
-                                            asset={this.state.selectedAsset.asset} />
-                                    </Canvas>
-                                }
+                {
+                    project ?
+                        <SplitPane split="vertical"
+                                   defaultSize={this.state.thumbnailSize.width}
+                                   minSize={175}
+                                   maxSize={175}
+                                   paneStyle={{display: "flex"}}
+                                   onChange={this.onSideBarResize}
+                                   onDragFinished={this.onSideBarResizeComplete}>
+                            <div className="editor-page-sidebar bg-lighter-1">
+                                {needRunOCRButton && <div>
+                                    <PrimaryButton
+                                        theme={getPrimaryGreenTheme()}
+                                        className="editor-page-sidebar-run-ocr"
+                                        type="button"
+                                        onClick={this.loadAllOCRs}
+                                        disabled={this.state.isRunningOCRs}>
+                                        {this.state.isRunningOCRs ?
+                                            <div>
+                                                <Spinner
+                                                    size={SpinnerSize.small}
+                                                    label="Running OCR"
+                                                    ariaLive="off"
+                                                    labelPosition="right"
+                                                />
+                                            </div> : "Run OCR on all files"
+                                        }
+                                    </PrimaryButton>
+                                </div>}
+                                <EditorSideBar
+                                    assets={rootAssets}
+                                    selectedAsset={selectedAsset ? selectedAsset.asset : null}
+                                    onBeforeAssetSelected={this.onBeforeAssetSelected}
+                                    onAssetSelected={this.selectAsset}
+                                    thumbnailSize={this.state.thumbnailSize}
+                                />
                             </div>
-                        </div>
-                        <div className="editor-page-right-sidebar">
-                            <TagInput
-                                tags={this.props.project.tags}
-                                lockedTags={this.state.lockedTags}
-                                selectedRegions={this.state.selectedRegions}
-                                labels={labels}
-                                onChange={this.onTagsChanged}
-                                onLockedTagsChange={this.onLockedTagsChanged}
-                                onTagClick={this.onTagClicked}
-                                onCtrlTagClick={this.onCtrlTagClicked}
-                                onTagRename={this.confirmTagRename}
-                                onTagDeleted={this.confirmTagDeleted}
-                                onLabelEnter={this.onLabelEnter}
-                                onLabelLeave={this.onLabelLeave}
-                                onTagChanged={this.onTagChanged}
-                                onGeneration={this.onGeneration}
-                                onUpLoadFile={this.onUpLoadFile}
-                                ref = {this.tagInputRef}
-                            />
-                        </div>
-                        <Confirm title={strings.editorPage.tags.rename.title}
-                            ref={this.renameTagConfirm}
-                            message={strings.editorPage.tags.rename.confirmation}
-                            confirmButtonTheme={getPrimaryRedTheme()}
-                            onCancel={this.onTagRenameCanceled}
-                            onConfirm={this.onTagRenamed} />
-                        <Confirm title={strings.editorPage.tags.delete.title}
-                            ref={this.deleteTagConfirm}
-                            message={strings.editorPage.tags.delete.confirmation}
-                            confirmButtonTheme={getPrimaryRedTheme()}
-                            onConfirm={this.onTagDeleted} />
-                    </div>
-                </SplitPane>
+                            <div className="editor-page-content" onClick={this.onPageClick}>
+                                <div className="editor-page-content-main">
+                                    <div className="editor-page-content-main-body" onClick={this.onPageContainerClick}>
+                                        {(selectedAsset && !this.state.isLoadingProjectAssets) ?
+                                            <Canvas
+                                                ref={this.canvas}
+                                                selectedAsset={this.state.selectedAsset}
+                                                onAssetMetadataChanged={this.onAssetMetadataChanged}
+                                                onCanvasRendered={this.onCanvasRendered}
+                                                onSelectedRegionsChanged={this.onSelectedRegionsChanged}
+                                                onRunningOCRStatusChanged={this.onCanvasRunningOCRStatusChanged}
+                                                onTagChanged={this.onTagChanged}
+                                                editorMode={this.state.editorMode}
+                                                project={this.props.project}
+                                                lockedTags={this.state.lockedTags}
+                                                hoveredLabel={this.state.hoveredLabel}>
+                                                <AssetPreview
+                                                    controlsEnabled={this.state.isValid}
+                                                    onBeforeAssetChanged={this.onBeforeAssetSelected}
+                                                    asset={this.state.selectedAsset.asset}/>
+                                            </Canvas> :
+                                            loadingSpin("Loading Assets...")
+                                        }
+                                    </div>
+                                </div>
+                                <div className="editor-page-right-sidebar">
+                                    <TagInput
+                                        tags={this.props.project.tags}
+                                        lockedTags={this.state.lockedTags}
+                                        selectedRegions={this.state.selectedRegions}
+                                        labels={labels}
+                                        onChange={this.onTagsChanged}
+                                        onLockedTagsChange={this.onLockedTagsChanged}
+                                        onTagClick={this.onTagClicked}
+                                        onCtrlTagClick={this.onCtrlTagClicked}
+                                        onTagRename={this.confirmTagRename}
+                                        onTagDeleted={this.confirmTagDeleted}
+                                        onLabelEnter={this.onLabelEnter}
+                                        onLabelLeave={this.onLabelLeave}
+                                        onTagChanged={this.onTagChanged}
+                                        onGeneration={this.onGeneration}
+                                        onUpLoadFile={this.onUpLoadFile}
+                                        ref={this.tagInputRef}
+                                    />
+                                </div>
+                                <Confirm title={strings.editorPage.tags.rename.title}
+                                         ref={this.renameTagConfirm}
+                                         message={strings.editorPage.tags.rename.confirmation}
+                                         confirmButtonTheme={getPrimaryRedTheme()}
+                                         onCancel={this.onTagRenameCanceled}
+                                         onConfirm={this.onTagRenamed}/>
+                                <Confirm title={strings.editorPage.tags.delete.title}
+                                         ref={this.deleteTagConfirm}
+                                         message={strings.editorPage.tags.delete.confirmation}
+                                         confirmButtonTheme={getPrimaryRedTheme()}
+                                         onConfirm={this.onTagDeleted}/>
+                            </div>
+                        </SplitPane> :
+                        loadingSpin("Loading Page...")
+                }
                 <Alert
                     show={this.state.showInvalidRegionWarning}
                     title={strings.editorPage.messages.enforceTaggedRegions.title}
@@ -587,11 +602,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private loadProjectAssets = async (): Promise<void> => {
-        if (this.loadingProjectAssets) {
+        if (this.state.isLoadingProjectAssets) {
             return;
         }
 
-        this.loadingProjectAssets = true;
+        this.setState({isLoadingProjectAssets: true});
 
         const rootAssets: IAsset[] = _(await this.props.actions.loadAssets(this.props.project))
             .uniqBy((asset) => asset.id)
@@ -599,7 +614,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         if (this.state.assets.length === rootAssets.length
             && this.state.assets.map((asset) => asset.id).join(",") === rootAssets.map((asset) => asset.id).join(",")) {
-            this.loadingProjectAssets = false;
+            this.setState({isLoadingProjectAssets: false});
             return;
         }
 
@@ -611,7 +626,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             if (rootAssets.length > 0) {
                 await this.selectAsset(lastVisited ? lastVisited : rootAssets[0]);
             }
-            this.loadingProjectAssets = false;
+            this.setState({isLoadingProjectAssets: false});
         });
     }
 
