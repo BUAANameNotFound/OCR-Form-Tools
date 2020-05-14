@@ -47,13 +47,13 @@ export function Sidebar({ project }) {
                     </ConditionalNavLink>
                 </li>
 
-                {/*<li>*/}
-                {/*    <ConditionalNavLink disabled={!projectId}*/}
-                {/*        title={strings.train.title}*/}
-                {/*        to={`/projects/${projectId}/train`}>*/}
-                {/*        <FontIcon iconName="MachineLearning" />*/}
-                {/*    </ConditionalNavLink>*/}
-                {/*</li>*/}
+                <li>
+                    <ConditionalNavLink disabled={!projectId}
+                        title={strings.train.title}
+                        to={`/projects/${projectId}/train`}>
+                        <FontIcon iconName="MachineLearning" />
+                    </ConditionalNavLink>
+                </li>
                 {/*<li>*/}
                 {/*    <ConditionalNavLink disabled={!projectId}*/}
                 {/*        title={`Predict`}*/}
