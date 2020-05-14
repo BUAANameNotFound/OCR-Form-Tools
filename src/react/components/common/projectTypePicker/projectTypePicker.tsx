@@ -53,7 +53,8 @@ export class ProjectTypePicker extends React.Component<IProjectTypePickerProps, 
             <div className="input-group">
                 <select id={id} value={selectedValue} onChange={this.onChange}
                     required className="form-control">
-                    <option>Generate forms from a blank form</option>
+                    <option>Select Project Type</option>
+                    <option>Generate forms from a blank form (Default)</option>
                     <option>Generate forms from completed forms</option>
                     <option>Generate forms from a sheet</option>
                 </select>
@@ -67,7 +68,7 @@ export class ProjectTypePicker extends React.Component<IProjectTypePickerProps, 
             value: e.target.value,
         });
 
-        console.log(`select${e.target.value}`)
+        this.props.onChange(e.target.value);
     }
 
 }

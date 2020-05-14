@@ -142,6 +142,7 @@ export default class MockFactory {
             version: appInfo.version,
             securityToken: `Security-Token-${name}`,
             assets: {},
+            projectType: "test project",
             sourceConnection: connection,
             tags: MockFactory.createTestTags(tagCount),
             apiUriBase: "localhost",
