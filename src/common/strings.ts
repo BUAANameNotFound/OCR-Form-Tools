@@ -13,6 +13,7 @@ export interface IAppStrings {
     appName: string;
     common: {
         displayName: string;
+        projectType: string;
         description: string;
         submit: string;
         cancel: string;

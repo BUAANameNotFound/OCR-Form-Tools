@@ -12,6 +12,7 @@ export const english: IAppStrings = {
     appName: "OCR Form Labeling Tool",
     common: {
         displayName: "Display name",
+        projectType: "Project Type",
         description: "Description",
         submit: "Submit",
         cancel: "Cancel",
