@@ -720,7 +720,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private onFocused = () => {
-        this.loadProjectAssets();
+        // this.loadProjectAssets();
     }
 
     private onTagChanged = async (oldTag: ITag, newTag: ITag) => {
