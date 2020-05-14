@@ -10,6 +10,7 @@ import { ConnectionPickerWithRouter } from "../../common/connectionPicker/connec
 import { CustomField } from "../../common/customField/customField";
 import CustomFieldTemplate from "../../common/customField/customFieldTemplate";
 import { ISecurityTokenPickerProps, SecurityTokenPicker } from "../../common/securityTokenPicker/securityTokenPicker";
+import { IProjectTypePickerProps, ProjectTypePicker } from "../../common/projectTypePicker/projectTypePicker";
 import "vott-react/dist/css/tagsInput.css";
 import { IConnectionProviderPickerProps } from "../../common/connectionProviderPicker/connectionProviderPicker";
 import { ProjectSettingAction } from "./projectSettingAction";
@@ -141,6 +142,13 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
 
     private fields() {
         return {
+            projectType: CustomField<IProjectTypePickerProps>(ProjectTypePicker, (props) => {
+                return {
+                    id: props.idSchema.$id,
+                    value: props.formData,
+                    onChange: props.onChange,
+                };
+            }),
             securityToken: CustomField<ISecurityTokenPickerProps>(SecurityTokenPicker, (props) => ({
                 id: props.idSchema.$id,
                 schema: props.schema,

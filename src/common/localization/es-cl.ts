@@ -15,6 +15,7 @@ export const spanish: IAppStrings = {
     },
     common: {
         displayName: "Nombre para Mostrar",
+        projectType: "N/A",
         description: "Descripción",
         submit: "Enviar",
         cancel: "Cancelar",
