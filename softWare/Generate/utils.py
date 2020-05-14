@@ -111,6 +111,10 @@ def createmark(file_dir, marks):
         position = random.uniform(leftupy + ygap / 2, leftdowny)
         if len(text) * fontsize >= ygap:
             position = leftupy + fontsize
+        c.setStrokeColorRGB(1, 1, 1)
+        c.setFillColorRGB(1, 1, 1)
+        c.rect(leftx, -leftupy, xgap, -ygap, fill=1)
+        c.setFillColorRGB(0, 0, 0)
         for subtext in text:
             c.drawString(leftx, -position, subtext)
             position += fontsize
