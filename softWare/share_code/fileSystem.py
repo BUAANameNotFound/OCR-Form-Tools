@@ -38,6 +38,26 @@ def open_file_string_io(blob_name, container='wudi',
     blob_service.get_blob_to_stream(container, blob_name, res)
     return res
 
+def open_templatepdf_file(path, container='wudi',
+                       storage_name=DEFAULT_STORAGENAME, key=DEFAULT_KEY):
+    '''
+    open the template Pdf file in BytesIO
+    '''
+    blob_service = BlockBlobService(account_name=storage_name, account_key=key)
+    res = BytesIO()
+    files = blob_service.list_blobs(container)
+    for afile in files:
+        name = afile.name
+        file_path = name[:name.find('/')]
+        file_name = name[name.find('/')+1:]
+        if file_path == path and file_name.find('template_') != -1:
+            blob_service.get_blob_to_stream(container, afile.name, res)
+            return res
+    # find no template.pdf
+    return func.HttpResponse(
+        'Well, we find no template.pdf, you should upload it before generate data!',
+        status_code=400
+    )
 
 def upload_string(blob_string, blob_name, container='wudi', blob_encoding='utf-8',
                   storage_name=DEFAULT_STORAGENAME, key=DEFAULT_KEY):

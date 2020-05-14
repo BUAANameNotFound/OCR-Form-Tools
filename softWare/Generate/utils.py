@@ -62,7 +62,8 @@ def createmark(file_dir, marks):
     create a mark pdf used for merging with form pdf
     '''
     pdf_buf = BytesIO()
-    pdf_buf = fileSystem.open_file_bytes_io(f'{file_dir}/template.pdf')
+    #pdf_buf = fileSystem.open_file_bytes_io(f'{file_dir}/template.pdf')
+    pdf_buf = fileSystem.open_templatepdf_file(file_dir)
     pdf_input = PdfFileReader(pdf_buf, strict=False)
     page = pdf_input.getPage(0)
     width = float(page['/MediaBox'][2])
@@ -125,7 +126,8 @@ def genpdf(path, inpdf, outpdf):
     '''
     pdf_output = PdfFileWriter()
     pdf_buf = BytesIO()
-    pdf_buf = fileSystem.open_file_bytes_io(f'{path}/{inpdf}')
+    #pdf_buf = fileSystem.open_file_bytes_io(f'{path}/{inpdf}')
+    pdf_buf = fileSystem.open_templatepdf_file(path)
     pdf_input = PdfFileReader(pdf_buf, strict=False)
     try:
         mark = BytesIO()
