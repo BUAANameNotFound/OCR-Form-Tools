@@ -11,6 +11,9 @@
     "sourceConnection": {
         "ui:field": "sourceConnection"
     },
+    "projectType": {
+        "ui:field": "projectType"
+    },
     "targetConnection": {
         "ui:field": "targetConnection"
     },

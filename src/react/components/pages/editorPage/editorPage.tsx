@@ -44,6 +44,7 @@ import {
     saveProject,
     updateProjectTagAction
 } from "../../../../redux/actions/projectActions";
+import {toast} from "react-toastify";
 
 /**
  * Properties for Editor Page
@@ -775,7 +776,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private onGeneration = async () => {
-        // alert("Uploading...")
+        toast.info("Uploading....");
         //
         // await delay(1000);
 
@@ -819,9 +820,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             .then(response => {
                 console.log(response);
                 if (response.ok) {
-                    alert("Upload success.");
+                    toast.success("Upload success.");
                 } else {
-                    alert("Upload failed.");
+                    toast.error("Upload failed.");
                 }
             })
         // console.log(data);

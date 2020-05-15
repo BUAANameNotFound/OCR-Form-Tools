@@ -330,11 +330,21 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
         }
     }
 
+    private getProjectType = () => {
+        if (this.props.project.projectType === strings.appSettings.projectType.completed) {
+            return 2;
+        } if (this.props.project.projectType === strings.appSettings.projectType.completed) {
+            return 3;
+        } else {
+            return 1;
+        }
+    }
+
     private handleClick = () => {
         this.setState({ projectLoaded: false, isUploading: true, uploadSucceeded: false });
         const endpointURL = url.resolve(
             this.state.backendBaseURL,
-            `/api/UpLoadPdf?path=${this.props.project.folderPath}`,
+            `/api/UpLoadPdf?type=${this.getProjectType()}&path=${this.props.project.folderPath}`,
         );
         console.log(endpointURL);
         const requestOptions = {
@@ -369,11 +379,11 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
                     uploadSucceeded: false,
                 });
             });
-        } 
+        }
         catch (err) {
             ServiceHelper.handleServiceError(err);
         }
-        
+
     }
 
     private getPageCount() {

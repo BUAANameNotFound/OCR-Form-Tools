@@ -20,6 +20,7 @@ import { ProjectSettingAction } from "./projectSettingAction";
 import ProjectService from "../../../../services/projectService";
 import { getStorageItem, setStorageItem, removeStorageItem } from "../../../../redux/middleware/localStorage";
 import { SkipButton } from "../../shell/skipButton";
+import {delay} from "../../../../common/utils";
 
 /**
  * Properties for Project Settings Page
@@ -179,6 +180,8 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
     private onFormSubmit = async (project: IProject) => {
         const isNew = !(!!project.id);
 
+        toast.info(interpolate("Creating the project....", {project}));
+
         if (await this.isValidProjectName(project, isNew)) {
             toast.error(interpolate(strings.projectSettings.messages.projectExisted, { project }));
             return;
@@ -187,7 +190,6 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
         await this.deleteOldProjectWhenRenamed(project, isNew);
         await this.props.applicationActions.ensureSecurityToken(project);
         await this.props.projectActions.saveProject(project);
-        removeStorageItem(constants.projectFormTempKey);
 
         toast.success(interpolate(strings.projectSettings.messages.saveSuccess, { project }));
 
@@ -196,6 +198,9 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
         } else {
             this.props.history.goBack();
         }
+
+        removeStorageItem(constants.projectFormTempKey);
+
     }
 
     private onFormCancel = () => {

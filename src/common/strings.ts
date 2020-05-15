@@ -3,7 +3,7 @@
 
 import LocalizedStrings, { LocalizedStringsMethods } from "react-localization";
 import { english } from "./localization/en-us";
-import { spanish } from "./localization/es-cl";
+// import { spanish } from "./localization/es-cl";
 
 /**
  * Interface for all required strings in application
@@ -13,6 +13,7 @@ export interface IAppStrings {
     appName: string;
     common: {
         displayName: string;
+        projectType: string;
         description: string;
         submit: string;
         cancel: string;
@@ -58,6 +59,11 @@ export interface IAppStrings {
         },
     };
     appSettings: {
+        projectType: {
+            blank: string;
+            completed: string;
+            sheet: string;
+        }
         title: string;
         storageTitle: string;
         uiHelp: string;
@@ -143,6 +149,7 @@ export interface IAppStrings {
         avgTagCountPerAsset: string;
     };
     tags: {
+        generated: string;
         title: string;
         placeholder: string;
         editor: string;
@@ -358,7 +365,7 @@ interface IStrings extends LocalizedStringsMethods, IAppStrings { }
 
 export const strings: IStrings = new LocalizedStrings({
     en: english,
-    es: spanish,
+    // es: spanish,
 });
 
 /**

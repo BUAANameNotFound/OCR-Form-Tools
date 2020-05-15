@@ -35,6 +35,7 @@ import { constants } from "../../../../common/constants";
 import { CanvasCommandBar } from "./CanvasCommandBar";
 import {TooltipHost, ITooltipHostStyles, PrimaryButton} from "office-ui-fabric-react";
 import {getPrimaryBlueTheme, getPrimaryGreenTheme} from "../../../../common/themes";
+import {strings} from "../../../../common/strings";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = constants.pdfjsWorkerSrc(pdfjsLib.version);
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
@@ -443,7 +444,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
         const textRegions = regions.filter((r) => r.category === FeatureCategory.Text);
         const checkboxRegions = regions.filter((r) => r.category === FeatureCategory.Checkbox);
-        const drawRegions = regions.filter((r) => r.value === "generated");
+        const drawRegions = regions.filter((r) => r.value === strings.tags.generated);
 
         const allFeatures = this.imageMap.getAllFeatures();
         const selectedFeatures = allFeatures
@@ -843,7 +844,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         const boundingBox = this.polygonPointsToBoundingBox(polygonPoints, ocrWidth, ocrHeight);
 
         let feature = this.createBoundingBoxVectorFeature(
-            "generated", boundingBox, imageExtent, ocrExtent, ocrReadResults.page);
+            strings.tags.generated, boundingBox, imageExtent, ocrExtent, ocrReadResults.page);
         this.imageMap.addFeature(feature);
     }
 
