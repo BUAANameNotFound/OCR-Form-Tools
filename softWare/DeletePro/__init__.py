@@ -14,8 +14,13 @@ def main(req: func.HttpRequest) -> str:
             'You should use ',
             status_code=400
         )
-
-    #Upload the json in req_body to Azure storage as {filename}.json in {container}
-
-    #tmp = fileSystem.openFileAsBytesIO(f'{upload_path}/{fileName}')
+    pro_path = req.params.get('path')
+    try:
+        fileSystem.clear_comsuer_fold(pro_path)
+    except:
+        return func.HttpResponse(
+            'Clear wrong! please contact the back-end',
+            status_code=400
+        )
+    
     return func.HttpResponse('We have delete the project!')
