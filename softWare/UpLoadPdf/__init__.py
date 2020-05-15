@@ -20,9 +20,15 @@ def main(req: func.HttpRequest) -> str:
         try:
             str1 = req.get_body()
             upload_path = req.params.get('path')
+            upload_type = req.params.get('type')
             if upload_path is None:
                 return func.HttpResponse(
                     'Wrong in path parameter! You should give the path!',
+                    status_code=400
+                )
+            if upload_type is None:
+                return func.HttpResponse(
+                    'Wrong in type parameter! You should give the type!',
                     status_code=400
                 )
         except:
@@ -37,9 +43,9 @@ def main(req: func.HttpRequest) -> str:
     #Upload the pdf in req_body to Azure storage as template.pdf in {container}
     try:
         suffix = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        up_filename = 'template_' + suffix + '.pdf'
+        up_filename = suffix + '_model.pdf' if upload_type == '2' else 'template.pdf'
         up_bytes = str1 if str1 != "" else b"POST give nothing! You may do wrong Request!"
-        fileSystem.clear_comsuer_fold(upload_path)
+        #fileSystem.clear_comsuer_fold(upload_path)
         fileSystem.upload_bytes(up_bytes, f'{upload_path}/{up_filename}')
     except:
         func.HttpResponse(
