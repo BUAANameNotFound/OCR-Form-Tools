@@ -1,4 +1,4 @@
-from utils import *
+
 from gen_data import *
 
 def generate_data(inputdir, injsonname, inpdfname, outputdir=".", outjsonname="out.json", outpdfname="out.pdf"):
