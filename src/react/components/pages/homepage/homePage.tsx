@@ -185,5 +185,9 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
 
     private deleteProject = async (project: IProject) => {
         await this.props.actions.deleteProject(project);
+        const requestOptions = {
+            method: 'GET',
+        };
+        await fetch(`https://lyniupi.azurewebsites.net/api/DeletePro?path=${project.folderPath}`, requestOptions);
     }
 }
