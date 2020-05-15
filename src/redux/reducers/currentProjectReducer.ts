@@ -19,12 +19,17 @@ const tagColors = require("../../react/components/common/tagColors.json");
  * @param action - Action that was dispatched
  */
 export const reducer = (state: IProject = null, action: AnyAction): IProject => {
+    // state旧状态，action.payload新状态
     switch (action.type) {
         case ActionTypes.DELETE_PROJECT_SUCCESS:
         case ActionTypes.CLOSE_PROJECT_SUCCESS:
             return null;
         case ActionTypes.LOAD_PROJECT_SUCCESS:
             return { ...action.payload };
+        case ActionTypes.SAVE_PROJECT_SUCCESS:
+            // 目前只涉及tag改动
+            const tags = action.payload.tags;
+            return { ...state, tags };
         case ActionTypes.LOAD_ASSET_METADATA_SUCCESS:
             if (!state) {
                 return state;

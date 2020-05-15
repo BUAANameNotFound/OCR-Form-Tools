@@ -359,6 +359,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private addRegionsToAsset = (regions: IRegion[]) => {
+        // 点击region
         const regionsToBeKept = this.state.currentAsset.regions.filter((assetRegion) => {
             return regions.findIndex((r) => r.id === assetRegion.id) === -1;
         });
@@ -558,8 +559,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             polygonPoints.push(boundingBox[i] / ocrWidth);
             polygonPoints.push(boundingBox[i + 1] / ocrHeight);
         }
-        console.log(coordinates)
-        console.log(polygonPoints)
+        // console.log(coordinates)
+        // console.log(polygonPoints)
         // console.log(ocrHeight)
         const featureId = this.createRegionIdFromBoundingBox(polygonPoints, page);
         const feature = new Feature({
