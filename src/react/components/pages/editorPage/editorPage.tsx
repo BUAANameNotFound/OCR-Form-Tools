@@ -158,6 +158,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         } else if (projectId) {
             const project = this.props.recentProjects.find((project) => project.id === projectId);
             await this.props.actions.loadProject(project);
+            // console.log("componentDidMount loadProject Action");
             this.props.appTitleActions.setTitle(project.name);
         }
         document.title = strings.editorPage.title + " - " + strings.appName;
@@ -370,6 +371,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         };
 
         this.props.applicationActions.saveAppSettings(appSettings);
+        // console.log("onSideBarResizeComplete saveAppsettings");
     }
 
     /**
@@ -399,6 +401,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private onTagRenamed = async (tag: ITag, newTag: ITag): Promise<void> => {
         this.renameCanceled = null;
         const assetUpdates = await this.props.actions.updateProjectTag(this.props.project, tag, newTag);
+        // console.log("onTagRenamed updateProjectTag");
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
 
         if (selectedAsset) {
@@ -428,7 +431,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      */
     private onTagDeleted = async (tagName: string): Promise<void> => {
         const assetUpdates = await this.props.actions.deleteProjectTag(this.props.project, tagName);
-
+        // console.log("onTagDeleted deleteProjectTag");
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
         if (selectedAsset) {
             this.setState({ selectedAsset });
@@ -501,10 +504,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             rootAsset.state = assetMetadata.asset.state;
         } else {
             const rootAssetMetadata = await this.props.actions.loadAssetMetadata(this.props.project, rootAsset);
-
+            // console.log("onAssetsMetaChanged load assets meta data");
             if (rootAssetMetadata.asset.state !== AssetState.Tagged) {
                 rootAssetMetadata.asset.state = assetMetadata.asset.state;
                 await this.props.actions.saveAssetMetadata(this.props.project, rootAssetMetadata);
+                // console.log("onAssetsMetaChanged save assets meta data");
             }
 
             rootAsset.state = rootAssetMetadata.asset.state;
@@ -513,12 +517,14 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // Only update asset metadata if state changes or is different
         if (initialState !== assetMetadata.asset.state || this.state.selectedAsset !== assetMetadata) {
             await this.props.actions.saveAssetMetadata(this.props.project, assetMetadata);
+            // console.log("onAssetsMetaChanged save assets meta data");
             if (this.props.project.lastVisitedAssetId === assetMetadata.asset.id) {
                 this.setState({selectedAsset: assetMetadata});
             }
         }
 
-        await this.props.actions.saveProject(this.props.project);
+        // await this.props.actions.saveProject(this.props.project);
+        // console.log("onAssetsMetaChanged save project");
 
         // Find and update the root asset in the internal state
         // This forces the root assets that are displayed in the sidebar to
@@ -557,6 +563,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             tags,
         };
         await this.props.actions.saveProject(project);
+        // console.log("onTagsChanged save project");
     }
 
     private onLockedTagsChanged = (lockedTags: string[]) => {
@@ -583,7 +590,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
 
         const assetMetadata = await this.props.actions.loadAssetMetadata(this.props.project, asset);
-
+        // console.log("selectAsset load assets meta data");
         try {
             if (!assetMetadata.asset.size) {
                 const assetProps = await HtmlFileReader.readAssetAttributes(asset);
@@ -594,6 +601,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         }
 
         await this.props.actions.updateProjectTagsFromFiles(this.props.project);
+        // console.log("selectAsset updateProjectTagsFromFiles");
 
         this.setState({
             selectedAsset: assetMetadata,
@@ -612,6 +620,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         const rootAssets: IAsset[] = _(await this.props.actions.loadAssets(this.props.project))
             .uniqBy((asset) => asset.id)
             .value();
+        // console.log("loadProjectAssets loadAssets");
 
         if (this.state.assets.length === rootAssets.length
             && this.state.assets.map((asset) => asset.id).join(",") === rootAssets.map((asset) => asset.id).join(",")) {
@@ -725,6 +734,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private onTagChanged = async (oldTag: ITag, newTag: ITag) => {
+        // 该表Tag的属性
         // disableDispatch();
         //
         // const temp = this.props.project.tags;
@@ -746,6 +756,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // this.props.project.tags = this.props.project.tags.map((t) => (t.name === oldTag.name) ? { ...oldTag } : t);
 
         const assetUpdates = await this.props.actions.updateProjectTag(this.props.project, oldTag, newTag);
+        // console.log("onTagChanged updateProjectTag");
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
 
         if (selectedAsset) {
