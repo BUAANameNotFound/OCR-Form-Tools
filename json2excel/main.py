@@ -17,4 +17,4 @@ if __name__ == '__main__':
         data_list.append(label_string_list[2])
     he.new_excel("wow.xlsx")
     he.write_pdf_names(pdf_names, "wow.xlsx")
-
+    he.write_pdf_data(labels_name, data_list, "wow.xlsx")
