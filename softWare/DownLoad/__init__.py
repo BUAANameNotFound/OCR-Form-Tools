@@ -3,8 +3,6 @@ import zipfile
 import json
 import os
 import azure.functions as func
-from azure.storage.blob import BlockBlobService
-from azure.storage.blob import PublicAccess
 from ..share_code import fileSystem
 
 

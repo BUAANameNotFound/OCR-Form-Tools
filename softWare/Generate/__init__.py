@@ -2,7 +2,7 @@ import logging
 import os
 import shutil
 import azure.functions as func
-from azure.storage.blob import BlockBlobService
+#from azure.storage.blob import BlockBlobService
 from .genPDF import generate_data
 from ..share_code import fileSystem
 from .name import DataDir

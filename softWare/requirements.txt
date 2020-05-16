@@ -1,5 +1,5 @@
 azure-functions
-azure-storage-blob
+azure-storage
 json5
 PyPDF2
 reportlab
