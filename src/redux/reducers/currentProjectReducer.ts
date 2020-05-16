@@ -40,6 +40,7 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
                 lastVisitedAssetId: action.payload.asset.id,
             };
         case ActionTypes.LOAD_PROJECT_ASSETS_SUCCESS:
+            // 加载asset
             const assets = {};
             action.payload.forEach((asset) => {
                 assets[asset.id] = asset;

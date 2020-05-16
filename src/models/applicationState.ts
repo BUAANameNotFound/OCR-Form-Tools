@@ -146,6 +146,7 @@ export interface IConnection {
  * @member name - Generated name for asset
  * @member path - Relative path to asset within the underlying data source
  * @member size - Size / dimensions of asset
+ * @member kind - kind of asset(template, normal, fake), nullable
  * @member format - The asset format (jpg, png, mp4, etc)
  */
 export interface IAsset {
@@ -155,6 +156,7 @@ export interface IAsset {
     name: string;
     path: string;
     size: ISize;
+    kind?: AssetKind;
     format?: string;
     timestamp?: number;
     parent?: IAsset;
@@ -339,6 +341,17 @@ export enum AssetState {
     NotVisited = 0,
     Visited = 1,
     Tagged = 2,
+}
+
+/**
+ * @name - Asset Kind
+ * @description
+ * @member Template - the asset is en empty template form
+ * @member Normal - the asset is a normal filled form
+ * @member Fake - the asset is a fake form generated from template
+ */
+export enum AssetKind {
+    Undefined, Template, Normal, Fake,
 }
 
 /**
