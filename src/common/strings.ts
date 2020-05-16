@@ -255,6 +255,24 @@ export interface IAppStrings {
         height: string;
         tagged: string;
         visited: string;
+        kind: {
+            undefined: {
+                meta: string;
+                desc: string;
+            };
+            template: {
+                meta: string;
+                desc: string;
+            };
+            normal: {
+                meta: string;
+                desc: string;
+            };
+            fake: {
+                meta: string;
+                desc: string;
+            };
+        }
         toolbar: {
             select: string;
             pan: string;

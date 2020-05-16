@@ -258,6 +258,24 @@ export const english: IAppStrings = {
         height: "Height",
         tagged: "Tagged",
         visited: "Visited",
+        kind: {
+            undefined: {
+                meta: "Undefined",
+                desc: "This asset has no kind",
+            },
+            template: {
+                meta: "Template",
+                desc: "This asset is an empty form template",
+            },
+            normal: {
+                meta: "Filled",
+                desc: "This asset has been filled manually",
+            },
+            fake: {
+                meta: "Generated",
+                desc: "This fake asset is generated based on template",
+            },
+        },
         toolbar: {
             select: "Select (V)",
             pan: "Pan",

@@ -108,7 +108,6 @@
     }
 
     &-metadata {
-      display: flex;
       flex-direction: row;
       font-size: 70%;
 
@@ -118,7 +117,28 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        margin: 0;
         flex-grow: 1;
+          &-kind-undefined{
+              color: #00a1f1;
+              margin: 0;
+              float: right;
+          };
+          &-kind-template{
+              color: #7cbb00;
+              margin: 0;
+              float: right;
+          };
+          &-kind-normal{
+              color: #c69500;
+              margin: 0;
+              float: right;
+          };
+          &-kind-fake{
+              color: plum;
+              margin: 0;
+              float: right;
+          };
       }
     }
   }

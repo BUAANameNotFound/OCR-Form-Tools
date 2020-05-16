@@ -2,11 +2,12 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { AutoSizer, List } from "react-virtualized";
-import { FontIcon } from "office-ui-fabric-react";
-import { IAsset, AssetState, ISize } from "../../../../models/applicationState";
-import { AssetPreview } from "../../common/assetPreview/assetPreview";
-import { strings } from "../../../../common/strings";
+import {AutoSizer, List} from "react-virtualized";
+import {FontIcon} from "office-ui-fabric-react";
+import {ITooltipHostStyles, TooltipHost} from "office-ui-fabric-react/lib/Tooltip";
+import {AssetKind, AssetState, IAsset, ISize} from "../../../../models/applicationState";
+import {AssetPreview} from "../../common/assetPreview/assetPreview";
+import {strings} from "../../../../common/strings";
 
 /**
  * Properties for Editor Side Bar
@@ -111,6 +112,41 @@ export default class EditorSideBar extends React.Component<IEditorSideBarProps, 
         const asset = this.props.assets[index];
         const selectedAsset = this.props.selectedAsset;
 
+        const kindTip = (kind: AssetKind) => {
+            return (
+                kind === AssetKind.Template ?
+                    <div className="asset-filename-kind-template">
+                        <TooltipHost content={strings.editorPage.kind.template.desc}>
+                            <span>
+                                {strings.editorPage.kind.template.meta}
+                            </span>
+                        </TooltipHost>
+                    </div> :
+                kind === AssetKind.Normal ?
+                    <div className="asset-filename-kind-normal">
+                        <TooltipHost content={strings.editorPage.kind.normal.desc}>
+                            <span>
+                                {strings.editorPage.kind.normal.meta}
+                            </span>
+                        </TooltipHost>
+                    </div> :
+                kind === AssetKind.Fake ?
+                    <div className="asset-filename-kind-fake">
+                        <TooltipHost content={strings.editorPage.kind.fake.desc}>
+                            <span>
+                                {strings.editorPage.kind.fake.meta}
+                            </span>
+                        </TooltipHost>
+                    </div> :
+                    <div className="asset-filename-kind-undefined">
+                        <TooltipHost content={strings.editorPage.kind.undefined.desc}>
+                            <span>
+                                {strings.editorPage.kind.undefined.meta}
+                            </span>
+                        </TooltipHost>
+                    </div>
+            );
+        };
         return (
             <div key={asset.id} style={style} role="row"
                 className={this.getAssetCssClassNames(asset, selectedAsset)}
@@ -120,9 +156,12 @@ export default class EditorSideBar extends React.Component<IEditorSideBarProps, 
                     <AssetPreview asset={asset} />
                 </div>
                 <div className="asset-item-metadata" role="rowheader">
-                    <span className="asset-filename" title={asset.name}>
-                        {asset.name.slice(asset.name.lastIndexOf("/") + 1, asset.name.length)}
-                    </span>
+                    <p className="asset-filename">
+                        <span title={asset.name}>
+                            {asset.name.slice(asset.name.lastIndexOf("/") + 1, asset.name.length)}
+                        </span>
+                    </p>
+                    {kindTip(asset.kind)}
                     {asset.size &&
                         <span>
                             {asset.size.width} x {asset.size.height}
