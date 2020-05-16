@@ -22,11 +22,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             status_code=400
         )
 
-    gen_path = req.params.get('path')
+    pro_name = req.params.get('path')
 
     #generate
-    template_file = 'template.pdf'
+    template_file = 'type1/template.pdf'
     label_file = 'label.json'
+    
     data_path = 'tmp'
     if os.path.exists('tmp'):
         shutil.rmtree('tmp')
@@ -35,20 +36,18 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('mkdirs path')
     fileSystem.download_file(r'tmp/font.ttf', 'font.ttf', 'dataset')
 
-
-    logging.info(f'clear {gen_path} fold in container begin!')
-    fileSystem.clear_container(gen_path, 'wudi')
+    logging.info(f'clear {pro_name} fold in container begin!')
+    fileSystem.clear_container(f'pro_name/type3', 'wudi')
     logging.info('clear completely!')
 
     for i in range(int(num)):
-        json_file = 'genJson{}.json'.format(i+1)
         pdf_file = 'genPdf{}.pdf'.format(i+1)
 
-        generate_data(gen_path, label_file, template_file,
-                      outjsonname=json_file, outpdfname=pdf_file)
+        generate_data(pro_name, label_file, template_file, outpdfname=pdf_file)
+
         logging.info('generate one pdf and jsonFile!')
 
-    fileSystem.delete_blob_file(f'{gen_path}/mark.pdf')
+    fileSystem.delete_blob_file(f'{pro_name}/mark.pdf')
     #return
     return func.HttpResponse(f"We have generated {num} files! You can just download them!")
 

@@ -7,20 +7,21 @@ import shutil
 from io import BytesIO, StringIO
 import azure.functions as func
 from azure.storage.blob import BlockBlobService
+from azure.storage.blob import blockblobservice
 from azure.storage.blob import PublicAccess
 
-#DEFAULT_STORAGENAME = 'lyniupi'
-#DEFAULT_KEY = '1Y5H3obB3kT4NtMIE1babykABwW0LXFxyaJ43MBONcGmaxzt8RPCsmdmYBrhrR9QBySv9oYHFSsXyDKWHz8p3Q=='
+DEFAULT_STORAGENAME = 'lyniupi'
+DEFAULT_KEY = '1Y5H3obB3kT4NtMIE1babykABwW0LXFxyaJ43MBONcGmaxzt8RPCsmdmYBrhrR9QBySv9oYHFSsXyDKWHz8p3Q=='
 
-DEFAULT_STORAGENAME = 'lyceshi'
-DEFAULT_KEY = 'PcrYp+YILDxt54rzcPEPIk3Lhv9WXC9w64Ws7rP27TJEIyDdE4aa/g2mir4u6/PmuWqnbLtb0Zo3ny33wwh6EQ=='
+#DEFAULT_STORAGENAME = 'lyceshi'
+#DEFAULT_KEY = 'PcrYp+YILDxt54rzcPEPIk3Lhv9WXC9w64Ws7rP27TJEIyDdE4aa/g2mir4u6/PmuWqnbLtb0Zo3ny33wwh6EQ=='
 
 def open_file_bytes_io(blob_name, container='wudi',
                        storage_name=DEFAULT_STORAGENAME, key=DEFAULT_KEY):
     '''
     open a file in container in ByteIO!
     '''
-    blob_service = BlockBlobService(account_name=storage_name, account_key=key)
+    blob_service = blockblobservice.BlockBlobService(account_name=storage_name, account_key=key)
     res = BytesIO()
     blob_service.get_blob_to_stream(container, blob_name, res)
     return res
@@ -31,7 +32,7 @@ def open_file_string_io(blob_name, container='wudi',
     '''
     open a file in container in stringIO!
     '''
-    blob_service = BlockBlobService(account_name=storage_name, account_key=key)
+    blob_service = blockblobservice.BlockBlobService(account_name=storage_name, account_key=key)
     res = StringIO()
     blob_service.get_blob_to_stream(container, blob_name, res)
     return res
@@ -41,7 +42,7 @@ def open_templatepdf_file(path, container='wudi',
     '''
     open the template Pdf file in BytesIO
     '''
-    blob_service = BlockBlobService(account_name=storage_name, account_key=key)
+    blob_service = blockblobservice.BlockBlobService(account_name=storage_name, account_key=key)
     res = BytesIO()
     files = blob_service.list_blobs(container)
     for afile in files:
@@ -62,7 +63,7 @@ def upload_string(blob_string, blob_name, container='wudi', blob_encoding='utf-8
     '''
     upload file in String
     '''
-    blob_service = BlockBlobService(account_name=storage_name, account_key=key)
+    blob_service = blockblobservice.BlockBlobService(account_name=storage_name, account_key=key)
     # try:
     #     blob_service.create_container(container,
     # public_access=PublicAccess.Container, fail_on_exist=True)
@@ -76,7 +77,7 @@ def upload_bytes(blob_bytes, blob_name, container='wudi',
     '''
     upload file in bytes or bytes array
     '''
-    blob_service = BlockBlobService(account_name=storage_name, account_key=key)
+    blob_service = blockblobservice.BlockBlobService(account_name=storage_name, account_key=key)
     # try:
     #     blob_service.create_container(container,
     # public_access=PublicAccess.Container, fail_on_exist=True)
@@ -90,7 +91,7 @@ def download_file(path, blob_name, container='wudi',
     '''
     download files from Azure storage!
     '''
-    blob_service = BlockBlobService(account_name=storage_name, account_key=key)
+    blob_service = blockblobservice.BlockBlobService(account_name=storage_name, account_key=key)
     blob_service.get_blob_to_path(container, blob_name, path)
 
 
@@ -101,7 +102,7 @@ def download_container(dir_path, container, storage_name=DEFAULT_STORAGENAME, ke
     try:
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
-        blob_service = BlockBlobService(account_name=storage_name, account_key=key)
+        blob_service = blockblobservice.BlockBlobService(account_name=storage_name, account_key=key)
         files = blob_service.list_blobs(container)
         for afile in files:
             blob_service.get_blob_to_path(container, afile.name, os.path.join(dir_path, f.name))
@@ -117,7 +118,7 @@ def download_data(path, storage_name=DEFAULT_STORAGENAME, key=DEFAULT_KEY):
     download the generate data in container!
     '''
     try:
-        blob_service = BlockBlobService(account_name=storage_name, account_key=key)
+        blob_service = blockblobservice.BlockBlobService(account_name=storage_name, account_key=key)
         pdf_container = 'wudi'
         pdf_path = r'tmp/pdfs'
         if os.path.exists('tmp'):
@@ -158,7 +159,7 @@ def delete_container(container, storage_name=DEFAULT_STORAGENAME, key=DEFAULT_KE
     '''
     delete the container!
     '''
-    blob_service = BlockBlobService(account_name=storage_name, account_key=key)
+    blob_service = blockblobservice.BlockBlobService(account_name=storage_name, account_key=key)
     return blob_service.delete_container(container)
 
 
@@ -166,7 +167,7 @@ def delete_blob_file(path, container='wudi', storage_name=DEFAULT_STORAGENAME, k
     '''
     delete the specified file
     '''
-    blob_service = BlockBlobService(account_name=storage_name, account_key=key)
+    blob_service = blockblobservice.BlockBlobService(account_name=storage_name, account_key=key)
     blob_service.delete_blob(container, path)
 
 
@@ -174,7 +175,7 @@ def clear_comsuer_fold(fold, container='wudi', storage_name=DEFAULT_STORAGENAME,
     '''
     clear fold before upload pdf
     '''
-    blob_service = BlockBlobService(account_name=storage_name, account_key=key)
+    blob_service = blockblobservice.BlockBlobService(account_name=storage_name, account_key=key)
     #if blob_service.exists(container, fold)
     files = blob_service.list_blobs(container)
     for afile in files:
@@ -189,14 +190,12 @@ def clear_container(fold, container, storage_name=DEFAULT_STORAGENAME, key=DEFAU
     '''
     clear the container!
     '''
-    blob_service = BlockBlobService(account_name=storage_name, account_key=key)
+    blob_service = blockblobservice.BlockBlobService(account_name=storage_name, account_key=key)
     #if blob_service.exists(container, fold)
     files = blob_service.list_blobs(container)
     for afile in files:
         name = afile.name
-        file_path = name[0:name.find('/')]
-        file_name = name[name.find('/')+1:]
-        if file_name[0:3] == 'gen' and file_path == fold:
+        if name.find(f'{fold}/gen') != -1 :
             blob_service.delete_blob(container, name)
             logging.info(f'delete {name}!')
 
@@ -205,7 +204,7 @@ def create_container(container, storage_name=DEFAULT_STORAGENAME, key=DEFAULT_KE
     '''
     create a container
     '''
-    blob_service = BlockBlobService(account_name=storage_name, account_key=key)
+    blob_service = blockblobservice.BlockBlobService(account_name=storage_name, account_key=key)
     try:
         blob_service.create_container(container, public_access=PublicAccess.Container,
                                       fail_on_exist=True)

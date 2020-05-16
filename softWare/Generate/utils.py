@@ -19,11 +19,12 @@ def readjson(path, name, container='wudi'):
     return json.loads(res.getvalue())
 
 
-def outjson(out_path, out_jsonname, content):
+def outjson(pro_name, outpdfname, content):
     '''
     generate json file
     '''
-    fileSystem.upload_string(json.dumps(content), f'{out_path}/{out_jsonname}', container='wudi')
+    content['document'] = outpdfname
+    fileSystem.upload_string(json.dumps(content), f'{pro_name}/type3/{outpdfname}.labels.json', container='wudi')
 
 
 def outJsonByte(content):
@@ -57,13 +58,13 @@ def changetext(dic, value):
     '''
     dic["text"] = value
 
-def createmark(file_dir, marks):
+def createmark(pro_name, marks):
     '''
     create a mark pdf used for merging with form pdf
     '''
     pdf_buf = BytesIO()
-    #pdf_buf = fileSystem.open_file_bytes_io(f'{file_dir}/template.pdf')
-    pdf_buf = fileSystem.open_templatepdf_file(file_dir)
+    pdf_buf = fileSystem.open_file_bytes_io(f'{pro_name}/type1/template.pdf')
+    #pdf_buf = fileSystem.open_templatepdf_file(pro_name)
     pdf_input = PdfFileReader(pdf_buf, strict=False)
     page = pdf_input.getPage(0)
     width = float(page['/MediaBox'][2])
@@ -117,7 +118,7 @@ def createmark(file_dir, marks):
             position += fontsize
         c.setFillAlpha(1)
     c.save()
-    fileSystem.upload_bytes(tmp_mark.getvalue(), f'{file_dir}/mark.pdf')
+    fileSystem.upload_bytes(tmp_mark.getvalue(), f'{pro_name}/mark.pdf')
 
 
 def genpdf(path, inpdf, outpdf):
@@ -126,8 +127,8 @@ def genpdf(path, inpdf, outpdf):
     '''
     pdf_output = PdfFileWriter()
     pdf_buf = BytesIO()
-    #pdf_buf = fileSystem.open_file_bytes_io(f'{path}/{inpdf}')
-    pdf_buf = fileSystem.open_templatepdf_file(path)
+    pdf_buf = fileSystem.open_file_bytes_io(f'{path}/{inpdf}')
+    #pdf_buf = fileSystem.open_templatepdf_file(path)
     pdf_input = PdfFileReader(pdf_buf, strict=False)
     try:
         mark = BytesIO()
@@ -145,4 +146,4 @@ def genpdf(path, inpdf, outpdf):
     pdf_output.addPage(page)
     res = BytesIO()
     pdf_output.write(res)
-    fileSystem.upload_bytes(res.getvalue(), f'{path}/{outpdf}', container='wudi')
+    fileSystem.upload_bytes(res.getvalue(), f'{path}/type3/{outpdf}', container='wudi')

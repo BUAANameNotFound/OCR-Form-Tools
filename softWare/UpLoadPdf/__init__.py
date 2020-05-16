@@ -19,9 +19,9 @@ def main(req: func.HttpRequest) -> str:
     if req.method == "POST":
         try:
             str1 = req.get_body()
-            upload_path = req.params.get('path')
+            pro_name = req.params.get('path')
             upload_type = req.params.get('type')
-            if upload_path is None:
+            if pro_name is None:
                 return func.HttpResponse(
                     'Wrong in path parameter! You should give the path!',
                     status_code=400
@@ -44,6 +44,7 @@ def main(req: func.HttpRequest) -> str:
     try:
         suffix = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         up_filename = suffix + '_model.pdf' if upload_type == '2' else 'template.pdf'
+        upload_path = pro_name + '/type1' if upload_type == '1' else pro_name + '/type2'
         up_bytes = str1 if str1 != "" else b"POST give nothing! You may do wrong Request!"
         #fileSystem.clear_comsuer_fold(upload_path)
         fileSystem.upload_bytes(up_bytes, f'{upload_path}/{up_filename}')
