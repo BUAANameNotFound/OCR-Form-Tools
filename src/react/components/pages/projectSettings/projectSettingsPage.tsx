@@ -189,7 +189,8 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
 
         await this.deleteOldProjectWhenRenamed(project, isNew);
         await this.props.applicationActions.ensureSecurityToken(project);
-        await this.props.projectActions.saveProject(project);
+        const savedProject = await this.props.projectActions.saveProject(project);
+        await this.props.projectActions.loadProject(savedProject);
 
         toast.success(interpolate(strings.projectSettings.messages.saveSuccess, { project }));
 
