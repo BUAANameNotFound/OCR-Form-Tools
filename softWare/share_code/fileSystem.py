@@ -6,14 +6,14 @@ import os
 import shutil
 from io import BytesIO, StringIO
 import azure.functions as func
-from azure.storage.blob import BlockBlobService
+from auzre.storage.blob import BlockBlobService
 from azure.storage.blob import PublicAccess
 
 DEFAULT_STORAGENAME = 'lyniupi'
 DEFAULT_KEY = '1Y5H3obB3kT4NtMIE1babykABwW0LXFxyaJ43MBONcGmaxzt8RPCsmdmYBrhrR9QBySv9oYHFSsXyDKWHz8p3Q=='
 
-#DEFAULT_STORAGENAME = 'lyceshi'
-#DEFAULT_KEY = 'PcrYp+YILDxt54rzcPEPIk3Lhv9WXC9w64Ws7rP27TJEIyDdE4aa/g2mir4u6/PmuWqnbLtb0Zo3ny33wwh6EQ=='
+DEFAULT_STORAGENAME = 'lyceshi'
+DEFAULT_KEY = 'PcrYp+YILDxt54rzcPEPIk3Lhv9WXC9w64Ws7rP27TJEIyDdE4aa/g2mir4u6/PmuWqnbLtb0Zo3ny33wwh6EQ=='
 
 def open_file_bytes_io(blob_name, container='wudi',
                        storage_name=DEFAULT_STORAGENAME, key=DEFAULT_KEY):
