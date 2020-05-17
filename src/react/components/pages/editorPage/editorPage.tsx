@@ -9,7 +9,7 @@ import SplitPane from "react-split-pane";
 import { bindActionCreators } from "redux";
 import { PrimaryButton } from "office-ui-fabric-react";
 import HtmlFileReader from "../../../../common/htmlFileReader";
-import { strings } from "../../../../common/strings";
+import {interpolate, strings} from "../../../../common/strings";
 import {
     AssetState, AssetType, EditorMode, IApplicationState,
     IAppSettings, IAsset, IAssetMetadata, IProject, IRegion,
@@ -621,6 +621,12 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             .uniqBy((asset) => asset.id)
             .value();
         // console.log("loadProjectAssets loadAssets");
+        const projectId = this.props.match.params["projectId"];
+        if (rootAssets.length === 0) {
+            // 如果加载完之后还是0，提示并跳转到upload
+            toast.error(interpolate("The project has no assets. Upload one before going on", this.props.project));
+            this.props.history.push(`/projects/${projectId}/upload`);
+        }
 
         if (this.state.assets.length === rootAssets.length
             && this.state.assets.map((asset) => asset.id).join(",") === rootAssets.map((asset) => asset.id).join(",")) {
