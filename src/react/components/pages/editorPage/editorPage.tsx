@@ -609,7 +609,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
         this.setState({isLoadingProjectAssets: true});
 
-        const rootAssets: IAsset[] = _(await this.props.actions.loadAssets(this.props.project))
+        const rootAssets: IAsset[] = _(await this.props.actions.loadAssets(this.props.project, -1))
             .uniqBy((asset) => asset.id)
             .value();
 

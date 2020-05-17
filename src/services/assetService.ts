@@ -15,6 +15,7 @@ import { encodeFileURI } from "../common/utils";
 import { strings, interpolate } from "../common/strings";
 import { sha256Hash } from "../common/crypto";
 import { toast } from "react-toastify";
+import * as path from "path";
 
 /**
  * @name - Asset Service
@@ -119,16 +120,27 @@ export class AssetService {
         return this.storageProviderInstance;
     }
 
+    private getFolderPath(project: IProject, type: number) {
+        if (type === 3) {
+            return path.join(project.folderPath, "type3");
+        }
+        if (project.projectType == strings.appSettings.projectType.completed) {
+            return path.join(project.folderPath, "type2");
+        } else {
+            return path.join(project.folderPath, "type1");
+        }
+    }
+
     /**
      * Get assets from provider
      */
-    public async getAssets(): Promise<IAsset[]> {
+    public async getAssets(type=-1): Promise<IAsset[]> {
         const project = this.project;
         const assets = await this.assetProvider.getAssets();
         const returnedAssets = assets.map((asset) => {
             asset.name = decodeURIComponent(asset.name);
             return asset;
-        }).filter((asset) => this.isInExactFolderPath(asset.name, project.folderPath));
+        }).filter((asset) => this.isInExactFolderPath(asset.name, this.getFolderPath(project, type)));
 
         return returnedAssets;
     }

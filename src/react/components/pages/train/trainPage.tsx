@@ -10,7 +10,7 @@ import IProjectActions, * as projectActions from "../../../../redux/actions/proj
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import {
-    IApplicationState, IConnection, IProject, IAppSettings,
+    IApplicationState, IConnection, IProject, IAppSettings, AssetState,
 } from "../../../../models/applicationState";
 import TrainChart from "./trainChart";
 import TrainPanel from "./trainPanel";
@@ -26,6 +26,9 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { getPrimaryGreenTheme } from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
+import * as path from "path";
+import {throttle} from "../../../../common/utils";
+import {OCRService} from "../../../../services/ocrService";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -227,6 +230,25 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     }
 
     private async train(): Promise<any> {
+        let assets = await this.props.actions.loadAssets(this.props.project, 3)
+        const ocrService = new OCRService(this.props.project);
+        try {
+            await throttle(
+                constants.maxConcurrentServiceRequests,
+                assets.map((asset) => asset.id),
+                async (assetId) => {
+                    // Get the latest version of asset.
+                    const asset = assets.find((asset) => asset.id === assetId);
+                        try {
+                            await ocrService.getRecognizedText(asset.path, asset.name);
+                        } catch (err) {
+                            console.log(err);
+                        }
+                });
+        } catch (err) {
+            console.log(err);
+        }
+
         const baseURL = url.resolve(
             this.props.project.apiUriBase,
             constants.apiModelsPath,
@@ -237,11 +259,12 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const payload = {
             source: trainSourceURL,
             sourceFilter: {
-                prefix: this.props.project.folderPath ? this.props.project.folderPath : "",
+                prefix: this.props.project.folderPath ? path.join(this.props.project.folderPath, "type3") : "",
                 includeSubFolders: false,
             },
             useLabelFile: true,
         };
+        console.log(payload);
         try {
             return await ServiceHelper.postWithAutoRetry(
                 baseURL,

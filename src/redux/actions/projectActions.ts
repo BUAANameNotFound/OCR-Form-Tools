@@ -25,7 +25,7 @@ export default interface IProjectActions {
     saveProject(project: IProject): Promise<IProject>;
     deleteProject(project: IProject): Promise<void>;
     closeProject(): void;
-    loadAssets(project: IProject): Promise<IAsset[]>;
+    loadAssets(project: IProject, type: number): Promise<IAsset[]>;
     loadAssetMetadata(project: IProject, asset: IAsset): Promise<IAssetMetadata>;
     saveAssetMetadata(project: IProject, assetMetadata: IAssetMetadata): Promise<IAssetMetadata>;
     updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag): Promise<IAssetMetadata[]>;
@@ -157,11 +157,12 @@ export function closeProject(): (dispatch: Dispatch) => void {
 /**
  * Gets assets from project, dispatches load assets action and returns assets
  * @param project - Project from which to load assets
+ * @param type - folderPath suffix
  */
-export function loadAssets(project: IProject): (dispatch: Dispatch) => Promise<IAsset[]> {
+export function loadAssets(project: IProject, type=-1): (dispatch: Dispatch) => Promise<IAsset[]> {
     return async (dispatch: Dispatch) => {
         const assetService = new AssetService(project);
-        const assets = await assetService.getAssets();
+        const assets = await assetService.getAssets(type);
         if (!disableDispatchOnTagging) {
             dispatch(loadProjectAssetsAction(assets));
         }

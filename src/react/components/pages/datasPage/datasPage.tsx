@@ -8,7 +8,7 @@ import IApplicationActions, * as applicationActions from "../../../../redux/acti
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import "./datasPage.scss";
 import {
-    ErrorCode, 
+    ErrorCode,
     IApplicationState,IConnection,IAppSettings, IAsset, IAssetMetadata, IProject,
     ISize,
 } from "../../../../models/applicationState";
@@ -43,7 +43,7 @@ export interface IDatasPageState {
     /** The string in input textarea */
     NumberLabel: string;
     /** The quantity of data inputed */
-    dataQuantity: number; 
+    dataQuantity: number;
     /** The quantity of data last time */
     lastDataQuantity: number;
     /** whether input the quantity of data with correct format*/
@@ -113,7 +113,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         if (this.props.project) {
             await this.loadProjectAssets();
             this.props.appTitleActions.setTitle(this.props.project.name);
-        } 
+        }
         else if (projectId) {
             const project = this.props.recentProjects.find((project) => project.id === projectId);
             await this.props.actions.loadProject(project);
@@ -136,7 +136,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         this.isUnmount = true;
         window.removeEventListener("focus", this.onFocused);
     }
-    
+
 
     private quantityInput: React.RefObject<HTMLInputElement> = React.createRef();
 
@@ -145,11 +145,11 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         const inputDisabled: boolean = this.state.isGenerating;
         const generateDisabled: boolean = !this.state.dataQuantityLoaded || this.state.isGenerating;
         const downloadDisabled: boolean = !this.state.dataGenerateLoaded || this.state.isGenerating;
-        
+
         const { project } = this.props;
         const { assets, selectedAsset} = this.state;
         const rootAssets = assets.filter((asset) => !asset.parent);
-       
+
 
         if (!project) {
            return (<div>Loading...</div>);
@@ -251,7 +251,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
 
                     </div>
                 </SplitPane>
-              
+
                 <Alert
                     show={this.state.shouldShowAlert}
                     title={this.state.alertTitle}
@@ -284,13 +284,13 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                     this.setState({
                         dataQuantity: 0,
                         dataQuantityLoaded: false,
-                    }); 
+                    });
                 }
             } else {
                 this.setState({
                     dataQuantity: 0,
                     dataQuantityLoaded: false,
-                });               
+                });
             }
         } else {
             this.setState({
@@ -349,7 +349,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                         lastDataQuantity : lastQuantity,
                     });
                     */
-                      
+
                     this.setState({
                         shouldShowAlert: true,
                         alertTitle: "Generate Error",
@@ -357,13 +357,13 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                         isGenerating: false,
                         dataGenerateLoaded: false,
                     });
-                    
+
                 });
-        } 
+        }
         catch (err) {
             ServiceHelper.handleServiceError(err);
         }
-    
+
     }
 
     /**
@@ -413,7 +413,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
             });
         } catch (err) {
             ServiceHelper.handleServiceError(err);
-        } 
+        }
     }
 
     /**
@@ -483,7 +483,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
 
         this.loadingProjectAssets = true;
 
-        const rootAssets: IAsset[] = _(await this.props.actions.loadAssets(this.props.project))
+        const rootAssets: IAsset[] = _(await this.props.actions.loadAssets(this.props.project, 3))
             .uniqBy((asset) => asset.id)
             .value();
 
