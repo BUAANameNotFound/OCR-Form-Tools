@@ -341,7 +341,6 @@ export class AssetService {
             return assetName.lastIndexOf("/") === -1;
         }
 
-        const startsWithFolderPath = assetName.indexOf(`${normalizedPath}/`) === 0;
-        return startsWithFolderPath && assetName.lastIndexOf("/") === normalizedPath.length;
+        return assetName.indexOf(`${normalizedPath}/`) === 0;
     }
 }

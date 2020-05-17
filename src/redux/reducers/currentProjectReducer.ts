@@ -25,11 +25,15 @@ export const reducer = (state: IProject = null, action: AnyAction): IProject => 
         case ActionTypes.CLOSE_PROJECT_SUCCESS:
             return null;
         case ActionTypes.LOAD_PROJECT_SUCCESS:
-            return { ...action.payload };
+            return {...action.payload};
         case ActionTypes.SAVE_PROJECT_SUCCESS:
             // 目前只涉及tag改动
-            const tags = action.payload.tags;
-            return { ...state, tags };
+            if (state) {
+                const tags = action.payload.tags;
+                return {...state, tags};
+            } else {
+                return state;
+            }
         case ActionTypes.LOAD_ASSET_METADATA_SUCCESS:
             if (!state) {
                 return state;
