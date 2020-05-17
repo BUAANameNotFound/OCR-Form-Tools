@@ -21,6 +21,7 @@ import ProjectService from "../../../../services/projectService";
 import { getStorageItem, setStorageItem, removeStorageItem } from "../../../../redux/middleware/localStorage";
 import { SkipButton } from "../../shell/skipButton";
 import {delay} from "../../../../common/utils";
+import {Spinner, SpinnerSize} from "office-ui-fabric-react/lib/Spinner";
 
 /**
  * Properties for Project Settings Page
@@ -45,6 +46,7 @@ export interface IProjectSettingsPageState {
     project: IProject;
     action: ProjectSettingAction;
     isError: boolean;
+    isCreatingProject: boolean;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -74,6 +76,7 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
         project: this.props.project,
         action: null,
         isError: false,
+        isCreatingProject: false,
     };
 
     public async componentDidMount() {
@@ -112,30 +115,41 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
     // Hide ProjectMetrics for private-preview
     public render() {
         return (
-            <div className="project-settings-page" id="pageProjectSettings">
-                <div className="project-settings-page-settings m-3">
-                    <h3 className="flex-center">
-                        <FontIcon iconName="DocumentManagement" />
-                        <span className="px-2">
-                            {strings.projectSettings.title}
-                        </span>
-                    </h3>
-                    <div className="m-3">
-                        <ProjectForm
-                            project={this.state.project}
-                            connections={this.props.connections}
-                            appSettings={this.props.appSettings}
-                            onChange={this.onFormChange}
-                            onSubmit={this.onFormSubmit}
-                            onCancel={this.onFormCancel}
-                            action={this.state.action} />
+            !this.state.isCreatingProject ?
+                    <div className="project-settings-page" id="pageProjectSettings">
+                        <div className="project-settings-page-settings m-3">
+                            <h3 className="flex-center">
+                                <FontIcon iconName="DocumentManagement"/>
+                                <span className="px-2">
+                                    {strings.projectSettings.title}
+                                </span>
+                            </h3>
+                            <div className="m-3">
+                                <ProjectForm
+                                    project={this.state.project}
+                                    connections={this.props.connections}
+                                    appSettings={this.props.appSettings}
+                                    onChange={this.onFormChange}
+                                    onSubmit={this.onFormSubmit}
+                                    onCancel={this.onFormCancel}
+                                    action={this.state.action}/>
+                            </div>
+                        </div>
+                        <SkipButton skipTo="pageProjectSettings">{strings.common.skipToMainContent}</SkipButton>
+                        {this.state.isError &&
+                        <Redirect to="/"/>
+                        }
+                    </div> :
+                    <div className="project-settings-page" id="pageProjectSettings">
+                        <div className="project-settings-page-settings m-3">
+                            <div className="project-settings-page-loading">
+                                <div className="project-settings-page-loading-spinner">
+                                    <Spinner size={SpinnerSize.large} label={"Creating Project...."}
+                                             ariaLive="assertive" labelPosition="right"/>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <SkipButton skipTo="pageProjectSettings">{strings.common.skipToMainContent}</SkipButton>
-                {this.state.isError &&
-                    <Redirect to="/" />
-                }
-            </div>
         );
     }
 
@@ -180,10 +194,13 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
     private onFormSubmit = async (project: IProject) => {
         const isNew = !(!!project.id);
 
-        toast.info(interpolate("Creating the project....", {project}));
+        // toast.info(interpolate("Creating the project....", {project}));
+        this.setState({ isCreatingProject: true });
 
         if (await this.isValidProjectName(project, isNew)) {
+            this.setState({ isCreatingProject: false });
             toast.error(interpolate(strings.projectSettings.messages.projectExisted, { project }));
+            this.props.history.goBack();
             return;
         }
 
@@ -191,6 +208,7 @@ export default class ProjectSettingsPage extends React.Component<IProjectSetting
         await this.props.applicationActions.ensureSecurityToken(project);
         await this.props.projectActions.saveProject(project);
 
+        this.setState({ isCreatingProject: false });
         toast.success(interpolate(strings.projectSettings.messages.saveSuccess, { project }));
 
         if (isNew) {
