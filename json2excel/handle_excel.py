@@ -41,8 +41,6 @@ def write_pdf_data(labels, values, path):
     for i in range(pdf_num):
         single_pdf_labels = labels[i]
         single_pdf_values = values[i]
-        print(single_pdf_labels)
-        print(single_pdf_values)
         for j in range(labels_num):
             location = find_location(single_pdf_labels[j], label0)
             new_str = ''
