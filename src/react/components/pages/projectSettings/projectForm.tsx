@@ -111,7 +111,7 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
             <Form
                 className={this.state.classNames.join(" ")}
                 showErrorList={false}
-                liveValidate={true}
+                liveValidate={false}
                 noHtml5Validate={true}
                 FieldTemplate={CustomFieldTemplate}
                 validate={this.onFormValidate}
