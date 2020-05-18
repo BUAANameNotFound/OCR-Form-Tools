@@ -88,24 +88,24 @@ export interface ITagInputState {
 
 function filterFormat(type: FieldType): FieldFormat[] {
     switch (type) {
-        case FieldType.String:
-            return [
-                FieldFormat.NotSpecified,
-                FieldFormat.Alphanumeric,
-                FieldFormat.NoWhiteSpaces,
-            ];
-        case FieldType.Number:
-            return [
-                FieldFormat.NotSpecified,
-                FieldFormat.Currency,
-            ];
-        case FieldType.Date:
-            return [
-                FieldFormat.NotSpecified,
-                FieldFormat.DMY,
-                FieldFormat.MDY,
-                FieldFormat.YMD,
-            ];
+        // case FieldType.String:
+        //     return [
+        //         FieldFormat.NotSpecified,
+        //         FieldFormat.Alphanumeric,
+        //         FieldFormat.NoWhiteSpaces,
+        //     ];
+        // case FieldType.Number:
+        //     return [
+        //         FieldFormat.NotSpecified,
+        //         FieldFormat.Currency,
+        //     ];
+        // case FieldType.Date:
+        //     return [
+        //         FieldFormat.NotSpecified,
+        //         FieldFormat.DMY,
+        //         FieldFormat.MDY,
+        //         FieldFormat.YMD,
+        //     ];
         case FieldType.Generate:
             return [
               FieldFormat.Name,
@@ -520,7 +520,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         const newTag: ITag = {
                 name: value,
                 color: getNextColor(this.state.tags),
-                type: FieldType.String,
+                type: FieldType.Generate,
                 format: FieldFormat.NotSpecified,
         };
         if (newTag.name.length && ![...this.state.tags, newTag].containsDuplicates((t) => t.name)) {
@@ -558,16 +558,16 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
         }
 
         const menuItems: IContextualMenuItem[] = [
-            {
-                key: "type",
-                iconProps: {
-                    iconName: "Link",
-                },
-                text: tag.type ? tag.type : strings.tags.toolbar.type,
-                subMenuProps: {
-                    items: this.getTypeSubMenuItems(),
-                },
-            },
+            // {
+            //     key: "type",
+            //     iconProps: {
+            //         iconName: "Link",
+            //     },
+            //     text: tag.type ? tag.type : strings.tags.toolbar.type,
+            //     subMenuProps: {
+            //         items: this.getTypeSubMenuItems(),
+            //     },
+            // },
             {
                 key: "format",
                 iconProps: {
