@@ -42,7 +42,7 @@ import {StorageProviderFactory} from "../../../../providers/storage/storageProvi
 import {
     disableDispatch, enableDispatch,
     saveProject,
-    updateProjectTagAction
+    updateProjectTagAction,
 } from "../../../../redux/actions/projectActions";
 import {toast} from "react-toastify";
 
@@ -746,6 +746,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         // const temp = this.props.project.tags;
         //
         // this.props.project.tags =
+        // tslint:disable-next-line:max-line-length
         //     JSON.parse(JSON.stringify(this.props.project.tags.map((t) => (t.name === oldTag.name) ? {...newTag} : t)));
         // this.setState({
         //     selectedAsset: this.state.selectedAsset
@@ -757,7 +758,6 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         //
         // console.log(newTag);
         // console.log(this.state);
-
 
         // this.props.project.tags = this.props.project.tags.map((t) => (t.name === oldTag.name) ? { ...oldTag } : t);
 
@@ -777,15 +777,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
 
     }
 
-
-
-    private onUpLoadFile = async() => {
+    private onUpLoadFile = async () => {
         console.log(this.props.project.sourceConnection);
         console.log(this.props.project);
         console.log(this.props.actions);
         const storageProvider = StorageProviderFactory.createFromConnection(this.props.project.sourceConnection);
-
-
 
         // const filePath = joinPath("/", this.props.project.folderPath, fileName);
         // await storageProvider.writeBinary(filePath, data);
@@ -812,36 +808,35 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
             return;
         }
 
-        let labels = this.state.selectedAsset.labelData.labels;
+        const labels = this.state.selectedAsset.labelData.labels;
 
-        for (let label of labels) {
-            for (let field of fields) {
+        for (const label of labels) {
+            for (const field of fields) {
                 if (label.label === field.fieldKey) {
-                    for (let word of label.value) {
+                    for (const word of label.value) {
                         word.text = field.fieldFormat;
                     }
                 }
             }
         }
 
-
         console.log(JSON.stringify(this.state.selectedAsset.labelData, null, 4));
         // console.log(JSON.stringify(fields, null, 4));
         const requestOptions = {
             // mode: "no-cors" as RequestMode,
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(this.state.selectedAsset.labelData, null, 4),
         };
         fetch(`https://lyniupi.azurewebsites.net/api/UpLoadJson?path=${this.props.project.folderPath}`, requestOptions)
-            .then(response => {
+            .then((response) => {
                 console.log(response);
                 if (response.ok) {
                     toast.success("Upload success.");
                 } else {
                     toast.error("Upload failed.");
                 }
-            })
+            });
         // console.log(data);
     }
 }

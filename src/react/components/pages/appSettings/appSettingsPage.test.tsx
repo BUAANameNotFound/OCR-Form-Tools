@@ -12,9 +12,9 @@ import AppSettingsPage, { IAppSettingsProps } from "./appSettingsPage";
 import MockFactory from "../../../../common/mockFactory";
 import createReduxStore from "../../../../redux/store/store";
 import { AppSettingsForm } from "./appSettingsForm";
+import { toast } from "react-toastify";
 
 jest.mock("react-toastify");
-import { toast } from "react-toastify";
 
 describe("App Settings Page", () => {
     function createComponent(

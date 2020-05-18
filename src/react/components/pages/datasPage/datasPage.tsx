@@ -1,4 +1,4 @@
-import React, { RefObject }  from "react";
+import React, { RefObject } from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 import { bindActionCreators } from "redux";
@@ -8,8 +8,13 @@ import IApplicationActions, * as applicationActions from "../../../../redux/acti
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import "./datasPage.scss";
 import {
-    ErrorCode, 
-    IApplicationState,IConnection,IAppSettings, IAsset, IAssetMetadata, IProject,
+    ErrorCode,
+    IApplicationState,
+    IConnection,
+    IAppSettings,
+    IAsset,
+    IAssetMetadata,
+    IProject,
     ISize,
 } from "../../../../models/applicationState";
 import _ from "lodash";
@@ -20,10 +25,9 @@ import { strings, interpolate } from "../../../../common/strings";
 import ServiceHelper from "../../../../services/serviceHelper";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme } from "../../../../common/themes";
 import SplitPane from "react-split-pane";
-import DatasSideBar from "./datasSideBar"
+import DatasSideBar from "./datasSideBar";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
 import Canvas from "./canvas";
-
 
 export interface IDatasPageProps extends RouteComponentProps, React.Props<DatasPage> {
     recentProjects: IProject[];
@@ -43,10 +47,10 @@ export interface IDatasPageState {
     /** The string in input textarea */
     NumberLabel: string;
     /** The quantity of data inputed */
-    dataQuantity: number; 
+    dataQuantity: number;
     /** The quantity of data last time */
     lastDataQuantity: number;
-    /** whether input the quantity of data with correct format*/
+    /** whether input the quantity of data with correct format */
     dataQuantityLoaded: boolean;
     /** whether be generated successfully */
     dataGenerateLoaded: boolean;
@@ -100,10 +104,11 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         backendBaseURL: "https://lyniupi.azurewebsites.net/",
     };
 
-
     private loadingProjectAssets: boolean = false;
     private canvas: RefObject<Canvas> = React.createRef();
     private isUnmount: boolean = false;
+
+    private quantityInput: React.RefObject<HTMLInputElement> = React.createRef();
 
     public async componentDidMount() {
 
@@ -113,8 +118,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         if (this.props.project) {
             await this.loadProjectAssets();
             this.props.appTitleActions.setTitle(this.props.project.name);
-        } 
-        else if (projectId) {
+        } else if (projectId) {
             const project = this.props.recentProjects.find((project) => project.id === projectId);
             await this.props.actions.loadProject(project);
             this.props.appTitleActions.setTitle(project.name);
@@ -136,20 +140,16 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         this.isUnmount = true;
         window.removeEventListener("focus", this.onFocused);
     }
-    
-
-    private quantityInput: React.RefObject<HTMLInputElement> = React.createRef();
 
     public render() {
 
         const inputDisabled: boolean = this.state.isGenerating;
         const generateDisabled: boolean = !this.state.dataQuantityLoaded || this.state.isGenerating;
         const downloadDisabled: boolean = !this.state.dataGenerateLoaded || this.state.isGenerating;
-        
+
         const { project } = this.props;
         const { assets, selectedAsset} = this.state;
         const rootAssets = assets.filter((asset) => !asset.parent);
-       
 
         if (!project) {
            return (<div>Loading...</div>);
@@ -251,7 +251,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
 
                     </div>
                 </SplitPane>
-              
+
                 <Alert
                     show={this.state.shouldShowAlert}
                     title={this.state.alertTitle}
@@ -284,13 +284,13 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                     this.setState({
                         dataQuantity: 0,
                         dataQuantityLoaded: false,
-                    }); 
+                    });
                 }
             } else {
                 this.setState({
                     dataQuantity: 0,
                     dataQuantityLoaded: false,
-                });               
+                });
             }
         } else {
             this.setState({
@@ -305,7 +305,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
      */
 
     private handleGenerateClick = () => {
-        this.setState({dataGenerateLoaded: false, isGenerating: true,});
+        this.setState({dataGenerateLoaded: false, isGenerating: true});
 
         const endpointURL = url.resolve(
             this.state.backendBaseURL,
@@ -313,15 +313,15 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         );
         console.log(endpointURL);
         const requestOptions = {
-            method: 'GET',
+            method: "GET",
         };
-        //console.log(endpointURL);
+        // console.log(endpointURL);
         try {
             this.poll(() =>
                 fetch(endpointURL, requestOptions), 120000, 500)
                 .then((result) => {
-                    //console.log(this.props.project.sourceConnection.providerOptions["sas"]);
-                    let lastQuantity = this.state.dataQuantity;
+                    // console.log(this.props.project.sourceConnection.providerOptions["sas"]);
+                    const lastQuantity = this.state.dataQuantity;
                     this.loadProjectAssets()
                     .then(() => {
                         this.setState({
@@ -349,7 +349,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                         lastDataQuantity : lastQuantity,
                     });
                     */
-                      
+
                     this.setState({
                         shouldShowAlert: true,
                         alertTitle: "Generate Error",
@@ -357,13 +357,12 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
                         isGenerating: false,
                         dataGenerateLoaded: false,
                     });
-                    
+
                 });
-        } 
-        catch (err) {
+        } catch (err) {
             ServiceHelper.handleServiceError(err);
         }
-    
+
     }
 
     /**
@@ -378,17 +377,17 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         );
 
         const requestOptions = {
-            method: 'GET',
-            headers: { "responseType" : "blob"},
+            method: "GET",
+            headers: { responseType : "blob"},
         };
         try {
             this.poll(() =>
             fetch(endpointURL, requestOptions), 120000, 500)
             .then((res) => res.blob())
-            .then((blob)=>{
-                let a = document.createElement("a");
-                const url = window.URL || window.webkitURL
-                a.href = url.createObjectURL(blob)
+            .then((blob) => {
+                const a = document.createElement("a");
+                const url = window.URL || window.webkitURL;
+                a.href = url.createObjectURL(blob);
                 a.download = "data.zip";
                 document.body.appendChild(a);
                 a.click();
@@ -413,7 +412,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
             });
         } catch (err) {
             ServiceHelper.handleServiceError(err);
-        } 
+        }
     }
 
     /**
@@ -429,7 +428,7 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         const checkSucceeded = (resolve, reject) => {
             const ajax = func();
             ajax.then((response) => {
-                //console.log(response);
+                // console.log(response);
                 if (response.status === 200) {
                     resolve(response);
                 } else if (response.status !== 200) {
@@ -448,7 +447,6 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
 
         return new Promise(checkSucceeded);
     }
-
 
     /**
      * Called when the asset side bar is resized
@@ -474,7 +472,6 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
 
         this.props.applicationActions.saveAppSettings(appSettings);
     }
-
 
     private loadProjectAssets = async (): Promise<void> => {
         if (this.loadingProjectAssets) {
@@ -505,7 +502,6 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
         });
     }
 
-
     /**
      * Updates the root asset list from the project assets
      */
@@ -520,7 +516,6 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
 
         this.setState({ assets: updatedAssets });
     }
-
 
     private onBeforeAssetSelected = (): boolean => {
         return this.state.isValid;
@@ -556,9 +551,9 @@ export default class DatasPage extends React.Component<IDatasPageProps, IDatasPa
      * Check whether the quantity of data inputed meets the requirements
      * @param quantity The quantity of data inputed
      */
-    private isInteger = (quantity : string) => {
-        let reg = /^[+]?0*(([1-4][0-9])|([1-9]))$/;
-        if(reg.test(quantity)){
+    private isInteger = (quantity: string) => {
+        const reg = /^[+]?0*(([1-4][0-9])|([1-9]))$/;
+        if (reg.test(quantity)) {
             return true;
         }
         return false;
