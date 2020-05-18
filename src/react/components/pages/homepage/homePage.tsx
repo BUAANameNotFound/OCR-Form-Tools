@@ -25,6 +25,7 @@ import { StorageProviderFactory } from "../../../../providers/storage/storagePro
 import { decryptProject } from "../../../../common/utils";
 import { toast } from "react-toastify";
 import { SkipButton } from "../../shell/skipButton";
+import {Spinner, SpinnerSize} from "office-ui-fabric-react/lib/Spinner";
 
 export interface IHomePageProps extends RouteComponentProps, React.Props<HomePage> {
     recentProjects: IProject[];
@@ -38,6 +39,8 @@ export interface IHomePageProps extends RouteComponentProps, React.Props<HomePag
 
 export interface IHomePageState {
     cloudPickerOpen: boolean;
+    onDeleteProject: boolean;
+    onLoadProject: string | undefined;
 }
 
 function mapStateToProps(state: IApplicationState) {
@@ -62,6 +65,8 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
 
     public state: IHomePageState = {
         cloudPickerOpen: false,
+        onDeleteProject: false,
+        onLoadProject: undefined,
     };
 
     private newProjectRef = React.createRef<HTMLAnchorElement>();
@@ -70,16 +75,48 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
 
     public async componentDidMount() {
         this.props.appTitleActions.setTitle("Welcome");
-        this.newProjectRef.current.focus();
+        // this.newProjectRef.current.focus();
         document.title = strings.homePage.title + " - " + strings.appName;
     }
 
     public async componentDidUpdate() {
-        this.newProjectRef.current.focus();
+        // this.newProjectRef.current.focus();
     }
 
     public render() {
+        const onDeleteSpin = () => {
+            return (
+                <div className="app-homepage" id="pageHome">
+                    <div className="app-homepage-main">
+                        <div className="app-homepage-loading">
+                            <div className="app-homepage-loading-spinner">
+                                <Spinner size={SpinnerSize.large} label={"Deleting Project...."}
+                                         ariaLive="assertive" labelPosition="right"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+        const onLoadSpin = (name: string) => {
+            return (
+                <div className="app-homepage" id="pageHome">
+                    <div className="app-homepage-main">
+                        <div className="app-homepage-loading">
+                            <div className="app-homepage-loading-spinner">
+                                <Spinner size={SpinnerSize.large} label={`Loading Project ${name}....`}
+                                         ariaLive="assertive" labelPosition="right"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
         return (
+            this.state.onDeleteProject ?
+                onDeleteSpin() :
+            this.state.onLoadProject ?
+                onLoadSpin(this.state.onLoadProject) :
             <div className="app-homepage" id="pageHome">
                 <div className="app-homepage-main">
                     <ul>
@@ -146,6 +183,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
     }
 
     private freshLoadSelectedProject = async (project: IProject) => {
+        this.setState({onLoadProject: project.name});
         // Lookup security token used to decrypt project settings
         const projectToken = this.props.appSettings.securityTokens
             .find((securityToken) => securityToken.name === project.securityToken);
@@ -167,27 +205,34 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                     // try old file extension
                     projectStr = await storageProvider.readText(
                         `${decryptedProject.name}${constants.projectFileExtensionOld}`);
+                    this.setState({onLoadProject: undefined});
                 } else {
+                    this.setState({onLoadProject: undefined});
                     throw err;
                 }
             }
             const selectedProject = { ...JSON.parse(projectStr), sourceConnection: project.sourceConnection };
             await this.loadSelectedProject(selectedProject);
+            this.setState({onLoadProject: undefined});
         } catch (err) {
             if (err instanceof AppError && err.errorCode === ErrorCode.BlobContainerIONotFound) {
                 const reason = interpolate(strings.errors.projectNotFound.message, { file: `${project.name}${constants.projectFileExtension}`, container: project.sourceConnection.name });
                 toast.error(reason, { autoClose: false });
+                this.setState({onLoadProject: undefined});
                 return;
             }
+            this.setState({onLoadProject: undefined});
             throw err;
         }
     }
 
     private deleteProject = async (project: IProject) => {
+        this.setState({onDeleteProject: true});
         await this.props.actions.deleteProject(project);
         const requestOptions = {
             method: 'GET',
         };
         await fetch(`https://lyniupi.azurewebsites.net/api/DeletePro?path=${project.folderPath}`, requestOptions);
+        this.setState({onDeleteProject: false});
     }
 }
