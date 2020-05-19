@@ -63,6 +63,7 @@ export const english: IAppStrings = {
             blank: "Generate forms from a blank form (Default)",
             completed: "Generate forms from completed forms",
             sheet: "Generate forms from a sheet",
+            origin: "Upload and label",
         },
         title: "Application Settings",
         storageTitle: "Storage Settings",

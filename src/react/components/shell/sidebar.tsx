@@ -54,13 +54,13 @@ export function Sidebar({ project }) {
                         <FontIcon iconName="MachineLearning" />
                     </ConditionalNavLink>
                 </li>
-                {/*<li>*/}
-                {/*    <ConditionalNavLink disabled={!projectId}*/}
-                {/*        title={`Predict`}*/}
-                {/*        to={`/projects/${projectId}/predict`}>*/}
-                {/*        <FontIcon iconName="Insights" />*/}
-                {/*    </ConditionalNavLink>*/}
-                {/*</li>*/}
+                <li>
+                    <ConditionalNavLink disabled={!projectId}
+                        title={`Predict`}
+                        to={`/projects/${projectId}/predict`}>
+                        <FontIcon iconName="Insights" />
+                    </ConditionalNavLink>
+                </li>
                 {/*<li>*/}
                 {/*    <ConditionalNavLink disabled={!projectId}*/}
                 {/*        title={strings.projectSettings.title}*/}
@@ -74,7 +74,7 @@ export function Sidebar({ project }) {
                 {/*    </NavLink>*/}
                 {/*</li>*/}
             </ul>
-            <div className="app-sidebar-fill"></div>
+            <div className="app-sidebar-fill"/>
             <ul>
                 <li>
                     <NavLink title={strings.appSettings.title} to={`/settings`} role="button">

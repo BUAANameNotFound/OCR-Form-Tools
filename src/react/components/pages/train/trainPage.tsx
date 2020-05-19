@@ -2,30 +2,28 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import { connect } from "react-redux";
-import { RouteComponentProps } from "react-router-dom";
-import { bindActionCreators } from "redux";
-import { FontIcon, PrimaryButton, Spinner, SpinnerSize} from "office-ui-fabric-react";
+import {connect} from "react-redux";
+import {RouteComponentProps} from "react-router-dom";
+import {bindActionCreators} from "redux";
+import {FontIcon, PrimaryButton, Spinner, SpinnerSize} from "office-ui-fabric-react";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
-import {
-    IApplicationState, IConnection, IProject, IAppSettings, AssetState, AssetKind,
-} from "../../../../models/applicationState";
+import {AssetKind, IApplicationState, IAppSettings, IConnection, IProject} from "../../../../models/applicationState";
 import TrainChart from "./trainChart";
 import TrainPanel from "./trainPanel";
 import TrainTable from "./trainTable";
-import { ITrainRecordProps } from "./trainRecord";
+import {ITrainRecordProps} from "./trainRecord";
 import "./trainPage.scss";
-import { strings } from "../../../../common/strings";
-import { constants } from "../../../../common/constants";
+import {strings} from "../../../../common/strings";
+import {constants} from "../../../../common/constants";
 import _ from "lodash";
 import Alert from "../../common/alert/alert";
 import url from "url";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
-import { getPrimaryGreenTheme } from "../../../../common/themes";
-import { SkipButton } from "../../shell/skipButton";
+import {getPrimaryGreenTheme} from "../../../../common/themes";
+import {SkipButton} from "../../shell/skipButton";
 import {throttle} from "../../../../common/utils";
 import {OCRService} from "../../../../services/ocrService";
 import * as path from "path";
@@ -130,12 +128,12 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                         <div className="condensed-list-body">
                             <div className="m-3">
                                 <h4 className="text-shadow-none"> Train a new model </h4>
-                                <div className="alert alert-warning warning train-notification">
-                                    <FontIcon iconName="WarningSolid"></FontIcon>
-                                    <span className="train-notification-text">
-                                        {strings.train.backEndNotAvailable}
-                                    </span>
-                                </div>
+                                {/*<div className="alert alert-warning warning train-notification">*/}
+                                {/*    <FontIcon iconName="WarningSolid"></FontIcon>*/}
+                                {/*    <span className="train-notification-text">*/}
+                                {/*        {strings.train.backEndNotAvailable}*/}
+                                {/*    </span>*/}
+                                {/*</div>*/}
                                 {!this.state.isTraining ? (
                                     <PrimaryButton
                                         id="train_trainButton"
@@ -229,8 +227,16 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         }
     }
 
+    private getSubFolder(project: IProject) {
+        if (project.projectType === strings.appSettings.projectType.origin) {
+            return path.join(this.props.project.folderPath, "type2");
+        } else {
+            return path.join(this.props.project.folderPath, "type3");
+        }
+    }
+
     private async train(): Promise<any> {
-        let assets = await this.props.actions.loadAssets(this.props.project);
+        const assets = await this.props.actions.loadAssets(this.props.project);
         const ocrService = new OCRService(this.props.project);
         try {
             await throttle(
@@ -259,7 +265,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const payload = {
             source: trainSourceURL,
             sourceFilter: {
-                prefix: this.props.project.folderPath ? path.join(this.props.project.folderPath, "type3") : "",
+                prefix: this.props.project.folderPath ? this.getSubFolder(this.props.project) : "",
                 includeSubFolders: false,
             },
             useLabelFile: true,
@@ -280,14 +286,12 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         const timeoutPerFileInMs = 10000;  // 10 second for each file
         const minimumTimeoutInMs = 300000;  // 5 minutes minimum waiting time  for each traingin process
         const extendedTimeoutInMs = timeoutPerFileInMs * Object.keys(this.props.project.assets || []).length;
-        const res = this.poll(() => {
+        return this.poll(() => {
             return ServiceHelper.getWithAutoRetry(
                 operationLocation,
-                { headers: { "cache-control": "no-cache" } },
+                {headers: {"cache-control": "no-cache"}},
                 this.props.project.apiKey as string);
         }, Math.max(extendedTimeoutInMs, minimumTimeoutInMs), 1000);
-
-        return res;
     }
 
     private buildUpdatedProject = (newTrainRecord: ITrainRecordProps): IProject => {

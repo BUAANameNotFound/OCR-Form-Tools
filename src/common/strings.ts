@@ -63,6 +63,7 @@ export interface IAppStrings {
             blank: string;
             completed: string;
             sheet: string;
+            origin: string;
         }
         title: string;
         storageTitle: string;
