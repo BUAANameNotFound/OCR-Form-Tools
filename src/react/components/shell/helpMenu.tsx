@@ -2,12 +2,12 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import {FontIcon} from "office-ui-fabric-react";
-import {Modal, ModalBody, ModalHeader} from "reactstrap";
+import {FontIcon, Modal} from "office-ui-fabric-react";
 import {strings} from "../../../common/strings";
 import "./helpMenu.scss";
-import {markdown} from "markdown";
 import {usageEn} from "../../../assets/markdown/usage_en";
+import {markdown} from "markdown";
+// import marked from "marked";
 
 export interface IHelpMenuProps {
 }
@@ -37,18 +37,26 @@ export class HelpMenu extends React.Component<IHelpMenuProps, IHelpMenuState> {
                     <FontIcon iconName="Help"/>
                 </a>
                 <Modal isOpen={this.state.helpModalOpen}
-                       onOpened={this.renderMarkdownContent}
-                       className="help-menu-modal">
-                    <ModalHeader
-                        toggle={this.handleCloseModal}
-                        close={
-                            <button className="close" onClick={this.handleCloseModal}>&times;</button>
-                        }>
-                        Page Help
-                    </ModalHeader>
-                    <ModalBody>
-                        <div id={"markdown-content"}/>
-                    </ModalBody>
+                       onLayerDidMount={this.renderMarkdownContent}
+                       isBlocking={false}
+                       onDismiss={this.handleCloseModal}>
+                    <div className="help-menu-container"
+                         style={{width: document.body.clientWidth * 0.7}}>
+                        <div className="help-menu-container-header">
+                            <h3>Help Wiki</h3>
+                            <a href={"https://github.com/BUAANameNotFound/OCR-Form-Tools"}
+                               style={{color: "black"}}>**View Source Code**</a>
+                        </div>
+                        <div className="help-menu-container-body">
+                            <div id={"markdown-content"}/>
+                            <a href={"https://www.bilibili.com/video/bv1Lz411z7D6"}
+                               style={{color: "black"}}>
+                                <strong>
+                                    **Click Here for Video**
+                                </strong>
+                            </a>
+                        </div>
+                    </div>
                 </Modal>
             </div>
         );

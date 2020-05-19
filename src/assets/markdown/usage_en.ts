@@ -1,4 +1,4 @@
-export const usageEn = "Hello, this blog will show you how to use the tool we build. [项目链接](<https://github.com/BUAANameNotFound/OCR-Form-Tools>)\n" +
+export const usageEn = "Hello, this blog will show you how to use the tool we build. \n" +
     "\n" +
     "### 1. Establish new project\n" +
     "\n" +
@@ -52,6 +52,4 @@ export const usageEn = "Hello, this blog will show you how to use the tool we bu
     "![](https://img2020.cnblogs.com/blog/1975516/202005/1975516-20200505193224576-53230330.png)" +
     "\n" +
     "\n" +
-    "### Presentation video\n" +
-    "[video](https://www.bilibili.com/video/bv1Lz411z7D6)\n" +
-    "*****";
+    "### Presentation video\n";
