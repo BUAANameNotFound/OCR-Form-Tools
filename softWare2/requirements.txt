@@ -1,0 +1,7 @@
+azure-functions
+azure-storage-blob
+wheel
+openpyxl
+pyecharts==0.1.9.4
+xlrd
+matplotlib
