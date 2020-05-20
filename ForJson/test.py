@@ -11,8 +11,8 @@ def read_json(name):
     return cr
 
 def write_json(name, arr):
-    with open(name, 'a', encoding='utf-8', newline='') as f:
-        json.dump(arr, f)
+    with open(name, 'w', encoding='utf-8', newline='\n') as f:
+        json.dump(arr, f, indent = 1)
     f.close()
     return
 
@@ -87,7 +87,7 @@ headers = {"Ocp-Apim-Subscription-Key": subscription_key}
 response = requests.post(entities_url, headers=headers, json=doc)
 entities = response.json()
 #pprint(entities)
-write_json("outtest.json",entities)
+#write_json("outtest.json",entities)
 
 entity = entities['documents'] #list类型 每个id对应的识别结果
 listforattribute = []

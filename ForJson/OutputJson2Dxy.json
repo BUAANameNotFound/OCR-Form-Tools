@@ -1,1 +1,137 @@
-{"document": "test.pdf", "labels": [{"label": "87659", "value": [{"boundingBoxes": [[0.5075, 3.3219, 1.9061, 3.3219, 1.9061, 3.859, 0.5075, 3.859]], "page": 1, "text": "CURRENCY"}], "key": null}, {"label": "84 College St.Norcross,GA 30092", "value": [{"boundingBoxes": [[0.5075, 3.3219, 1.9061, 3.3219, 1.9061, 3.859, 0.5075, 3.859]], "page": 1, "text": "ADDRESS"}], "key": null}, {"label": "66-881-2136", "value": [{"boundingBoxes": [[0.5075, 3.3219, 1.9061, 3.3219, 1.9061, 3.859, 0.5075, 3.859]], "page": 1, "text": "NUMBER"}], "key": null}, {"label": "09/10/2010", "value": [{"boundingBoxes": [[1.9061, 3.3219, 3.3074, 3.3219, 3.3074, 3.859, 1.9061, 3.859]], "page": 1, "text": "DATE"}], "key": null}, {"label": "Yazmin Dudley", "value": [{"boundingBoxes": [[1.9061, 3.3219, 3.3074, 3.3219, 3.3074, 3.859, 1.9061, 3.859]], "page": 1, "text": "NAME"}], "key": null}, {"label": "kuparine@icloud.com", "value": [{"boundingBoxes": [[1.9061, 3.3219, 3.3074, 3.3219, 3.3074, 3.859, 1.9061, 3.859]], "page": 1, "text": "EMAIL"}], "key": null}]}{"document": "test.pdf", "labels": [{"label": "87659", "value": [{"boundingBoxes": [[0.5075, 3.3219, 1.9061, 3.3219, 1.9061, 3.859, 0.5075, 3.859]], "page": 1, "text": "CURRENCY"}], "key": null}, {"label": "84 College St.Norcross,GA 30092", "value": [{"boundingBoxes": [[0.5075, 3.3219, 1.9061, 3.3219, 1.9061, 3.859, 0.5075, 3.859]], "page": 1, "text": "ADDRESS"}], "key": null}, {"label": "66-881-2136", "value": [{"boundingBoxes": [[0.5075, 3.3219, 1.9061, 3.3219, 1.9061, 3.859, 0.5075, 3.859]], "page": 1, "text": "NUMBER"}], "key": null}, {"label": "09/10/2010", "value": [{"boundingBoxes": [[1.9061, 3.3219, 3.3074, 3.3219, 3.3074, 3.859, 1.9061, 3.859]], "page": 1, "text": "DATE"}], "key": null}, {"label": "Yazmin Dudley", "value": [{"boundingBoxes": [[1.9061, 3.3219, 3.3074, 3.3219, 3.3074, 3.859, 1.9061, 3.859]], "page": 1, "text": "NAME"}], "key": null}, {"label": "kuparine@icloud.com", "value": [{"boundingBoxes": [[1.9061, 3.3219, 3.3074, 3.3219, 3.3074, 3.859, 1.9061, 3.859]], "page": 1, "text": "EMAIL"}], "key": null}]}
+{
+ "document": "test.pdf",
+ "labels": [
+  {
+   "label": "87659",
+   "value": [
+    {
+     "boundingBoxes": [
+      [
+       0.5075,
+       3.3219,
+       1.9061,
+       3.3219,
+       1.9061,
+       3.859,
+       0.5075,
+       3.859
+      ]
+     ],
+     "page": 1,
+     "text": "CURRENCY"
+    }
+   ],
+   "key": null
+  },
+  {
+   "label": "84 College St.Norcross,GA 30092",
+   "value": [
+    {
+     "boundingBoxes": [
+      [
+       0.5075,
+       3.3219,
+       1.9061,
+       3.3219,
+       1.9061,
+       3.859,
+       0.5075,
+       3.859
+      ]
+     ],
+     "page": 1,
+     "text": "ADDRESS"
+    }
+   ],
+   "key": null
+  },
+  {
+   "label": "66-881-2136",
+   "value": [
+    {
+     "boundingBoxes": [
+      [
+       0.5075,
+       3.3219,
+       1.9061,
+       3.3219,
+       1.9061,
+       3.859,
+       0.5075,
+       3.859
+      ]
+     ],
+     "page": 1,
+     "text": "NUMBER"
+    }
+   ],
+   "key": null
+  },
+  {
+   "label": "09/10/2010",
+   "value": [
+    {
+     "boundingBoxes": [
+      [
+       1.9061,
+       3.3219,
+       3.3074,
+       3.3219,
+       3.3074,
+       3.859,
+       1.9061,
+       3.859
+      ]
+     ],
+     "page": 1,
+     "text": "DATE"
+    }
+   ],
+   "key": null
+  },
+  {
+   "label": "Yazmin Dudley",
+   "value": [
+    {
+     "boundingBoxes": [
+      [
+       1.9061,
+       3.3219,
+       3.3074,
+       3.3219,
+       3.3074,
+       3.859,
+       1.9061,
+       3.859
+      ]
+     ],
+     "page": 1,
+     "text": "NAME"
+    }
+   ],
+   "key": null
+  },
+  {
+   "label": "kuparine@icloud.com",
+   "value": [
+    {
+     "boundingBoxes": [
+      [
+       1.9061,
+       3.3219,
+       3.3074,
+       3.3219,
+       3.3074,
+       3.859,
+       1.9061,
+       3.859
+      ]
+     ],
+     "page": 1,
+     "text": "EMAIL"
+    }
+   ],
+   "key": null
+  }
+ ]
+}
