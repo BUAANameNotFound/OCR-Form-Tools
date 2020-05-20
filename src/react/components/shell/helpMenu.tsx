@@ -2,11 +2,12 @@
 // Licensed under the MIT license.
 
 import React from "react";
-import {FontIcon, Modal} from "office-ui-fabric-react";
+import {FontIcon, IconButton, Modal} from "office-ui-fabric-react";
 import {strings} from "../../../common/strings";
 import "./helpMenu.scss";
 import {usageEn} from "../../../assets/markdown/usage_en";
 import {markdown} from "markdown";
+
 // import marked from "marked";
 
 export interface IHelpMenuProps {
@@ -43,6 +44,11 @@ export class HelpMenu extends React.Component<IHelpMenuProps, IHelpMenuState> {
                     <div className="help-menu-container"
                          style={{width: document.body.clientWidth * 0.7}}>
                         <div className="help-menu-container-header">
+                            {/*某些图标不起作用，https://github.com/microsoft/fluentui/issues/12529*/}
+                            <IconButton iconProps={{iconName: "Cancel"}}
+                                        title="Close" ariaLabel="Close"
+                                        className="help-menu-container-header-icon"
+                                        onClick={this.handleCloseModal}/>
                             <h3>Help Wiki</h3>
                             <a href={"https://github.com/BUAANameNotFound/OCR-Form-Tools"}
                                style={{color: "black"}}>**View Source Code**</a>
