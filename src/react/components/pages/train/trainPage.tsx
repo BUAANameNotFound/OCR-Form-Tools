@@ -217,6 +217,11 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             );
             await this.props.actions.saveProject(updatedProject);
 
+            await this.props.actions.loadProject(this.props.project);
+            this.props.appTitleActions.setTitle(this.props.project.name);
+            this.updateCurrTrainRecord(this.getProjectTrainRecord());
+            console.log(this.getProjectTrainRecord());
+
             return trainStatusRes;
         } catch (errorMessage) {
             this.setState({
@@ -235,13 +240,21 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         }
     }
 
+    private getKind(project: IProject) {
+        if (project.projectType === strings.appSettings.projectType.origin) {
+            return AssetKind.Normal;
+        } else {
+            return AssetKind.Fake;
+        }
+    }
+
     private async train(): Promise<any> {
         const assets = await this.props.actions.loadAssets(this.props.project);
         const ocrService = new OCRService(this.props.project);
         try {
             await throttle(
                 constants.maxConcurrentServiceRequests,
-                assets.filter((asset) => asset.kind === AssetKind.Fake).map((asset) => asset.id),
+                assets.filter((asset) => asset.kind === this.getKind(this.props.project)).map((asset) => asset.id),
                 async (assetId) => {
                     // Get the latest version of asset.
                     const asset = assets.find((asset) => asset.id === assetId);
