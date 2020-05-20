@@ -46,7 +46,7 @@ export default class TrainPanel
                 className={"btn btn-light " + (active ? "active" : "")}
                 aria-pressed={active}
                 onClick={() => this.props.updateViewTypeCallback(vt)}>
-                    <i className={"fas " + faClass}></i>
+                    <i className={"fas " + faClass}/>
                 </button>
         );
     }
