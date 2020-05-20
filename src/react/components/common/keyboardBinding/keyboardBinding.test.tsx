@@ -5,9 +5,9 @@ import React from "react";
 import { mount, ReactWrapper } from "enzyme";
 import { KeyboardManager, KeyEventType } from "../keyboardManager/keyboardManager";
 import { KeyboardBinding, IKeyboardBindingProps } from "./keyboardBinding";
+import { KeyboardRegistrationManager } from "../keyboardManager/keyboardRegistrationManager";
 
 jest.mock("../keyboardManager/keyboardRegistrationManager");
-import { KeyboardRegistrationManager } from "../keyboardManager/keyboardRegistrationManager";
 
 describe("Keyboard Binding Component", () => {
     let wrapper: ReactWrapper = null;

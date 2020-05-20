@@ -2,7 +2,7 @@
 import React from "react";
 import {
     IAssetMetadata, IProject,
-    AssetType, IAsset, 
+    AssetType, IAsset,
 } from "../../../../models/applicationState";
 import { ImageMap } from "../../common/imageMap/imageMap";
 import "./canvas.scss";
@@ -112,7 +112,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         );
     }
 
-
     private loadImage = async () => {
         const asset = this.state.currentAsset.asset;
         if (asset.type === AssetType.Image) {
@@ -211,7 +210,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         await this.switchToTargetPage(targetPage);
     }
 
-
     private getTableBoundingBox = (lines: []) => {
         const flattenedLines = [].concat(...lines);
         const xAxisValues = flattenedLines.filter((value, index) => index % 2 === 0);
@@ -234,7 +232,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     private handleZoomReset = () => {
         this.imageMap.resetZoom();
     }
-
 
     private noOp = () => {
         // no operation

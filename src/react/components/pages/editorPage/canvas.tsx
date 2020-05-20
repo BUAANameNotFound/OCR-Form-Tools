@@ -127,6 +127,10 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         enableDraw: false,
     };
 
+    private halfClick = false;
+    private lastX;
+    private lastY;
+
     private imageMap: ImageMap;
 
     private ocrService: OCRService;
@@ -359,6 +363,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
     }
 
     private addRegionsToAsset = (regions: IRegion[]) => {
+        // 点击region
         const regionsToBeKept = this.state.currentAsset.regions.filter((assetRegion) => {
             return regions.findIndex((r) => r.id === assetRegion.id) === -1;
         });
@@ -558,8 +563,8 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             polygonPoints.push(boundingBox[i] / ocrWidth);
             polygonPoints.push(boundingBox[i + 1] / ocrHeight);
         }
-        console.log(coordinates)
-        console.log(polygonPoints)
+        // console.log(coordinates)
+        // console.log(polygonPoints)
         // console.log(ocrHeight)
         const featureId = this.createRegionIdFromBoundingBox(polygonPoints, page);
         const feature = new Feature({
@@ -806,15 +811,12 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
         }
     }
 
-    private halfClick = false;
-    private lastX;
-    private lastY;
-
     private handleClick = (x, y) => {
-        if (this.state.enableDraw === false)
+        if (this.state.enableDraw === false) {
             return;
+        }
 
-        console.log(`Click: x: ${x}, y: ${y}`)
+        console.log(`Click: x: ${x}, y: ${y}`);
 
         if (this.halfClick === false) {
             this.lastX = x;
@@ -836,14 +838,14 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
 
         const dx = x2 - x1;
         const dy = y2 - y1;
-        const polygonPoints = [x1, y1, x1+dx, y1, x1+dx, y1+dy, x1, y1+dy]
+        const polygonPoints = [x1, y1, x1 + dx, y1, x1 + dx, y1 + dy, x1, y1 + dy];
 
         const ocrWidth = ocrExtent[2] - ocrExtent[0];
         const ocrHeight = ocrExtent[3] - ocrExtent[1];
 
         const boundingBox = this.polygonPointsToBoundingBox(polygonPoints, ocrWidth, ocrHeight);
 
-        let feature = this.createBoundingBoxVectorFeature(
+        const feature = this.createBoundingBoxVectorFeature(
             strings.tags.generated, boundingBox, imageExtent, ocrExtent, ocrReadResults.page);
         this.imageMap.addFeature(feature);
     }
@@ -854,7 +856,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             boundingBox.push(polygonPoints[i] * ocrWidth);
             boundingBox.push(polygonPoints[i + 1] * ocrHeight);
         }
-        return boundingBox
+        return boundingBox;
     }
 
     private handleFeatureSelect = (feature: Feature, isToggle: boolean = true, category: FeatureCategory) => {
@@ -1232,7 +1234,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                     console.log("Draw disable");
                 }
                 break;
-
 
             case "Delete":
                 this.deleteRegions(this.getSelectedRegions());

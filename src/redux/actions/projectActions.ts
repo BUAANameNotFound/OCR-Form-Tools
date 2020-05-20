@@ -104,7 +104,8 @@ export function saveProject(project: IProject)
         }
 
         // Reload project after save actions
-        await loadProject(savedProject)(dispatch, getState);
+        // await loadProject(savedProject)(dispatch, getState);
+        // 在save之后不用reload，在每个save之后，直接用最新的project值替换掉旧的即可（不从azure取新的）
 
         return savedProject;
     };
@@ -211,6 +212,7 @@ export function saveAssetMetadata(
  * @param newTag The new tag
  */
 export function updateProjectTag(project: IProject, oldTag: ITag, newTag: ITag)
+    // 更新tag属性
     : (dispatch: Dispatch, getState: () => IApplicationState) => Promise<IAssetMetadata[]> {
     return async (dispatch: Dispatch, getState: () => IApplicationState) => {
         let assetUpdates: IAssetMetadata[] = [];

@@ -17,7 +17,6 @@ import { ProjectSettingAction } from "./projectSettingAction";
 import { ProtectedInput } from "../../common/protectedInput/protectedInput";
 import { PrimaryButton } from "office-ui-fabric-react";
 import { getPrimaryGreenTheme, getPrimaryGreyTheme } from "../../../../common/themes";
-import MockFactory from "../../../../common/mockFactory";
 
 // tslint:disable-next-line:no-var-requires
 const newFormSchema = addLocValues(require("./newProjectForm.json"));
@@ -62,6 +61,23 @@ export interface IProjectFormState {
  * @description - Form for editing or creating VoTT projects
  */
 export default class ProjectForm extends React.Component<IProjectFormProps, IProjectFormState> {
+
+    private static normalizeFolderPath(folderPath: string) {
+        // trim space
+        let normalizePath = folderPath ? folderPath.trim() : "";
+
+        // trim left slash
+        while (normalizePath.length > 0 && normalizePath.indexOf("/") === 0) {
+            normalizePath = normalizePath.substr(1, normalizePath.length - 1);
+        }
+
+        // trim right slash
+        while (normalizePath.length > 0 && normalizePath.lastIndexOf("/") === normalizePath.length - 1) {
+            normalizePath = normalizePath.substr(0, normalizePath.length - 1);
+        }
+
+        return normalizePath;
+    }
     private widgets = {
         protectedInput: (ProtectedInput as any) as Widget,
     };
@@ -111,7 +127,7 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
             <Form
                 className={this.state.classNames.join(" ")}
                 showErrorList={false}
-                liveValidate={true}
+                liveValidate={false}
                 noHtml5Validate={true}
                 FieldTemplate={CustomFieldTemplate}
                 validate={this.onFormValidate}
@@ -210,11 +226,11 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
                 description: `Description for Connection`,
                 providerType: "azureBlobStorage",
                 providerOptions: {
-                    sas: "https://lyniupi.blob.core.windows.net/wudi?st=2020-04-27T13%3A44%3A48Z&se=2021-01-30T13%3A44%3A00Z&sp=racwdl&sv=2018-03-28&sr=c&sig=a05qev4hjg17uPbbFShbCidZ%2BjfGMEYDw2SKgaMJMQ8%3D"
+                    sas: "https://lyniupi.blob.core.windows.net/wudi?st=2020-04-27T13%3A44%3A48Z&se=2021-01-30T13%3A44%3A00Z&sp=racwdl&sv=2018-03-28&sr=c&sig=a05qev4hjg17uPbbFShbCidZ%2BjfGMEYDw2SKgaMJMQ8%3D",
                 },
             },
             // folderPath: this.normalizeFolderPath(args.formData.folderPath),
-            folderPath: this.normalizeFolderPath(args.formData.name),
+            folderPath: ProjectForm.normalizeFolderPath(args.formData.name),
         };
 
         project.name = project.name.replace(/\s+/g, " ").trim();
@@ -225,22 +241,5 @@ export default class ProjectForm extends React.Component<IProjectFormProps, IPro
         if (this.props.onCancel) {
             this.props.onCancel();
         }
-    }
-
-    private normalizeFolderPath(folderPath: string) {
-        // trim space
-        let normalizePath = folderPath ? folderPath.trim() : "";
-
-        // trim left slash
-        while (normalizePath.length > 0 && normalizePath.indexOf("/") === 0) {
-            normalizePath = normalizePath.substr(1, normalizePath.length - 1);
-        }
-
-        // trim right slash
-        while (normalizePath.length > 0 && normalizePath.lastIndexOf("/") === normalizePath.length - 1) {
-            normalizePath = normalizePath.substr(0, normalizePath.length - 1);
-        }
-
-        return normalizePath;
     }
 }

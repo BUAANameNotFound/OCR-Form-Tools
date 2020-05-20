@@ -10,8 +10,8 @@ import ConnectionPage from "../pages/connections/connectionsPage";
 import EditorPage from "../pages/editorPage/editorPage";
 import PredictPage from "../pages/predict/predictPage";
 import ProjectSettingsPage from "../pages/projectSettings/projectSettingsPage";
-import DatasPage from "../pages/datasPage/datasPage"
-import UploadPage from "../pages/uploadPage/UploadPage"
+import DatasPage from "../pages/datasPage/datasPage";
+import UploadPage from "../pages/uploadPage/UploadPage";
 /**
  * @name - Main Content Router
  * @description - Controls main content pane based on route

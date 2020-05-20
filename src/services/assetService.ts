@@ -4,17 +4,23 @@
 import _ from "lodash";
 import Guard from "../common/guard";
 import {
-    IAsset, AssetType, IProject, IAssetMetadata, AssetState,
-    ILabelData, ILabel,
+    AssetKind,
+    AssetState,
+    AssetType,
+    IAsset,
+    IAssetMetadata,
+    ILabel,
+    ILabelData,
+    IProject,
 } from "../models/applicationState";
-import { AssetProviderFactory, IAssetProvider } from "../providers/storage/assetProviderFactory";
-import { StorageProviderFactory, IStorageProvider } from "../providers/storage/storageProviderFactory";
-import { constants } from "../common/constants";
-import { appInfo } from "../common/appInfo";
-import { encodeFileURI } from "../common/utils";
-import { strings, interpolate } from "../common/strings";
-import { sha256Hash } from "../common/crypto";
-import { toast } from "react-toastify";
+import {AssetProviderFactory, IAssetProvider} from "../providers/storage/assetProviderFactory";
+import {IStorageProvider, StorageProviderFactory} from "../providers/storage/storageProviderFactory";
+import {constants} from "../common/constants";
+import {appInfo} from "../common/appInfo";
+import {encodeFileURI} from "../common/utils";
+import {interpolate, strings} from "../common/strings";
+import {sha256Hash} from "../common/crypto";
+import {toast} from "react-toastify";
 
 /**
  * @name - Asset Service
@@ -125,12 +131,22 @@ export class AssetService {
     public async getAssets(): Promise<IAsset[]> {
         const project = this.project;
         const assets = await this.assetProvider.getAssets();
+        // 取得azure仓库中所有的asset（azure真暴力，我人都傻了）
         const returnedAssets = assets.map((asset) => {
             asset.name = decodeURIComponent(asset.name);
             return asset;
         }).filter((asset) => this.isInExactFolderPath(asset.name, project.folderPath));
-
-        return returnedAssets;
+        // decodeURI并且筛选出当前Project的assets
+        // 对本project的asset作分类
+        // console.log("old returned assets", returnedAssets);
+        return returnedAssets.map((a) => {
+            return {...a, kind :
+                    a.name.indexOf("type1") !== -1 ? AssetKind.Template :
+                    a.name.indexOf("type2") !== -1 ? AssetKind.Normal :
+                    a.name.indexOf("type3") !== -1 ? AssetKind.Fake :
+                        AssetKind.Undefined,
+            };
+        });
     }
 
     /**
@@ -325,7 +341,6 @@ export class AssetService {
             return assetName.lastIndexOf("/") === -1;
         }
 
-        const startsWithFolderPath = assetName.indexOf(`${normalizedPath}/`) === 0;
-        return startsWithFolderPath && assetName.lastIndexOf("/") === normalizedPath.length;
+        return assetName.indexOf(`${normalizedPath}/`) === 0;
     }
 }
