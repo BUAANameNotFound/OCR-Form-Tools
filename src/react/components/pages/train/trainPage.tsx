@@ -95,31 +95,31 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
             this.props.appTitleActions.setTitle(project.name);
             this.updateCurrTrainRecord(this.getProjectTrainRecord());
+            console.log(this.getProjectTrainRecord());
         }
         document.title = strings.train.title + " - " + strings.appName;
     }
 
     public render() {
-        const currTrainRecord = this.state.currTrainRecord;
 
         return (
             <div className="train-page" id="pageTrain">
                 <main className="train-page-main">
-                    {currTrainRecord &&
+                    {this.state.currTrainRecord &&
                         <div>
                             <h3> Train Result </h3>
-                            <span> Model ID: {currTrainRecord.modelInfo.modelId} </span>
+                            <span> Model ID: {this.state.currTrainRecord.modelInfo.modelId} </span>
                         </div>
                     }
                     {this.state.viewType === "tableView" &&
                         <TrainTable
                             trainMessage={this.state.trainMessage}
-                            accuracies={currTrainRecord && currTrainRecord.accuracies} />}
+                            accuracies={this.state.currTrainRecord && this.state.currTrainRecord.accuracies} />}
 
-                    {this.state.viewType === "chartView" && currTrainRecord &&
+                    {this.state.viewType === "chartView" && this.state.currTrainRecord &&
                         <TrainChart
-                            accuracies={currTrainRecord.accuracies}
-                            modelId={currTrainRecord.modelInfo.modelId}
+                            accuracies={this.state.currTrainRecord.accuracies}
+                            modelId={this.state.currTrainRecord.modelInfo.modelId}
                             projectTags={this.props.project.tags} />
                     }
                 </main>
@@ -157,9 +157,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                 }
                             </div>
                             <div className={!this.state.isTraining ? "" : "greyOut"}>
-                                {currTrainRecord &&
+                                {this.state.currTrainRecord &&
                                     <TrainPanel
-                                        currTrainRecord={currTrainRecord}
+                                        currTrainRecord={this.state.currTrainRecord}
                                         viewType={this.state.viewType}
                                         updateViewTypeCallback={this.handleViewTypeClick}
                                     />
@@ -183,7 +183,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         );
     }
 
-    private handleTrainClick = () => {
+    private handleTrainClick = async () => {
         this.setState({
             isTraining: true,
             trainMessage: strings.train.training,
@@ -193,7 +193,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             this.setState((prevState, props) => ({
                 isTraining: false,
                 trainMessage: this.getTrainMessage(trainResult),
-                currTrainRecord: this.getProjectTrainRecord(),
+                // currTrainRecord: this.getProjectTrainRecord(),
             }));
         }).catch((err) => {
             this.setState({
@@ -201,6 +201,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 trainMessage: err.message,
             });
         });
+        console.log(this.state.currTrainRecord);
     }
 
     private handleViewTypeClick = (viewType: "tableView" | "chartView"): void => {
@@ -210,8 +211,10 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     private async trainProcess(): Promise<any> {
         try {
             const trainRes = await this.train();
+            console.log(trainRes);
             const trainStatusRes =
                 await this.getTrainStatus(trainRes.headers["location"]);
+            console.log(trainStatusRes);
             const updatedProject = this.buildUpdatedProject(
                 this.parseTrainResult(trainStatusRes),
             );
@@ -219,9 +222,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
             await this.props.actions.loadProject(this.props.project);
             this.props.appTitleActions.setTitle(this.props.project.name);
-            this.updateCurrTrainRecord(this.getProjectTrainRecord());
-            console.log(this.getProjectTrainRecord());
-
+            this.updateCurrTrainRecord(this.parseTrainResult(trainStatusRes));
+            console.log(this.parseTrainResult(trainStatusRes));
+            console.log(this.state.currTrainRecord);
             return trainStatusRes;
         } catch (errorMessage) {
             this.setState({
