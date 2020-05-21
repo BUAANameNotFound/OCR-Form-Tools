@@ -1,6 +1,11 @@
 import logging
 import json
+import os
+import pathlib
+
 import azure.functions as func
+from io import BytesIO
+
 from azure.storage.blob import BlobServiceClient
 from azure.storage.blob import ContainerClient
 from azure.storage.blob import BlobClient
@@ -11,6 +16,7 @@ from .handle_json import read_single_json
 from .handle_excel import new_excel, write_pdf_data, write_pdf_names
 from .show_excel import read_excel
 
+CONNECTION_STR = 'DefaultEndpointsProtocol=https;AccountName=lyceshi;AccountKey=PcrYp+YILDxt54rzcPEPIk3Lhv9WXC9w64Ws7rP27TJEIyDdE4aa/g2mir4u6/PmuWqnbLtb0Zo3ny33wwh6EQ==;EndpointSuffix=core.windows.net'
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
@@ -22,25 +28,46 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             status_code=400
         )
 
-    NUM = 4
-    PATH = f"{pro_name}/wow.xlsx"
+    NUM = 1
+    PATH = f"tmp/wow.xlsx"
 
     pdf_names = []
     labels_name = []
     data_list = []
 
     for i in range(NUM):
-        FILENAME = 'out' + str(i + 1) + '.json'
+        FILENAME = 'ly/genPdf' + str(i + 1) + '.pdf.labels.json'
         label_string_list = read_single_json(FILENAME)
         pdf_names.append(label_string_list[0])
         labels_name.append(label_string_list[1])
         data_list.append(label_string_list[2])
-    new_excel(PATH)
-    write_pdf_names(pdf_names, PATH)
-    write_pdf_data(labels_name, data_list, PATH)
     
+    container_service = ContainerClient.from_connection_string(conn_str=CONNECTION_STR, container_name='wudi')
+
+
+    #text = tmp.download_blob()
+    pre = pathlib.Path(__file__).parent / 'wow.xlsx'
+    
+
+    
+
+    #filepath = pathlib.Path(__file__).parent / 'vocab.txt'
+    # path1 = pathlib.Path(__file__).parent.parent / 'tmp/wow.xlsx'
+    # with open(path1, 'wb') as f:
+    #     pass
+
+    with open(pre, 'wb') as f:
+        f.truncate()
+    new_excel(pre)
+    write_pdf_names(pdf_names, pre)
+    write_pdf_data(labels_name, data_list, pre)
+    
+    tmp = container_service.get_blob_client(f'{pro_name}/wow.xlsx')
+    with open(pre, 'rb') as f:
+        tmp.upload_blob(f.read())
+
     #显示
-    read_excel(PATH)
+    #read_excel(PATH)
 
 
 

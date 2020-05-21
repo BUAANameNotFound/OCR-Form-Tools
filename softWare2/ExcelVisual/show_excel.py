@@ -151,6 +151,6 @@ def data_string(data_list, num):
     # # map2.set_global_opts(
 
     # # )
-    # map1 = Map("世界地图示例", width=1200, height=600)
-    # map1.add("", attr, value, maptype="world", is_visualmap=True, visual_text_color='#000')
-    # map1.render(filename)
+    map1 = Map("世界地图示例", width=1200, height=600)
+    map1.add("", attr, value, maptype="world", is_visualmap=True, visual_text_color='#000')
+    map1.render(filename)

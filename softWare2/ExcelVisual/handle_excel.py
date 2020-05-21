@@ -7,6 +7,7 @@ def new_excel(path):
     work_sheet = work_book.active
     work_sheet.title = 'data'
     # ws.cell(row=1, column=2).value = 1
+    
     work_book.save(path)
 
 
