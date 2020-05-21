@@ -2,7 +2,7 @@ import logging
 import json
 import os
 import pathlib
-
+import tempfile
 import azure.functions as func
 from io import BytesIO
 
@@ -28,7 +28,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             status_code=400
         )
 
-    NUM = 1
+    NUM = 2
     PATH = f"tmp/wow.xlsx"
 
     pdf_names = []
@@ -42,28 +42,25 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         labels_name.append(label_string_list[1])
         data_list.append(label_string_list[2])
     
+    
+
+    tempfilePath = tempfile.gettempdir()
+    fp = tempfile.NamedTemporaryFile()
+
+    #with open(fp.name, 'wb') as f:
+    #   f.truncate()
+    new_excel(fp.name)
+    write_pdf_names(pdf_names, fp.name)
+    write_pdf_data(labels_name, data_list, fp.name)
+
     container_service = ContainerClient.from_connection_string(conn_str=CONNECTION_STR, container_name='wudi')
+    try:
+        container_service.delete_blob(f'{pro_name}/wow.xlsx')
+    except Exception as err:
+        logging.info('well, no need to delete!')
 
-
-    #text = tmp.download_blob()
-    pre = pathlib.Path(__file__).parent / 'wow.xlsx'
-    
-
-    
-
-    #filepath = pathlib.Path(__file__).parent / 'vocab.txt'
-    # path1 = pathlib.Path(__file__).parent.parent / 'tmp/wow.xlsx'
-    # with open(path1, 'wb') as f:
-    #     pass
-
-    with open(pre, 'wb') as f:
-        f.truncate()
-    new_excel(pre)
-    write_pdf_names(pdf_names, pre)
-    write_pdf_data(labels_name, data_list, pre)
-    
     tmp = container_service.get_blob_client(f'{pro_name}/wow.xlsx')
-    with open(pre, 'rb') as f:
+    with open(fp.name, 'rb') as f:
         tmp.upload_blob(f.read())
 
     #显示
