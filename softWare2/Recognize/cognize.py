@@ -109,19 +109,22 @@ def dealOne(json_in):
     for i in labels:
         for j in i['value']:
             if 'Location' in listforattribute[id]['entity']:
-                i['label'] = "ADDRESS"
+                i['label'] = "ADDRESS" + '_' + listforattribute[id]['id']
+            
             elif 'Quantity' in listforattribute[id]['entity']:
-                i['label'] = "CURRENCY"
+                i['label'] = "CURRENCY" + '_' + listforattribute[id]['id']
+
             elif 'Phone_Number' in listforattribute[id]['entity']:
-                i['label'] = "NUMBER"
+                i['label'] = "NUMBER" + '_' + listforattribute[id]['id']
+                
             elif 'DateTime' in listforattribute[id]['entity']:
-                i['label'] = "DATE"
+                i['label'] = "DATE" + '_' + listforattribute[id]['id']
             elif 'Person' in listforattribute[id]['entity']:
-                i['label'] = "NAME"
+                i['label'] = "NAME" + '_' + listforattribute[id]['id']
             elif 'Email' in listforattribute[id]['entity']:
-                i['label'] = "EMAIL"
+                i['label'] = "EMAIL" + '_' + listforattribute[id]['id']
             else:
-                i['label'] = "OTHER"
+                i['label'] = "OTHER" + '_' + listforattribute[id]['id']
         id += 1
 
     #print(labels)
