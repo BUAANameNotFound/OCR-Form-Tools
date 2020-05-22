@@ -16,6 +16,8 @@ import { IApplicationState } from "./models/applicationState";
 import { registerIcons } from "./registerIcons";
 import registerProviders from "./registerProviders";
 import registerMixins from "./registerMixins";
+import { initializeIcons } from "@uifabric/icons";
+initializeIcons();
 
 registerIcons();
 registerMixins();
