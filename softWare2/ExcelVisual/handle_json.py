@@ -46,3 +46,19 @@ def read_single_json(filename):
         file_list_label.append(label_name)
         file_list_value_l.append(value_l)
     return [document_name, file_list_label, file_list_value_l]
+
+
+def read_single_json2(filename):
+    '''处理一个预测时使用的JSON文件'''
+    obj = open_file(filename)
+    dic = obj['analyzeResult']
+    dic = dic['documentResults'][0]
+    labels_list = dic['fields']
+    labels_num = len(labels_list)
+    file_list_label = []
+    file_list_value_l = []
+    for i in labels_list.keys():
+        value_l = labels_list[i]['text']
+        file_list_label.append(i)
+        file_list_value_l.append([value_l])
+    return [filename, file_list_label, file_list_value_l]
