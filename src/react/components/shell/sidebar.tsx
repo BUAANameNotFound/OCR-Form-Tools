@@ -16,6 +16,7 @@ import { strings } from "../../../common/strings";
  */
 export function Sidebar({ project }) {
     const projectId = project ? project.id : null;
+    const projectType = project ? project.projectType : null;
 
     return (
         <div className="bg-lighter-2 app-sidebar" id="appSidebar">
@@ -40,13 +41,13 @@ export function Sidebar({ project }) {
                     </ConditionalNavLink>
                 </li>
                 <li>
-                    <ConditionalNavLink disabled={!projectId}
-                        title={strings.datas.title}
-                        to={`/projects/${projectId}/datas`}>
-                        <FontIcon iconName="Table" />
+                    <ConditionalNavLink disabled={!projectId ||
+                        projectType === strings.appSettings.projectType.completed}
+                                        title={strings.datas.title}
+                                        to={`/projects/${projectId}/datas`}>
+                        <FontIcon iconName="Table"/>
                     </ConditionalNavLink>
                 </li>
-
                 <li>
                     <ConditionalNavLink disabled={!projectId}
                         title={strings.train.title}
