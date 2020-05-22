@@ -13,6 +13,7 @@ from azure.storage.blob import PublicAccess
 from azure.storage.blob import StorageErrorCode
 
 from .anlysis import analyze_json
+from .cognize import recognize
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
@@ -26,6 +27,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     
     analyze_json(path=pro_name)
+
+    recognize(pro_name)
 
     return func.HttpResponse(
         "Get it",

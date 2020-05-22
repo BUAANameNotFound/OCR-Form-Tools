@@ -24,39 +24,7 @@ CONNECTION_STR = 'DefaultEndpointsProtocol=https;AccountName=lyniupi;AccountKey=
 
 #CONNECTION_STR = 'DefaultEndpointsProtocol=https;AccountName=lyceshi;AccountKey=PcrYp+YILDxt54rzcPEPIk3Lhv9WXC9w64Ws7rP27TJEIyDdE4aa/g2mir4u6/PmuWqnbLtb0Zo3ny33wwh6EQ==;EndpointSuffix=core.windows.net'
 
-def main(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info('Python HTTP trigger function processed a request.')
-
-    # container_service = ContainerClient.from_connection_string(conn_str=CONNECTION_STR, container_name='wudi')
-    # try:
-    #     container_service.delete_blob('ly/template.pdf')
-    # except Exception as err:
-    #     logging.info('well, no need to delete!')
-    
-    # try:
-    #     tmp = container_service.get_blob_client('ly/ceshi.json')
-    # except Exception as err:
-    #     logging.info(f'well, is not exist!')
-    # with open('tmp/tmp.json', 'r') as f:
-    #     data = f.read()
-    #     tmp.upload_blob(data)
-    #     tmp.append_block(data)
-    # container_service = ContainerClient.from_connection_string(conn_str=CONNECTION_STR, container_name='wudi')
-    # try:
-    #     container_service.delete_blob('ly/template.pdf')
-    # except Exception as err:
-    #     print(err)
-    #     logging.info('well, no need to delete!')
-    # tmp = container_service.get_blob_client('ly/template.pdf')
-    # #with open(r'tmp/rich_Invoice_sample.pdf', 'rb') as data:
-    #     #service.upload_blob('ly/template.pdf', data)
-    # tmp.upload_blob(req.get_body())
-    # #    pass
-    # # tmp = service.get_blob_client('ly/label.json')
-    # # text = tmp.download_blob()
-    # # a = text.readall()
-
-    path = req.params.get('path')
+def recognize(path):
 
     #####处理dxy输出的json
     file_in = "test.json"
@@ -66,16 +34,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     for (key, value) in docs.items():
         json_out = dealOne(value)
         write_json(path, json_out['document'], json_out)
-        
 
-    #jsonout = dealOne(json_in)
-
-
-
-    return func.HttpResponse(
-            "Get it",
-            status_code=200
-    )
 
 
 def read_json(path, name):
