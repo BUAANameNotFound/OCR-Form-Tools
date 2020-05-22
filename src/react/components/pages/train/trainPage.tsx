@@ -15,7 +15,7 @@ import TrainPanel from "./trainPanel";
 import TrainTable from "./trainTable";
 import {ITrainRecordProps} from "./trainRecord";
 import "./trainPage.scss";
-import {strings} from "../../../../common/strings";
+import {interpolate, strings} from "../../../../common/strings";
 import {constants} from "../../../../common/constants";
 import _ from "lodash";
 import Alert from "../../common/alert/alert";
@@ -27,6 +27,7 @@ import {SkipButton} from "../../shell/skipButton";
 import {throttle} from "../../../../common/utils";
 import {OCRService} from "../../../../services/ocrService";
 import * as path from "path";
+import {toast} from "react-toastify";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -238,6 +239,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     private getSubFolder(project: IProject) {
         if (project.projectType === strings.appSettings.projectType.origin) {
             return path.join(this.props.project.folderPath, "type2");
+        } else if (project.projectType === strings.appSettings.projectType.completed) {
+            return path.join(this.props.project.folderPath, "type2");
         } else {
             return path.join(this.props.project.folderPath, "type3");
         }
@@ -245,6 +248,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
     private getKind(project: IProject) {
         if (project.projectType === strings.appSettings.projectType.origin) {
+            return AssetKind.Normal;
+        } else if (project.projectType === strings.appSettings.projectType.completed) {
             return AssetKind.Normal;
         } else {
             return AssetKind.Fake;
@@ -269,6 +274,23 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 });
         } catch (err) {
             console.log(err);
+        }
+
+        if (this.props.project.projectType === strings.appSettings.projectType.completed) {
+            const requestOptions = {
+                // mode: "no-cors" as RequestMode,
+                method: "GET",
+            };
+            fetch(`https://lyceshi.azurewebsites.net/api/Recognize?path=${this.props.project.folderPath}`,
+                requestOptions)
+                .then((response) => {
+                    console.log(response);
+                    if (response.ok) {
+                        toast.success("Recognize success.");
+                    } else {
+                        toast.error("Recognize failed.");
+                    }
+                });
         }
 
         const baseURL = url.resolve(
