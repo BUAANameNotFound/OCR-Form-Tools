@@ -30,7 +30,6 @@ import { constants } from "../../../../common/constants";
 import { getPrimaryGreenTheme, getPrimaryWhiteTheme } from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
 
-
 const cMapUrl = constants.pdfjsCMapUrl(pdfjsLib.version);
 
 export interface IUploadPageProps extends RouteComponentProps, React.Props<UploadPage> {
@@ -333,7 +332,7 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
     private getProjectType = () => {
         if (this.props.project.projectType === strings.appSettings.projectType.completed) {
             return 2;
-        } if (this.props.project.projectType === strings.appSettings.projectType.completed) {
+        } else if (this.props.project.projectType === strings.appSettings.projectType.sheet) {
             return 3;
         } else {
             return 1;
@@ -348,11 +347,11 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
         );
         console.log(endpointURL);
         const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': this.state.file.type },
+            method: "POST",
+            headers: { "Content-Type": this.state.file.type },
             body: this.state.file,
         };
-        //console.log(endpointURL);
+        // console.log(endpointURL);
         try {
             this.poll(() =>
                 fetch(endpointURL, requestOptions), 120000, 500)
@@ -379,8 +378,7 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
                     uploadSucceeded: false,
                 });
             });
-        }
-        catch (err) {
+        } catch (err) {
             ServiceHelper.handleServiceError(err);
         }
 
@@ -518,7 +516,6 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
         });
     }
 
-
     /**
      * Poll function to repeatly check if request succeeded
      * @param func - function that will be called repeatly
@@ -532,7 +529,7 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
         const checkSucceeded = (resolve, reject) => {
             const ajax = func();
             ajax.then((response) => {
-                //console.log(response);
+                // console.log(response);
                 if (response.status === 200) {
                     resolve(response);
                 } else if (response.status !== 200) {

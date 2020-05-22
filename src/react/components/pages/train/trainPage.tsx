@@ -15,7 +15,7 @@ import TrainPanel from "./trainPanel";
 import TrainTable from "./trainTable";
 import {ITrainRecordProps} from "./trainRecord";
 import "./trainPage.scss";
-import {strings} from "../../../../common/strings";
+import {interpolate, strings} from "../../../../common/strings";
 import {constants} from "../../../../common/constants";
 import _ from "lodash";
 import Alert from "../../common/alert/alert";
@@ -24,9 +24,10 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
 import {getPrimaryGreenTheme} from "../../../../common/themes";
 import {SkipButton} from "../../shell/skipButton";
-import {throttle} from "../../../../common/utils";
+import {delay, throttle} from "../../../../common/utils";
 import {OCRService} from "../../../../services/ocrService";
 import * as path from "path";
+import {toast} from "react-toastify";
 
 export interface ITrainPageProps extends RouteComponentProps, React.Props<TrainPage> {
     connections: IConnection[];
@@ -95,31 +96,31 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
 
             this.props.appTitleActions.setTitle(project.name);
             this.updateCurrTrainRecord(this.getProjectTrainRecord());
+            console.log(this.getProjectTrainRecord());
         }
         document.title = strings.train.title + " - " + strings.appName;
     }
 
     public render() {
-        const currTrainRecord = this.state.currTrainRecord;
 
         return (
             <div className="train-page" id="pageTrain">
                 <main className="train-page-main">
-                    {currTrainRecord &&
+                    {this.state.currTrainRecord &&
                         <div>
                             <h3> Train Result </h3>
-                            <span> Model ID: {currTrainRecord.modelInfo.modelId} </span>
+                            <span> Model ID: {this.state.currTrainRecord.modelInfo.modelId} </span>
                         </div>
                     }
                     {this.state.viewType === "tableView" &&
                         <TrainTable
                             trainMessage={this.state.trainMessage}
-                            accuracies={currTrainRecord && currTrainRecord.accuracies} />}
+                            accuracies={this.state.currTrainRecord && this.state.currTrainRecord.accuracies} />}
 
-                    {this.state.viewType === "chartView" && currTrainRecord &&
+                    {this.state.viewType === "chartView" && this.state.currTrainRecord &&
                         <TrainChart
-                            accuracies={currTrainRecord.accuracies}
-                            modelId={currTrainRecord.modelInfo.modelId}
+                            accuracies={this.state.currTrainRecord.accuracies}
+                            modelId={this.state.currTrainRecord.modelInfo.modelId}
                             projectTags={this.props.project.tags} />
                     }
                 </main>
@@ -157,9 +158,9 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                                 }
                             </div>
                             <div className={!this.state.isTraining ? "" : "greyOut"}>
-                                {currTrainRecord &&
+                                {this.state.currTrainRecord &&
                                     <TrainPanel
-                                        currTrainRecord={currTrainRecord}
+                                        currTrainRecord={this.state.currTrainRecord}
                                         viewType={this.state.viewType}
                                         updateViewTypeCallback={this.handleViewTypeClick}
                                     />
@@ -183,7 +184,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         );
     }
 
-    private handleTrainClick = () => {
+    private handleTrainClick = async () => {
         this.setState({
             isTraining: true,
             trainMessage: strings.train.training,
@@ -193,7 +194,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
             this.setState((prevState, props) => ({
                 isTraining: false,
                 trainMessage: this.getTrainMessage(trainResult),
-                currTrainRecord: this.getProjectTrainRecord(),
+                // currTrainRecord: this.getProjectTrainRecord(),
             }));
         }).catch((err) => {
             this.setState({
@@ -201,6 +202,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 trainMessage: err.message,
             });
         });
+        console.log(this.state.currTrainRecord);
     }
 
     private handleViewTypeClick = (viewType: "tableView" | "chartView"): void => {
@@ -210,13 +212,20 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     private async trainProcess(): Promise<any> {
         try {
             const trainRes = await this.train();
+            console.log(trainRes);
             const trainStatusRes =
                 await this.getTrainStatus(trainRes.headers["location"]);
+            console.log(trainStatusRes);
             const updatedProject = this.buildUpdatedProject(
                 this.parseTrainResult(trainStatusRes),
             );
             await this.props.actions.saveProject(updatedProject);
 
+            await this.props.actions.loadProject(this.props.project);
+            this.props.appTitleActions.setTitle(this.props.project.name);
+            this.updateCurrTrainRecord(this.parseTrainResult(trainStatusRes));
+            console.log(this.parseTrainResult(trainStatusRes));
+            console.log(this.state.currTrainRecord);
             return trainStatusRes;
         } catch (errorMessage) {
             this.setState({
@@ -230,8 +239,20 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
     private getSubFolder(project: IProject) {
         if (project.projectType === strings.appSettings.projectType.origin) {
             return path.join(this.props.project.folderPath, "type2");
+        } else if (project.projectType === strings.appSettings.projectType.completed) {
+            return path.join(this.props.project.folderPath, "type2");
         } else {
             return path.join(this.props.project.folderPath, "type3");
+        }
+    }
+
+    private getKind(project: IProject) {
+        if (project.projectType === strings.appSettings.projectType.origin) {
+            return AssetKind.Normal;
+        } else if (project.projectType === strings.appSettings.projectType.completed) {
+            return AssetKind.Normal;
+        } else {
+            return AssetKind.Fake;
         }
     }
 
@@ -241,7 +262,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         try {
             await throttle(
                 constants.maxConcurrentServiceRequests,
-                assets.filter((asset) => asset.kind === AssetKind.Fake).map((asset) => asset.id),
+                assets.filter((asset) => asset.kind === this.getKind(this.props.project)).map((asset) => asset.id),
                 async (assetId) => {
                     // Get the latest version of asset.
                     const asset = assets.find((asset) => asset.id === assetId);
@@ -254,6 +275,25 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
         } catch (err) {
             console.log(err);
         }
+
+        if (this.props.project.projectType === strings.appSettings.projectType.completed) {
+            const requestOptions = {
+                // mode: "no-cors" as RequestMode,
+                method: "GET",
+            };
+            await fetch(`https://lyceshi.azurewebsites.net/api/Recognize?path=${this.props.project.folderPath}`,
+                requestOptions)
+                .then((response) => {
+                    console.log(response);
+                    if (response.ok) {
+                        toast.success("Recognize success.");
+                    } else {
+                        toast.error("Recognize failed.");
+                    }
+                });
+        }
+
+        await delay(1000);
 
         const baseURL = url.resolve(
             this.props.project.apiUriBase,
