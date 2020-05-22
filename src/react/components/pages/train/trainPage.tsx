@@ -24,7 +24,7 @@ import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import ServiceHelper from "../../../../services/serviceHelper";
 import {getPrimaryGreenTheme} from "../../../../common/themes";
 import {SkipButton} from "../../shell/skipButton";
-import {throttle} from "../../../../common/utils";
+import {delay, throttle} from "../../../../common/utils";
 import {OCRService} from "../../../../services/ocrService";
 import * as path from "path";
 import {toast} from "react-toastify";
@@ -281,7 +281,7 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                 // mode: "no-cors" as RequestMode,
                 method: "GET",
             };
-            fetch(`https://lyceshi.azurewebsites.net/api/Recognize?path=${this.props.project.folderPath}`,
+            await fetch(`https://lyceshi.azurewebsites.net/api/Recognize?path=${this.props.project.folderPath}`,
                 requestOptions)
                 .then((response) => {
                     console.log(response);
@@ -292,6 +292,8 @@ export default class TrainPage extends React.Component<ITrainPageProps, ITrainPa
                     }
                 });
         }
+
+        await delay(1000);
 
         const baseURL = url.resolve(
             this.props.project.apiUriBase,
