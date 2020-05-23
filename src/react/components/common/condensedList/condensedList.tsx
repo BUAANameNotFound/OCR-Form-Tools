@@ -3,9 +3,11 @@
 
 import React, { SyntheticEvent } from "react";
 import { Link } from "react-router-dom";
-import { FontIcon } from "office-ui-fabric-react";
+import {FontIcon, IconButton} from "office-ui-fabric-react";
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
 import "./condensedList.scss";
+import {IProject} from "../../../../models/applicationState";
+import {strings} from "../../../../common/strings";
 
 /**
  * Properties for Condensed List Component
@@ -25,22 +27,34 @@ interface ICondensedListProps {
     newLinkToTitle?: string;
     onClick?: (item) => void;
     onDelete?: (item) => void;
+    withMultiDelete?: boolean;
+    onDeletes?: (items) => void;
+}
+
+interface ICondensedListState {
+    selectedItems: IProject[];
+    deleteMode: boolean;
 }
 
 /**
  * @name - Condensed List
  * @description - Clickable, deletable and linkable list of items
  */
-export default class CondensedList extends React.Component<ICondensedListProps> {
+export default class CondensedList extends React.Component<ICondensedListProps, ICondensedListState> {
     constructor(props, context) {
         super(props, context);
 
         this.onItemClick = this.onItemClick.bind(this);
         this.onItemDelete = this.onItemDelete.bind(this);
+        this.onItemsDelete = this.onItemsDelete.bind(this);
+        this.state = { selectedItems: [], deleteMode: false };
+    }
+    public quitDeleteMode = () => {
+        this.setState({ selectedItems: [], deleteMode: false });
     }
 
     public render() {
-        const { title, items, newLinkTo, newLinkToTitle, Component } = this.props;
+        const { title, items, newLinkTo, newLinkToTitle, Component, withMultiDelete } = this.props;
 
         return (
             <div className="condensed-list">
@@ -51,6 +65,23 @@ export default class CondensedList extends React.Component<ICondensedListProps> 
                             id="addConnection">
                             <FontIcon iconName="Add" />
                         </Link>
+                    }
+                    <IconButton className="float-right app-delete-button"
+                        title={!this.state.deleteMode ? strings.common.deleteMode : strings.common.cancel}
+                        onClick={() => {
+                            this.setState({ deleteMode: !this.state.deleteMode, selectedItems: []});
+                        }}>
+                            <FontIcon iconName={!this.state.deleteMode ? "Delete" : "ReturnKey"}
+                                      className="app-delete-icon"/>
+                    </IconButton>
+                    {
+                        this.state.deleteMode &&
+                        <IconButton className="float-right app-delete-button"
+                            title={strings.common.submitDelete}
+                            onClick={this.onItemsDelete}>
+                                <FontIcon iconName={"Delete"}
+                                          className="app-delete-icon"/>
+                        </IconButton>
                     }
                 </div>
                 <div className="condensed-list-body">
@@ -63,6 +94,16 @@ export default class CondensedList extends React.Component<ICondensedListProps> 
                         <div className="p-3 text-center">No items found</div>
                     }
                     {(items && items.length > 0) &&
+                        withMultiDelete ?
+                        <ul className="condensed-list-items">
+                            {items.map((item) => <Component key={item.id}
+                                item={item}
+                                onClick={(e) => this.onItemClick(e, item)}
+                                selectedItems={this.state.selectedItems}
+                                onSelect={(e) => this.onSelect(e, item)}
+                                onUnSelect={(e) => this.onUnSelect(e, item)}
+                                deleteMode={this.state.deleteMode}/>)}
+                        </ul> :
                         <ul className="condensed-list-items">
                             {items.map((item) => <Component key={item.id}
                                 item={item}
@@ -88,6 +129,27 @@ export default class CondensedList extends React.Component<ICondensedListProps> 
         if (this.props.onDelete) {
             this.props.onDelete(item);
         }
+    }
+
+    private onItemsDelete = () => {
+        console.log("items delete", this.state.selectedItems);
+        /*
+        if (this.props.onDelete) {
+            this.state.selectedItems.forEach((item) => this.props.onDelete(item));
+        }
+         */
+        if (this.props.onDeletes) {
+            this.props.onDeletes(this.state.selectedItems);
+        }
+    }
+
+    private onSelect = (e, item) => {
+        this.setState( {selectedItems: this.state.selectedItems.concat(item)});
+        console.log(this.state.selectedItems.concat(item));
+    }
+    private onUnSelect = (e, item) => {
+        this.setState( {selectedItems: this.state.selectedItems.filter((e) => e.id !== item.id)} );
+        console.log(this.state.selectedItems.filter((e) => e.id !== item.id));
     }
 }
 

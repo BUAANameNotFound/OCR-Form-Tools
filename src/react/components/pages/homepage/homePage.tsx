@@ -22,7 +22,7 @@ import {
     ErrorCode, AppError, IAppSettings,
 } from "../../../../models/applicationState";
 import { StorageProviderFactory } from "../../../../providers/storage/storageProviderFactory";
-import { decryptProject } from "../../../../common/utils";
+import {decryptProject} from "../../../../common/utils";
 import { toast } from "react-toastify";
 import { SkipButton } from "../../shell/skipButton";
 import {Spinner, SpinnerSize} from "office-ui-fabric-react/lib/Spinner";
@@ -72,6 +72,7 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
     private newProjectRef = React.createRef<HTMLAnchorElement>();
     private deleteConfirmRef = React.createRef<Confirm>();
     private cloudFilePickerRef = React.createRef<CloudFilePicker>();
+    private condensedListRef = React.createRef<CondensedList>();
 
     public async componentDidMount() {
         this.props.appTitleActions.setTitle("Welcome");
@@ -149,18 +150,21 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
                 {(this.props.recentProjects && this.props.recentProjects.length > 0) &&
                     <div className="app-homepage-recent bg-lighter-1">
                         <CondensedList
+                            ref={this.condensedListRef}
                             title={strings.homePage.recentProjects}
                             Component={RecentProjectItem}
                             items={this.props.recentProjects}
                             onClick={this.freshLoadSelectedProject}
-                            onDelete={(project) => this.deleteConfirmRef.current.open(project)} />
+                            onDelete={(project) => this.deleteConfirmRef.current.open(project)}
+                            onDeletes={(projects) => this.deleteConfirmRef.current.open(projects)}
+                            withMultiDelete={true}/>
                     </div>
                 }
                 <Confirm title="Delete Project"
                     ref={this.deleteConfirmRef as any}
-                    message={(project: IProject) => `${strings.homePage.deleteProject.confirmation} ${project.name}?`}
+                    message={this.genMessage}
                     confirmButtonTheme={getPrimaryRedTheme()}
-                    onConfirm={this.deleteProject} />
+                    onConfirm={this.deleteProjects}/>
                 <SkipButton skipTo="pageHome">{strings.common.skipToMainContent}</SkipButton>
             </div>
         );
@@ -226,13 +230,31 @@ export default class HomePage extends React.Component<IHomePageProps, IHomePageS
         }
     }
 
-    private deleteProject = async (project: IProject) => {
+    private deleteProjects = (projects: IProject[]) => {
         this.setState({onDeleteProject: true});
+        if (Array.isArray(projects)) {
+            projects.forEachAsync((p) => this.deleteProject(p)).then(() => {
+                this.setState({onDeleteProject: false});
+                this.condensedListRef.current.quitDeleteMode();
+            });
+        }
+    }
+
+    private deleteProject = async (project: IProject) => {
         await this.props.actions.deleteProject(project);
         const requestOptions = {
             method: "GET",
         };
         await fetch(`https://lyniupi.azurewebsites.net/api/DeletePro?path=${project.folderPath}`, requestOptions);
-        this.setState({onDeleteProject: false});
+    }
+
+    private genMessage = (items: any) => {
+        if (Array.isArray(items)) {
+            let str = strings.homePage.deleteProject.confirmation + "\n";
+            items.forEach((p) => str = str.concat(p.name + "\n"));
+            return str;
+        } else {
+            return (`${strings.homePage.deleteProject.confirmation} ${items.name}?`);
+        }
     }
 }

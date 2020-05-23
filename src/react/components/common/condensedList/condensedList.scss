@@ -43,6 +43,18 @@ ul.condensed-list-items {
                 background-color: $lighter-2;
             }
         }
+        a.condensed-list-item-delete {
+            cursor: pointer;
+            width: 100%;
+            padding: 0.25em 1em;
+            display: inline-block;
+            text-decoration: none;
+            background-color: #f2635e;
+
+            &.active, &:hover {
+                background-color: #d55753;
+            }
+        }
     }
 }
 

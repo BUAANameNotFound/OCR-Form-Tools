@@ -18,6 +18,8 @@ export const english: IAppStrings = {
         cancel: "Cancel",
         save: "Save",
         delete: "Delete",
+        deleteMode: "Delete Projects",
+        submitDelete: "Confirm Delete",
         provider: "Provider",
         homePage: "Home Page",
         reload: "Reload",
