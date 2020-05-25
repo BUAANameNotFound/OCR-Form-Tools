@@ -22,7 +22,7 @@ CONNECTION_STR = 'DefaultEndpointsProtocol=https;AccountName=lyniupi;AccountKey=
 
 def find_json_file(path):
     container_service = ContainerClient.from_connection_string(conn_str=CONNECTION_STR, container_name='wudi')
-    tmp = container_service.list_blobs(name_starts_with=f'{path}/type2', )
+    tmp = container_service.list_blobs(name_starts_with=f'{path}/type2')
     filenames = []
     for i in tmp:
         name = i.name

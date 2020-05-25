@@ -12,7 +12,7 @@ from azure.storage.blob import BlobClient
 from azure.storage.blob import PublicAccess
 from azure.storage.blob import StorageErrorCode
 
-from .handle_json import read_single_json
+from .handle_json import read_single_json, read_single_json2
 from .handle_excel import new_excel, write_pdf_data, write_pdf_names
 from .show_excel import read_excel
 
@@ -29,6 +29,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             status_code=400
         )
 
+    container_service = ContainerClient.from_connection_string(conn_str=CONNECTION_STR, container_name='wudi')
+    tmp = container_service.list_blobs(name_starts_with=f'{pro_name}/type4')
+    filenames = []
+    for i in tmp:
+        filenames.append(i.name)
+
     NUM = 2
     PATH = f"tmp/wow.xlsx"
 
@@ -36,9 +42,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     labels_name = []
     data_list = []
 
-    for i in range(NUM):
-        FILENAME = 'ly/genPdf' + str(i + 1) + '.pdf.labels.json'
-        label_string_list = read_single_json(FILENAME)
+    for filename in filenames:
+        #FILENAME = 'ly/genPdf' + str(i + 1) + '.pdf.labels.json'
+        label_string_list = read_single_json2(filename)
         pdf_names.append(label_string_list[0])
         labels_name.append(label_string_list[1])
         data_list.append(label_string_list[2])
@@ -48,13 +54,17 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     tempfilePath = tempfile.gettempdir()
     fp = tempfile.NamedTemporaryFile()
 
-    #with open(fp.name, 'wb') as f:
-    #   f.truncate()
     new_excel(fp.name)
     write_pdf_names(pdf_names, fp.name)
     write_pdf_data(labels_name, data_list, fp.name)
 
-    container_service = ContainerClient.from_connection_string(conn_str=CONNECTION_STR, container_name='wudi')
+    
+    # with open(PATH, 'wb') as f:
+    #     f.truncate()
+    # new_excel(PATH)
+    # write_pdf_names(pdf_names, PATH)
+    # write_pdf_data(labels_name, data_list, PATH)
+    
     try:
         container_service.delete_blob(f'{pro_name}/wow.xlsx')
     except Exception as err:
@@ -62,14 +72,18 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     tmp = container_service.get_blob_client(f'{pro_name}/wow.xlsx')
     with open(fp.name, 'rb') as f:
-        tmp.upload_blob(f.read())
+        data = f.read()
+        tmp.upload_blob(data)
+    
 
-    #显示
+    # with open(PATH, 'rb') as f:
+    #     data = f.read()
+    #     tmp.upload_blob(data)
+
     #read_excel(PATH)
 
 
-
     return func.HttpResponse(
-            "Get it",
+            body=data,
             status_code=200
     )
