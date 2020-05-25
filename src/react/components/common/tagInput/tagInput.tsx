@@ -75,6 +75,8 @@ export interface ITagInputProps {
     onGeneration: any;
 
     onUpLoadFile: any;
+
+    isRefreshingTag: boolean;
 }
 
 export interface ITagInputState {
@@ -190,6 +192,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                         onReorder={this.onReOrder}
                         onGeneration={this.props.onGeneration}
                         onUpLoadFile={this.props.onUpLoadFile}
+                        isRefreshingTag={this.props.isRefreshingTag}
                     />
                 </div>
                 <div className="tag-input-body-container">
@@ -396,6 +399,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 onLabelEnter={this.props.onLabelEnter}
                 onLabelLeave={this.props.onLabelLeave}
                 onTagChanged={this.props.onTagChanged}
+                isRefreshingTag={this.props.isRefreshingTag}
             />);
     }
 

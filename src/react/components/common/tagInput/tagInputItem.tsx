@@ -41,6 +41,8 @@ export interface ITagInputItemProps {
     onLabelEnter: (label: ILabel) => void;
     onLabelLeave: (label: ILabel) => void;
     onTagChanged?: (oldTag: ITag, newTag: ITag) => void;
+
+    isRefreshingTag: boolean;
 }
 
 export interface ITagInputItemState {
@@ -119,7 +121,9 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         e.stopPropagation();
 
         const clickedDropDown = true;
-        this.props.onClick(this.props.tag, { clickedDropDown });
+        if (!this.props.isRefreshingTag) {
+            this.props.onClick(this.props.tag, {clickedDropDown});
+        }
     }
 
     private onColorClick = (e: MouseEvent) => {
@@ -128,7 +132,9 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
         const ctrlKey = e.ctrlKey || e.metaKey;
         const altKey = e.altKey;
         const clickedColor = true;
-        this.props.onClick(this.props.tag, { ctrlKey, altKey, clickedColor });
+        if (!this.props.isRefreshingTag) {
+            this.props.onClick(this.props.tag, { ctrlKey, altKey, clickedColor });
+        }
     }
 
     private onNameClick = (e: MouseEvent) => {
@@ -136,11 +142,13 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
 
         const ctrlKey = e.ctrlKey || e.metaKey;
         const altKey = e.altKey;
-        this.props.onClick(this.props.tag, { ctrlKey, altKey });
+        if (!this.props.isRefreshingTag) {
+            this.props.onClick(this.props.tag, {ctrlKey, altKey});
+        }
     }
 
     private getItemClassName = () => {
-        const classNames = ["tag-item"];
+        const classNames = this.props.isRefreshingTag ? ["tag-item-disable"] : ["tag-item"];
         if (this.props.isSelected) {
             classNames.push("tag-item-selected");
         }
@@ -189,9 +197,11 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                     <IconButton
                         title={strings.tags.toolbar.contextualMenu}
                         ariaLabel={strings.tags.toolbar.contextualMenu}
-                        className="tag-input-toolbar-iconbutton ml-2"
-                        iconProps={{iconName: "ChevronDown"}}
-                        onClick={this.onDropdownClick} />
+                        className={
+                            this.props.isRefreshingTag ? "tag-input-toolbar-iconbutton-disable ml-2" :
+                            "tag-input-toolbar-iconbutton ml-2"}
+                                iconProps={{iconName: "ChevronDown"}}
+                        onClick={this.onDropdownClick}/>
                 </div>
             </div>
         );
@@ -204,6 +214,7 @@ export default class TagInputItem extends React.Component<ITagInputItemProps, IT
                 label={label}
                 onLabelEnter={this.props.onLabelEnter}
                 onLabelLeave={this.props.onLabelLeave}
+                isRefreshingTag={this.props.isRefreshingTag}
             />);
     }
 
