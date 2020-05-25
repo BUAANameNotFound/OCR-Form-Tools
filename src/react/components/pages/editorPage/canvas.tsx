@@ -242,7 +242,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                         <PrimaryButton
                             allowDisabledFocus autoFocus={true}
                             theme={!this.state.enableDraw ? getPrimaryGreenTheme() : getPrimaryBlueTheme()}
-                                        text={!this.state.enableDraw ? "Edit" : "Stop"}
+                                        text={!this.state.enableDraw ? "Add Label" : "Cancel"}
                                         onClick={() => {
                                             this.setState({enableDraw: !this.state.enableDraw});
                                         }}/>
@@ -816,7 +816,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             return;
         }
 
-        console.log(`Click: x: ${x}, y: ${y}`);
+        // console.log(`Click: x: ${x}, y: ${y}`);
 
         if (this.halfClick === false) {
             this.lastX = x;
@@ -826,6 +826,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.halfClick = false;
             this.createRegionByPixel(this.lastX, this.lastY, x, y);
             this.drawOcr();
+            this.setState({enableDraw: false})
         }
         // this.buildRegionOrders();
         // this.drawOcr();

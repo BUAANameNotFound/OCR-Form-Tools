@@ -19,6 +19,8 @@ export interface IAppStrings {
         cancel: string;
         save: string;
         delete: string;
+        deleteMode: string;
+        submitDelete: string;
         provider: string;
         homePage: string;
         reload: string;

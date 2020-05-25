@@ -47,10 +47,11 @@ export interface IPredictPageProps extends RouteComponentProps, React.Props<Pred
 }
 
 export interface IPredictPageState {
-    analyzeResult: {};
+    analyzeResults: any[];
     fileLabel: string;
     predictionLoaded: boolean;
     currPage: number;
+    currFile: number;
     imageUri: string;
     imageWidth: number;
     imageHeight: number;
@@ -84,10 +85,11 @@ function mapDispatchToProps(dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class PredictPage extends React.Component<IPredictPageProps, IPredictPageState> {
     public state: IPredictPageState = {
-        analyzeResult: {},
+        analyzeResults: [],
         fileLabel: "Browse for a file...",
         predictionLoaded: true,
         currPage: undefined,
+        currFile: undefined,
         imageUri: null,
         imageWidth: 0,
         imageHeight: 0,
@@ -128,7 +130,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                 } else if (this.tiffImages.length !== 0) {
                     this.loadTiffPage(this.tiffImages, this.state.currPage);
                 }
-            } else if (this.getOcrFromAnalyzeResult(this.state.analyzeResult).length > 0 &&
+            } else if (this.getOcrFromAnalyzeResult(this.state.analyzeResults[this.state.currFile]).length > 0 &&
                 prevState.imageUri !== this.state.imageUri) {
                 this.imageMap.removeAllFeatures();
                 this.drawPredictionResult();
@@ -143,7 +145,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     public render() {
         const browseFileDisabled: boolean = !this.state.predictionLoaded;
         const predictDisabled: boolean = !this.state.predictionLoaded || !this.state.file;
-        const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
+        const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResults[this.state.currFile]);
 
         return (
             <div className="predict" id="pagePredict">
@@ -179,6 +181,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             </h5>
                             <div style={{display: "flex", marginBottom: "25px"}}>
                                 <input
+                                    multiple
                                     aria-hidden="true"
                                     type="file"
                                     accept="application/pdf, image/jpeg, image/png, image/tiff"
@@ -227,7 +230,9 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             {Object.keys(predictions).length > 0 &&
                                 <PredictResult
                                     predictions={predictions}
-                                    analyzeResult={this.state.analyzeResult}
+                                    folderPath={this.props.project.folderPath}
+                                    analyzeResults={this.state.analyzeResults}
+                                    analyzeResult={this.state.analyzeResults[this.state.currFile]}
                                     page={this.state.currPage}
                                     tags={this.props.project.tags}
                                     downloadResultLabel={this.state.fileLabel}
@@ -276,10 +281,16 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const prevPage = () => {
             this.setState((prevState) => ({
                 currPage: Math.max(1, prevState.currPage - 1),
+                currFile: this.state.currFile - 1,
+                file: this.fileInput.current.files[this.state.currFile - 1],
+                fileChanged: true,
             }));
+            this.imageMap.removeAllFeatures();
+            this.drawPredictionResult();
         };
 
-        if (this.state.currPage > 1) {
+        if (this.fileInput.current.files &&
+            this.fileInput.current.files.length > 1 && this.state.currFile > 0) {
             return (
                 <IconButton
                     className="toolbar-btn prev"
@@ -302,10 +313,16 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         const nextPage = () => {
             this.setState((prevState) => ({
                 currPage: Math.min(prevState.currPage + 1, numPages),
+                currFile: this.state.currFile + 1,
+                file: this.fileInput.current.files[this.state.currFile + 1],
+                fileChanged: true,
             }));
+            this.imageMap.removeAllFeatures();
+            this.drawPredictionResult();
         };
 
-        if (this.state.currPage < numPages) {
+        if (this.fileInput.current.files &&
+            this.fileInput.current.files.length > 1 && this.state.currFile < this.fileInput.current.files.length - 1) {
             return (
                 <IconButton
                     className="toolbar-btn next"
@@ -334,13 +351,18 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private handleFileChange = () => {
+        console.log(this.fileInput);
         if (this.fileInput.current.value !== "") {
-            const fileName = this.fileInput.current.value.split("\\").pop();
+            let fileName = this.fileInput.current.value.split("\\").pop();
+            if (this.fileInput.current.files.length > 1) {
+                fileName += " ......";
+            }
             if (fileName !== "") {
                 this.setState({
                     fileLabel: fileName,
                     currPage: 1,
-                    analyzeResult: {},
+                    currFile: 0,
+                    analyzeResults: [],
                     fileChanged: true,
                     file: this.fileInput.current.files[0],
                     predictRun: false,
@@ -358,7 +380,7 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
         this.getPrediction()
             .then((result) => {
                 this.setState({
-                    analyzeResult: result,
+                    analyzeResults: result,
                     predictionLoaded: true,
                     predictRun: true,
                     isPredicting: false,
@@ -453,32 +475,45 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private async getPrediction(): Promise<any> {
-        const modelID = _.get(this.props.project, "trainRecord.modelInfo.modelId");
-        if (!modelID) {
-            throw new AppError(
-                ErrorCode.PredictWithoutTrainForbidden,
-                strings.errors.predictWithoutTrainForbidden.message,
-                strings.errors.predictWithoutTrainForbidden.title);
-        }
-        const endpointURL = url.resolve(
-            this.props.project.apiUriBase,
-            `${constants.apiModelsPath}/${modelID}/analyze?includeTextDetails=true`,
-        );
-        const headers = { "Content-Type": this.state.file.type, "cache-control": "no-cache" };
-        let response;
-        try {
-            response = await ServiceHelper.postWithAutoRetry(
-                endpointURL, this.state.file, { headers }, this.props.project.apiKey as string);
-        } catch (err) {
-            ServiceHelper.handleServiceError(err);
+        const results = [];
+
+        for (let i = 0; i < this.fileInput.current.files.length; i++) {
+            const modelID = _.get(this.props.project, "trainRecord.modelInfo.modelId");
+            if (!modelID) {
+                throw new AppError(
+                    ErrorCode.PredictWithoutTrainForbidden,
+                    strings.errors.predictWithoutTrainForbidden.message,
+                    strings.errors.predictWithoutTrainForbidden.title);
+            }
+            const endpointURL = url.resolve(
+                this.props.project.apiUriBase,
+                `${constants.apiModelsPath}/${modelID}/analyze?includeTextDetails=true`,
+            );
+            const headers = { "Content-Type": this.fileInput.current.files[i].type, "cache-control": "no-cache" };
+            let response;
+            try {
+                response = await ServiceHelper.postWithAutoRetry(
+                    endpointURL, this.fileInput.current.files[i], { headers }, this.props.project.apiKey as string);
+            } catch (err) {
+                ServiceHelper.handleServiceError(err);
+            }
+
+            const operationLocation = response.headers["operation-location"];
+
+            // Make the second REST API call and get the response.
+            const result = await this.poll(() =>
+                ServiceHelper.getWithAutoRetry(
+                    operationLocation, { headers }, this.props.project.apiKey as string), 120000, 500);
+
+            console.log(result);
+
+            results[i] = result;
+
         }
 
-        const operationLocation = response.headers["operation-location"];
+        console.log(results);
 
-        // Make the second REST API call and get the response.
-        return this.poll(() =>
-            ServiceHelper.getWithAutoRetry(
-                operationLocation, { headers }, this.props.project.apiKey as string), 120000, 500);
+        return results;
     }
 
     private loadFile = (file: File) => {
@@ -634,11 +669,16 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
     }
 
     private drawPredictionResult = (): void => {
+        if (!this.state.analyzeResults || !this.state.analyzeResults[this.state.currFile]) {
+            return;
+        }
+
         const features = [];
         const imageExtent = [0, 0, this.state.imageWidth, this.state.imageHeight];
-        const ocrForCurrentPage: any = this.getOcrFromAnalyzeResult(this.state.analyzeResult)[this.state.currPage - 1];
+        const ocrForCurrentPage: any =
+            this.getOcrFromAnalyzeResult(this.state.analyzeResults[this.state.currFile])[this.state.currPage - 1];
         const ocrExtent = [0, 0, ocrForCurrentPage.width, ocrForCurrentPage.height];
-        const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResult);
+        const predictions = this.getPredictionsFromAnalyzeResult(this.state.analyzeResults[this.state.currFile]);
 
         for (const fieldName of Object.keys(predictions)) {
             const field = predictions[fieldName];
