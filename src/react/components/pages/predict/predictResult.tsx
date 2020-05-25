@@ -4,11 +4,14 @@
 import React from "react";
 import { ITag } from "../../../../models/applicationState";
 import "./predictResult.scss";
-import { getPrimaryGreenTheme } from "../../../../common/themes";
+import {getPrimaryBlueTheme, getPrimaryGreenTheme} from "../../../../common/themes";
 import { PrimaryButton } from "office-ui-fabric-react";
+import {toast} from "react-toastify";
 
 export interface IPredictResultProps {
     predictions: { [key: string]: any };
+    folderPath: string;
+    analyzeResults: any[];
     analyzeResult: {};
     page: number;
     tags: ITag[];
@@ -37,12 +40,23 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         return (
             <div>
                 <div className="prediction-header">
+                    <PrimaryButton
+                        className="prediction-header-download"
+                        theme={getPrimaryBlueTheme()}
+                        type="button"
+                        title="Download Excel"
+                        onClick={this.triggerDownloadExcel}>
+                        Download All results (Excel file)
+                    </PrimaryButton>
+                    <br/>
+                    <br/>
                     <h5 className="prediction-header-result">Result:</h5>
+                    <br/>
                     <PrimaryButton
                         className="prediction-header-download"
                         theme={getPrimaryGreenTheme()}
                         type="button"
-                        title="Download JSON"
+                        title="Download JSON of this file"
                         onClick={this.triggerDownload}>
                         Download result (JSON)
                     </PrimaryButton>
@@ -111,8 +125,49 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
         const fileURL = window.URL.createObjectURL(
             new Blob([JSON.stringify(this.props.analyzeResult)]));
         const fileLink = document.createElement("a");
-        const fileBaseName = this.props.downloadResultLabel.split(".")[0];
-        const downloadFileName = "Result-" + fileBaseName + ".json";
+        const downloadFileName = "Result.json";
+
+        fileLink.href = fileURL;
+        fileLink.setAttribute("download", downloadFileName);
+        document.body.appendChild(fileLink);
+        fileLink.click();
+    }
+
+    private triggerDownloadExcel = async () => {
+        toast.info("Downloading...");
+        console.log(this.props.analyzeResults);
+        for (const result of this.props.analyzeResults) {
+            if (!result) {
+                continue;
+            }
+            console.log(JSON.stringify(result));
+            const requestOptions = {
+                // mode: "no-cors" as RequestMode,
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(result),
+            };
+            const response = await
+                fetch(`https://lyceshi.azurewebsites.net/api/Upload?path=${this.props.folderPath}`,
+                    requestOptions);
+            console.log(response);
+        }
+
+        const requestOptions = {
+            // mode: "no-cors" as RequestMode,
+            method: "GET",
+        };
+        let fileURL;
+        const response =
+            await fetch(`https://lyceshi.azurewebsites.net/api/ExcelVisual?path=${this.props.folderPath}`,
+                requestOptions);
+        console.log(response);
+        const blob = await response.blob();
+        console.log(blob);
+        fileURL = window.URL.createObjectURL(blob);
+
+        const fileLink = document.createElement("a");
+        const downloadFileName = "results.xlsx";
 
         fileLink.href = fileURL;
         fileLink.setAttribute("download", downloadFileName);

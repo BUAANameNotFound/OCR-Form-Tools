@@ -230,6 +230,8 @@ export default class PredictPage extends React.Component<IPredictPageProps, IPre
                             {Object.keys(predictions).length > 0 &&
                                 <PredictResult
                                     predictions={predictions}
+                                    folderPath={this.props.project.folderPath}
+                                    analyzeResults={this.state.analyzeResults}
                                     analyzeResult={this.state.analyzeResults[this.state.currFile]}
                                     page={this.state.currPage}
                                     tags={this.props.project.tags}
