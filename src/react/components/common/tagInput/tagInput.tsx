@@ -9,6 +9,8 @@ import {
     FontIcon,
     IContextualMenuItem,
     ICustomizations,
+    MessageBar,
+    MessageBarType,
 } from "office-ui-fabric-react";
 import {strings} from "../../../../common/strings";
 import {getDarkTheme} from "../../../../common/themes";
@@ -75,6 +77,8 @@ export interface ITagInputProps {
     onGeneration: any;
 
     onUpLoadFile: any;
+
+    isRefreshingTag: boolean;
 }
 
 export interface ITagInputState {
@@ -190,9 +194,18 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                         onReorder={this.onReOrder}
                         onGeneration={this.props.onGeneration}
                         onUpLoadFile={this.props.onUpLoadFile}
+                        isRefreshingTag={this.props.isRefreshingTag}
                     />
                 </div>
                 <div className="tag-input-body-container">
+                    {
+                        this.props.isRefreshingTag &&
+                        <MessageBar
+                            messageBarType={MessageBarType.warning}
+                            isMultiline={false}>
+                            Saving project...
+                        </MessageBar>
+                    }
                     <div className="tag-input-body">
                         {
                             this.state.searchTags &&
@@ -396,6 +409,7 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                 onLabelEnter={this.props.onLabelEnter}
                 onLabelLeave={this.props.onLabelLeave}
                 onTagChanged={this.props.onTagChanged}
+                isRefreshingTag={this.props.isRefreshingTag}
             />);
     }
 

@@ -1,39 +1,49 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import React, { ReactElement } from "react";
-import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
-import { Label } from "office-ui-fabric-react/lib/Label";
-import { IconButton } from "office-ui-fabric-react/lib/Button";
+import React, {ReactElement} from "react";
+import {Spinner, SpinnerSize} from "office-ui-fabric-react/lib/Spinner";
+import {Label} from "office-ui-fabric-react/lib/Label";
+import {IconButton} from "office-ui-fabric-react/lib/Button";
 import {
-    EditorMode, IAssetMetadata,
-    IProject, IRegion, RegionType,
-    AssetType, ILabelData, ILabel,
-    ITag, IAsset, IFormRegion, FeatureCategory, FieldType, FieldFormat,
+    AssetType,
+    EditorMode,
+    FeatureCategory,
+    FieldFormat,
+    FieldType,
+    IAsset,
+    IAssetMetadata,
+    IFormRegion,
+    ILabel,
+    ILabelData,
+    IProject,
+    IRegion,
+    ITag,
+    RegionType,
 } from "../../../../models/applicationState";
 import CanvasHelpers from "./canvasHelpers";
-import { AssetPreview } from "../../common/assetPreview/assetPreview";
-import { ImageMap } from "../../common/imageMap/imageMap";
+import {AssetPreview} from "../../common/assetPreview/assetPreview";
+import {ImageMap} from "../../common/imageMap/imageMap";
 import "./canvas.scss";
 import Style from "ol/style/Style";
 import Icon from "ol/style/Icon";
 import Point from "ol/geom/Point";
 import Stroke from "ol/style/Stroke";
 import Fill from "ol/style/Fill";
-import { OCRService, OcrStatus } from "../../../../services/ocrService";
-import { Feature } from "ol";
-import { Extent } from "ol/extent";
-import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
-import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
+import {OCRService, OcrStatus} from "../../../../services/ocrService";
+import {Feature} from "ol";
+import {Extent} from "ol/extent";
+import {KeyboardBinding} from "../../common/keyboardBinding/keyboardBinding";
+import {KeyEventType} from "../../common/keyboardManager/keyboardManager";
 import _ from "lodash";
 import Alert from "../../common/alert/alert";
 import * as pdfjsLib from "pdfjs-dist";
 import Polygon from "ol/geom/Polygon";
 import HtmlFileReader from "../../../../common/htmlFileReader";
-import { parseTiffData, renderTiffToCanvas, loadImageToCanvas } from "../../../../common/utils";
-import { constants } from "../../../../common/constants";
-import { CanvasCommandBar } from "./CanvasCommandBar";
-import {TooltipHost, ITooltipHostStyles, PrimaryButton} from "office-ui-fabric-react";
+import {loadImageToCanvas, parseTiffData, renderTiffToCanvas} from "../../../../common/utils";
+import {constants} from "../../../../common/constants";
+import {CanvasCommandBar} from "./CanvasCommandBar";
+import {ITooltipHostStyles, PrimaryButton, TooltipHost} from "office-ui-fabric-react";
 import {getPrimaryBlueTheme, getPrimaryGreenTheme} from "../../../../common/themes";
 import {strings} from "../../../../common/strings";
 
@@ -238,15 +248,17 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                             hoveringFeature={this.state.hoveringFeature}
                         />
                     </div>
+                    {this.props.project.projectType !== strings.appSettings.projectType.completed &&
                     <div className="button">
                         <PrimaryButton
                             allowDisabledFocus autoFocus={true}
                             theme={!this.state.enableDraw ? getPrimaryGreenTheme() : getPrimaryBlueTheme()}
-                                        text={!this.state.enableDraw ? "Add Label" : "Cancel"}
-                                        onClick={() => {
-                                            this.setState({enableDraw: !this.state.enableDraw});
-                                        }}/>
+                            text={!this.state.enableDraw ? "Add Label" : "Cancel"}
+                            onClick={() => {
+                                this.setState({enableDraw: !this.state.enableDraw});
+                            }}/>
                     </div>
+                    }
                 </div>
                 <TooltipHost
                     content={"rows: " + this.state.tableIconTooltip.rows +
@@ -284,7 +296,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
                 { this.state.ocrStatus !== OcrStatus.done &&
                     <div className="canvas-ocr-loading">
                         <div className="canvas-ocr-loading-spinner">
-                            <Label className="p-0" ></Label>
+                            <Label className="p-0" />
                             <Spinner size={SpinnerSize.large} label="Running OCR..." ariaLive="assertive" labelPosition="right"/>
                         </div>
                     </div>
@@ -826,7 +838,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             this.halfClick = false;
             this.createRegionByPixel(this.lastX, this.lastY, x, y);
             this.drawOcr();
-            this.setState({enableDraw: false})
+            this.setState({enableDraw: false});
         }
         // this.buildRegionOrders();
         // this.drawOcr();
@@ -1624,7 +1636,7 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             });
         }
         const regionTag = this.props.project.tags.find((tag) => tag.name === tagName);
-        const newRegion = {
+        return {
             id: this.createRegionIdFromBoundingBox(boundingBox, pangeNumber),
             type: RegionType.Polygon,
             category: regionTag.type !== FieldType.Checkbox ? FeatureCategory.Text : FeatureCategory.Checkbox,
@@ -1639,7 +1651,6 @@ export default class Canvas extends React.Component<ICanvasProps, ICanvasState> 
             value: text,
             pageNumber: pangeNumber,
         };
-        return newRegion;
     }
 
     private switchToTargetPage = async (targetPage: number) => {

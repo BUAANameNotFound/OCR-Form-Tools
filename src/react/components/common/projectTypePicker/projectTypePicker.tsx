@@ -57,7 +57,7 @@ export class ProjectTypePicker extends React.Component<IProjectTypePickerProps, 
                     <option>Select Project Type</option>
                     <option>{strings.appSettings.projectType.blank}</option>
                     <option>{strings.appSettings.projectType.completed}</option>
-                    <option>{strings.appSettings.projectType.sheet}</option>
+                    {/*<option>{strings.appSettings.projectType.sheet}</option>*/}
                     <option>{strings.appSettings.projectType.origin}</option>
                 </select>
             </div>

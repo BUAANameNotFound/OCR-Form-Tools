@@ -14,13 +14,12 @@ import {
     AssetState, AssetType, EditorMode, IApplicationState,
     IAppSettings, IAsset, IAssetMetadata, IProject, IRegion,
     ISize, ITag,
-    ILabel, FieldType, FieldFormat, IField, AppError, ErrorCode,
+    ILabel, FieldType, FieldFormat,
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
-import { AssetService } from "../../../../services/assetService";
 import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
 import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
 import { TagInput } from "../../common/tagInput/tagInput";
@@ -32,18 +31,13 @@ import EditorSideBar from "./editorSideBar";
 import Alert from "../../common/alert/alert";
 import Confirm from "../../common/confirm/confirm";
 import { OCRService } from "../../../../services/ocrService";
-import {delay, joinPath, throttle} from "../../../../common/utils";
+import {throttle} from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
 import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
 import {StorageProviderFactory} from "../../../../providers/storage/storageProviderFactory";
-import {
-    disableDispatch, enableDispatch,
-    saveProject,
-    updateProjectTagAction,
-} from "../../../../redux/actions/projectActions";
 import {toast} from "react-toastify";
 
 /**
@@ -95,6 +89,7 @@ export interface IEditorPageState {
     isCanvasRunningOCR?: boolean;
     /** whether is loading project Assets */
     isLoadingProjectAssets?: boolean;
+    isRefreshingTag?: boolean;
     isError?: boolean;
     errorTitle?: string;
     errorMessage?: string;
@@ -132,6 +127,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         showInvalidRegionWarning: false,
         hoveredLabel: null,
         isLoadingProjectAssets: false,
+        isRefreshingTag: false,
     };
 
     private tagInputRef: RefObject<TagInput>;
@@ -276,7 +272,12 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                         }
                                     </div>
                                 </div>
-                                <div className="editor-page-right-sidebar">
+                                {this.props.project.projectType !== strings.appSettings.projectType.completed &&
+                                <div className={
+                                    this.state.isRefreshingTag ?
+                                        "editor-page-right-sidebar disable-click" : "editor-page-right-sidebar"
+                                }>
+
                                     <TagInput
                                         tags={this.props.project.tags}
                                         lockedTags={this.state.lockedTags}
@@ -294,8 +295,11 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                         onGeneration={this.onGeneration}
                                         onUpLoadFile={this.onUpLoadFile}
                                         ref={this.tagInputRef}
+                                        isRefreshingTag={this.state.isRefreshingTag}
                                     />
                                 </div>
+                                }
+
                                 <Confirm title={strings.editorPage.tags.rename.title}
                                          ref={this.renameTagConfirm}
                                          message={strings.editorPage.tags.rename.confirmation}
@@ -341,7 +345,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private onPageContainerClick = () => {
         // workaround: tagInput will not lost focus with olmap,
         // so we fire the blur event manually here
-        this.tagInputRef.current.triggerNewTagBlur();
+        if (this.tagInputRef.current) {
+            this.tagInputRef.current.triggerNewTagBlur();
+        }
     }
 
     // tslint:disable-next-line:no-empty
@@ -399,6 +405,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      * @param newTag Tag with the new name
      */
     private onTagRenamed = async (tag: ITag, newTag: ITag): Promise<void> => {
+        this.setState({isRefreshingTag: true});
         this.renameCanceled = null;
         const assetUpdates = await this.props.actions.updateProjectTag(this.props.project, tag, newTag);
         // console.log("onTagRenamed updateProjectTag");
@@ -409,6 +416,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 this.setState({ selectedAsset });
             }
         }
+        this.setState({isRefreshingTag: false});
     }
 
     private onTagRenameCanceled = () => {
@@ -430,12 +438,14 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      * @param tagName Name of tag to be deleted
      */
     private onTagDeleted = async (tagName: string): Promise<void> => {
+        this.setState({isRefreshingTag: true});
         const assetUpdates = await this.props.actions.deleteProjectTag(this.props.project, tagName);
         // console.log("onTagDeleted deleteProjectTag");
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
         if (selectedAsset) {
             this.setState({ selectedAsset });
         }
+        this.setState({isRefreshingTag: false});
     }
 
     private onCtrlTagClicked = (tag: ITag): void => {
@@ -480,7 +490,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private onAssetMetadataChanged = async (assetMetadata: IAssetMetadata): Promise<void> => {
         // Comment out below code as we allow regions without tags, it would make labeler's work easier.
 
-        console.log(assetMetadata);
+        // console.log(assetMetadata);
 
         const initialState = assetMetadata.asset.state;
 
@@ -558,12 +568,14 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private onTagsChanged = async (tags) => {
+        this.setState({isRefreshingTag: true});
         const project = {
             ...this.props.project,
             tags,
         };
         await this.props.actions.saveProject(project);
         // console.log("onTagsChanged save project");
+        this.setState({isRefreshingTag: false});
     }
 
     private onLockedTagsChanged = (lockedTags: string[]) => {
@@ -758,7 +770,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         //
         // console.log(newTag);
         // console.log(this.state);
-
+        this.setState({isRefreshingTag: true});
         // this.props.project.tags = this.props.project.tags.map((t) => (t.name === oldTag.name) ? { ...oldTag } : t);
 
         const assetUpdates = await this.props.actions.updateProjectTag(this.props.project, oldTag, newTag);
@@ -772,6 +784,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 });
             }
         }
+        this.setState({isRefreshingTag: false});
 
         // enableDispatch();
 

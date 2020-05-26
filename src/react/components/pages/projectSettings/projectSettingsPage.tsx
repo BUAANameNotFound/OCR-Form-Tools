@@ -20,7 +20,6 @@ import { ProjectSettingAction } from "./projectSettingAction";
 import ProjectService from "../../../../services/projectService";
 import { getStorageItem, setStorageItem, removeStorageItem } from "../../../../redux/middleware/localStorage";
 import { SkipButton } from "../../shell/skipButton";
-import {delay} from "../../../../common/utils";
 import {Spinner, SpinnerSize} from "office-ui-fabric-react/lib/Spinner";
 
 /**

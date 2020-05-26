@@ -274,3 +274,24 @@ div.github-picker > span > div {
 div.circle-picker-container {
     background: #252526;
 }
+
+.tag-item-disable {
+    @extend .tag-item;
+    &:hover {
+        cursor: wait;
+    }
+}
+
+.tag-item-label-disable {
+    @extend .tag-item-label;
+    &:hover {
+        cursor: wait;
+    }
+}
+
+.tag-input-toolbar-iconbutton-disable {
+    @extend .tag-input-toolbar-iconbutton;
+    &:hover {
+        cursor: wait;
+    }
+}
