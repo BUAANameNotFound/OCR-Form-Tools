@@ -9,6 +9,8 @@ import {
     FontIcon,
     IContextualMenuItem,
     ICustomizations,
+    MessageBar,
+    MessageBarType,
 } from "office-ui-fabric-react";
 import {strings} from "../../../../common/strings";
 import {getDarkTheme} from "../../../../common/themes";
@@ -196,6 +198,14 @@ export class TagInput extends React.Component<ITagInputProps, ITagInputState> {
                     />
                 </div>
                 <div className="tag-input-body-container">
+                    {
+                        this.props.isRefreshingTag &&
+                        <MessageBar
+                            messageBarType={MessageBarType.warning}
+                            isMultiline={false}>
+                            Saving project...
+                        </MessageBar>
+                    }
                     <div className="tag-input-body">
                         {
                             this.state.searchTags &&
