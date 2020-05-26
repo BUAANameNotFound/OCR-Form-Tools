@@ -1,0 +1,33 @@
+@import '../../../../assets/sass/theme.scss';
+
+.app-mappage {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+
+    &-main {
+        display: flex;
+        flex-grow: 1;
+    }
+
+    &-recent {
+        flex-basis: 20vw;
+        min-width: 250px;
+        max-width: 300px;
+    }
+    &-loading {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      text-align: center;
+      display: flex;
+        width: 100%;
+        height: 100%;
+    }
+    &-loading-spinner {
+      margin:auto;
+      font-size: 24px;
+    }
+}
