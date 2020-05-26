@@ -8,6 +8,7 @@ export interface ITagInputItemLabelProps {
     label: ILabel;
     onLabelEnter: (label: ILabel) => void;
     onLabelLeave: (label: ILabel) => void;
+    isRefreshingTag: boolean;
 }
 
 export interface ITagInputItemLabelState {}
@@ -16,7 +17,7 @@ export default class TagInputItemLabel extends React.Component<ITagInputItemLabe
     public render() {
         return (
             <div
-                className={"tag-item-label px-2"}
+                className={this.props.isRefreshingTag ? "tag-item-label-disable px-2" : "tag-item-label px-2"}
                 onMouseEnter={this.handleMouseEnter}
                 onMouseLeave={this.handleMouseLeave}>
                 {this.props.label.value.map((formRegion: IFormRegion) => formRegion.text).join(" ")}

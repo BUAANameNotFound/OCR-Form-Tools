@@ -305,3 +305,7 @@ canvas {
 .Resizer.disabled:hover {
   border-color: transparent;
 }
+
+.disable-click {
+    cursor: wait;
+}

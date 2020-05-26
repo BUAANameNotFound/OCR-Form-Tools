@@ -33,6 +33,8 @@ export interface ITagInputToolbarProps {
     onGeneration: any;
 
     onUpLoadFile: any;
+
+    isRefreshingTag: boolean;
 }
 
 interface ITagInputToolbarItemProps {
@@ -131,15 +133,16 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
                             className="tag-input-toolbar-iconbutton"
                             iconProps={{iconName: itemConfig.icon}}
                             autoFocus={!index}
-                            onClick={(e) => this.onToolbarItemClick(e, itemConfig)} />
+                            onClick={(e) => this.onToolbarItemClick(e, itemConfig)}
+                            disabled={this.props.isRefreshingTag}/>
                     );
                 } else if (itemConfig.category === Categories.Separator) {
-                    return (<div className="tag-input-toolbar-separator" key={itemConfig.displayName}></div>);
+                    return (<div className="tag-input-toolbar-separator" key={itemConfig.displayName}/>);
                 } else if (itemConfig.category === Categories.Modifier) {
                     return (
                         <IconButton
                             key={itemConfig.displayName}
-                            disabled={modifierDisabled}
+                            disabled={modifierDisabled || this.props.isRefreshingTag}
                             title={itemConfig.displayName}
                             ariaLabel={itemConfig.displayName}
                             className={modifierClassName}
@@ -155,7 +158,8 @@ export default class TagInputToolbar extends React.Component<ITagInputToolbarPro
                         className="tag-input-toolbar-iconbutton"
                         iconProps={{iconName: itemConfig.icon}}
                         autoFocus={!index}
-                        onClick={(e) => this.onToolbarItemClick(e, itemConfig)} />
+                        onClick={(e) => this.onToolbarItemClick(e, itemConfig)}
+                        disabled={this.props.isRefreshingTag}/>
                     );
                 } else {
                     throw new Error(`Unsupported item category ${itemConfig.category}`);

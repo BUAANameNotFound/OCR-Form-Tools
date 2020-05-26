@@ -95,6 +95,7 @@ export interface IEditorPageState {
     isCanvasRunningOCR?: boolean;
     /** whether is loading project Assets */
     isLoadingProjectAssets?: boolean;
+    isRefreshingTag?: boolean;
     isError?: boolean;
     errorTitle?: string;
     errorMessage?: string;
@@ -132,6 +133,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         showInvalidRegionWarning: false,
         hoveredLabel: null,
         isLoadingProjectAssets: false,
+        isRefreshingTag: false,
     };
 
     private tagInputRef: RefObject<TagInput>;
@@ -276,7 +278,10 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                         }
                                     </div>
                                 </div>
-                                <div className="editor-page-right-sidebar">
+                                <div className={
+                                    this.state.isRefreshingTag ?
+                                        "editor-page-right-sidebar disable-click" : "editor-page-right-sidebar"
+                                }>
                                     <TagInput
                                         tags={this.props.project.tags}
                                         lockedTags={this.state.lockedTags}
@@ -294,6 +299,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                         onGeneration={this.onGeneration}
                                         onUpLoadFile={this.onUpLoadFile}
                                         ref={this.tagInputRef}
+                                        isRefreshingTag={this.state.isRefreshingTag}
                                     />
                                 </div>
                                 <Confirm title={strings.editorPage.tags.rename.title}
@@ -399,6 +405,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      * @param newTag Tag with the new name
      */
     private onTagRenamed = async (tag: ITag, newTag: ITag): Promise<void> => {
+        this.setState({isRefreshingTag: true});
         this.renameCanceled = null;
         const assetUpdates = await this.props.actions.updateProjectTag(this.props.project, tag, newTag);
         // console.log("onTagRenamed updateProjectTag");
@@ -409,6 +416,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 this.setState({ selectedAsset });
             }
         }
+        this.setState({isRefreshingTag: false});
     }
 
     private onTagRenameCanceled = () => {
@@ -430,12 +438,14 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
      * @param tagName Name of tag to be deleted
      */
     private onTagDeleted = async (tagName: string): Promise<void> => {
+        this.setState({isRefreshingTag: true});
         const assetUpdates = await this.props.actions.deleteProjectTag(this.props.project, tagName);
         // console.log("onTagDeleted deleteProjectTag");
         const selectedAsset = assetUpdates.find((am) => am.asset.id === this.state.selectedAsset.asset.id);
         if (selectedAsset) {
             this.setState({ selectedAsset });
         }
+        this.setState({isRefreshingTag: false});
     }
 
     private onCtrlTagClicked = (tag: ITag): void => {
@@ -480,7 +490,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private onAssetMetadataChanged = async (assetMetadata: IAssetMetadata): Promise<void> => {
         // Comment out below code as we allow regions without tags, it would make labeler's work easier.
 
-        console.log(assetMetadata);
+        // console.log(assetMetadata);
 
         const initialState = assetMetadata.asset.state;
 
@@ -558,12 +568,14 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     }
 
     private onTagsChanged = async (tags) => {
+        this.setState({isRefreshingTag: true});
         const project = {
             ...this.props.project,
             tags,
         };
         await this.props.actions.saveProject(project);
         // console.log("onTagsChanged save project");
+        this.setState({isRefreshingTag: false});
     }
 
     private onLockedTagsChanged = (lockedTags: string[]) => {
@@ -758,7 +770,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
         //
         // console.log(newTag);
         // console.log(this.state);
-
+        this.setState({isRefreshingTag: true});
         // this.props.project.tags = this.props.project.tags.map((t) => (t.name === oldTag.name) ? { ...oldTag } : t);
 
         const assetUpdates = await this.props.actions.updateProjectTag(this.props.project, oldTag, newTag);
@@ -772,6 +784,7 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                 });
             }
         }
+        this.setState({isRefreshingTag: false});
 
         // enableDispatch();
 
