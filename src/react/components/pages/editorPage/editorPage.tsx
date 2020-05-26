@@ -14,13 +14,12 @@ import {
     AssetState, AssetType, EditorMode, IApplicationState,
     IAppSettings, IAsset, IAssetMetadata, IProject, IRegion,
     ISize, ITag,
-    ILabel, FieldType, FieldFormat, IField, AppError, ErrorCode,
+    ILabel, FieldType, FieldFormat,
 } from "../../../../models/applicationState";
 import IApplicationActions, * as applicationActions from "../../../../redux/actions/applicationActions";
 import IProjectActions, * as projectActions from "../../../../redux/actions/projectActions";
 import IAppTitleActions, * as appTitleActions from "../../../../redux/actions/appTitleActions";
 import { AssetPreview } from "../../common/assetPreview/assetPreview";
-import { AssetService } from "../../../../services/assetService";
 import { KeyboardBinding } from "../../common/keyboardBinding/keyboardBinding";
 import { KeyEventType } from "../../common/keyboardManager/keyboardManager";
 import { TagInput } from "../../common/tagInput/tagInput";
@@ -32,18 +31,13 @@ import EditorSideBar from "./editorSideBar";
 import Alert from "../../common/alert/alert";
 import Confirm from "../../common/confirm/confirm";
 import { OCRService } from "../../../../services/ocrService";
-import {delay, joinPath, throttle} from "../../../../common/utils";
+import {throttle} from "../../../../common/utils";
 import { constants } from "../../../../common/constants";
 import PreventLeaving from "../../common/preventLeaving/preventLeaving";
 import { Spinner, SpinnerSize } from "office-ui-fabric-react/lib/Spinner";
 import { getPrimaryGreenTheme, getPrimaryRedTheme } from "../../../../common/themes";
 import { SkipButton } from "../../shell/skipButton";
 import {StorageProviderFactory} from "../../../../providers/storage/storageProviderFactory";
-import {
-    disableDispatch, enableDispatch,
-    saveProject,
-    updateProjectTagAction,
-} from "../../../../redux/actions/projectActions";
 import {toast} from "react-toastify";
 
 /**
@@ -278,10 +272,12 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                         }
                                     </div>
                                 </div>
+                                {this.props.project.projectType !== strings.appSettings.projectType.completed &&
                                 <div className={
                                     this.state.isRefreshingTag ?
                                         "editor-page-right-sidebar disable-click" : "editor-page-right-sidebar"
                                 }>
+
                                     <TagInput
                                         tags={this.props.project.tags}
                                         lockedTags={this.state.lockedTags}
@@ -302,6 +298,8 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
                                         isRefreshingTag={this.state.isRefreshingTag}
                                     />
                                 </div>
+                                }
+
                                 <Confirm title={strings.editorPage.tags.rename.title}
                                          ref={this.renameTagConfirm}
                                          message={strings.editorPage.tags.rename.confirmation}
@@ -347,7 +345,9 @@ export default class EditorPage extends React.Component<IEditorPageProps, IEdito
     private onPageContainerClick = () => {
         // workaround: tagInput will not lost focus with olmap,
         // so we fire the blur event manually here
-        this.tagInputRef.current.triggerNewTagBlur();
+        if (this.tagInputRef.current) {
+            this.tagInputRef.current.triggerNewTagBlur();
+        }
     }
 
     // tslint:disable-next-line:no-empty
