@@ -2,14 +2,18 @@
 import json
 import logging
 from azure.storage.blob import ContainerClient
-from azure.storage.blob import StorageErrorCode
 
-#CONNECTION_STR = 'DefaultEndpointsProtocol=https;AccountName=lyceshi;AccountKey=PcrYp+YILDxt54rzcPEPIk3Lhv9WXC9w64Ws7rP27TJEIyDdE4aa/g2mir4u6/PmuWqnbLtb0Zo3ny33wwh6EQ==;EndpointSuffix=core.windows.net'
-CONNECTION_STR = 'DefaultEndpointsProtocol=https;AccountName=lyniupi;AccountKey=1Y5H3obB3kT4NtMIE1babykABwW0LXFxyaJ43MBONcGmaxzt8RPCsmdmYBrhrR9QBySv9oYHFSsXyDKWHz8p3Q==;EndpointSuffix=core.windows.net'
+#CONNECTION_STR = 'DefaultEndpointsProtocol=https;AccountName=lyceshi;\
+# AccountKey=PcrYp+YILDxt54rzcPEPIk3Lhv9WXC9w64Ws7rP27TJEIyDdE4aa/g2mir4\
+# u6/PmuWqnbLtb0Zo3ny33wwh6EQ==;EndpointSuffix=core.windows.net'
+CONNECTION_STR = 'DefaultEndpointsProtocol=https;AccountName=lyniupi;\
+    AccountKey=1Y5H3obB3kT4NtMIE1babykABwW0LXFxyaJ43MBONcGmaxzt8RPCsmd\
+        mYBrhrR9QBySv9oYHFSsXyDKWHz8p3Q==;EndpointSuffix=core.windows.net'
 
 def open_file(filename):
     '''打开文件'''
-    container_service = ContainerClient.from_connection_string(conn_str=CONNECTION_STR, container_name='wudi')
+    container_service = ContainerClient.from_connection_string(conn_str=CONNECTION_STR,
+                                                               container_name='wudi')
     try:
         tmp = container_service.get_blob_client(filename)
     except Exception as err:
@@ -54,11 +58,14 @@ def read_single_json2(filename):
     dic = obj['analyzeResult']
     dic = dic['documentResults'][0]
     labels_list = dic['fields']
-    labels_num = len(labels_list)
     file_list_label = []
     file_list_value_l = []
     for i in labels_list.keys():
-        value_l = labels_list[i]['text']
-        file_list_label.append(i)
-        file_list_value_l.append([value_l])
+        try:
+            item = labels_list[i]
+            value_l = item['text']
+            file_list_label.append(i)
+            file_list_value_l.append([value_l])
+        except TypeError:
+            continue
     return [filename, file_list_label, file_list_value_l]

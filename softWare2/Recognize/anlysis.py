@@ -137,11 +137,11 @@ def analyze_json(path=".", name="test.json"):
         end = filenames[i].find('.pdf') + 4
         filename = filenames[i][begin+1: end]
         output[i] = {"document":filename, "labels":[]}
-        for item in textintable[i]:
-            text = item[0]
-            boundingBox = list(item[1])
-            tmpjson = {"label":text, "key":None, "value":[{"page":1, "text":text, "boundingBoxes":[boundingBox]}]}
-            output[i]["labels"].append(tmpjson)
+        # for item in textintable[i]:
+        #     text = item[0]
+        #     boundingBox = list(item[1])
+        #     tmpjson = {"label":text, "key":None, "value":[{"page":1, "text":text, "boundingBoxes":[boundingBox]}]}
+        #     output[i]["labels"].append(tmpjson)
         for item in saveycorpus[i]:
             text = item[0]
             boundingBox = list(item[1])

@@ -5,3 +5,4 @@ openpyxl
 pyecharts==0.1.9.4
 xlrd
 matplotlib
+azure-cognitiveservices-language-textanalytics

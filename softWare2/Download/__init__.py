@@ -4,6 +4,7 @@ import urllib.request, urllib.parse, urllib.error, base64
 import http.client
 import requests
 import datetime
+import random
 
 import azure.functions as func
 from azure.storage.blob import BlobServiceClient
@@ -44,3 +45,23 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             body=text,
             status_code=200
     )
+
+
+
+def data_string(data_list):
+    '''处理地图，返回HTML地图，（随机算法）'''
+    length = len(data_list)
+    value = [0, 0, 0, 0, 0, 0, 0, 0]
+    loop = 1
+    while loop < length:
+        loop += 1
+        rand = random.randint(0, 7)
+        value[rand] += 1
+    attr = ["China", "Brazil", "Russia", "United States", "Mexico", "Australia", "India", "Algeria"]
+    dic = {}
+    length = len(attr)
+    for i in range(length):
+        if value[i] != 0:
+            dic[attr[i]] = value[i]
+    # return dictionary
+    return dic
