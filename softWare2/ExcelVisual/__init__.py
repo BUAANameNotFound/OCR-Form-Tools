@@ -54,16 +54,16 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     tempfilePath = tempfile.gettempdir()
     fp = tempfile.NamedTemporaryFile()
 
-    # new_excel(fp.name)
-    # write_pdf_names(pdf_names, fp.name)
-    # write_pdf_data(labels_name, data_list, fp.name)
+    new_excel(fp.name)
+    write_pdf_names(pdf_names, fp.name)
+    write_pdf_data(labels_name, data_list, fp.name)
 
     
-    with open(PATH, 'wb') as f:
-        f.truncate()
-    new_excel(PATH)
-    write_pdf_names(pdf_names, PATH)
-    write_pdf_data(labels_name, data_list, PATH)
+    # with open(PATH, 'wb') as f:
+    #     f.truncate()
+    # new_excel(PATH)
+    # write_pdf_names(pdf_names, PATH)
+    # write_pdf_data(labels_name, data_list, PATH)
     
     try:
         container_service.delete_blob(f'{pro_name}/wow.xlsx')
@@ -71,14 +71,14 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         logging.info('well, no need to delete!')
 
     tmp = container_service.get_blob_client(f'{pro_name}/wow.xlsx')
-    # with open(fp.name, 'rb') as f:
-    #     data = f.read()
-    #     tmp.upload_blob(data)
-    
-
-    with open(PATH, 'rb') as f:
+    with open(fp.name, 'rb') as f:
         data = f.read()
         tmp.upload_blob(data)
+    
+
+    # with open(PATH, 'rb') as f:
+    #     data = f.read()
+    #     tmp.upload_blob(data)
 
     #read_excel(PATH)
 
