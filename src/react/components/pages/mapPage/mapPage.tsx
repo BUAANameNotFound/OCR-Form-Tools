@@ -77,7 +77,8 @@ export default class MapPage extends React.Component<IMapPageProps, IMapPageStat
                     {
                         !this.state.isLoadingMap ?
                             <div>
-                                <ReactEcharts option={genMap(undefined)}/>
+                                <ReactEcharts option={genMap(undefined)}
+                                              style={{width: window.innerWidth - 45, height: window.innerHeight - 60}}/>
                             </div> :
                             <div className="app-homepage-loading">
                                 <div className="app-homepage-loading-spinner">
@@ -97,6 +98,7 @@ export default class MapPage extends React.Component<IMapPageProps, IMapPageStat
             const requestOptions = {
                 method: "GET",
             };
+            // todo: get data
             // const res = await fetch(`https://lyceshi.azurewebsites.net/api/Download?path=${this.props.project.name}`,
             // requestOptions);
         }
