@@ -17,6 +17,9 @@ export const genMap = (data: IMapData) => {
                 min: 0,
                 max: 1000000,
                 text: ["High", "Low"],
+                textStyle: {
+                    color: "white",
+                },
                 realtime: false,
                 calculable: true,
                 color: ["orangered", "yellow", "lightskyblue"],
