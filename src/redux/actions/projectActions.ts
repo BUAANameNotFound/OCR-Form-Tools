@@ -83,8 +83,8 @@ export function getDisableDispatch() {
 export function saveProject(project: IProject)
     : (dispatch: Dispatch, getState: () => IApplicationState) => Promise<IProject> {
     return async (dispatch: Dispatch, getState: () => IApplicationState) => {
-        project.apiKey = "36b9be01b4fb447db1c02a92423dc926";
-        project.apiUriBase = "https://name-not-found.cognitiveservices.azure.com/";
+        project.apiKey = "7381474b1cc7476697b794e359be550c";
+        project.apiUriBase = "https://fr-march.cognitiveservices.azure.com/";
 
         const appState = getState();
         const projectService = new ProjectService();
