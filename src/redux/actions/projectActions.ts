@@ -16,6 +16,7 @@ import {
 } from "../../models/applicationState";
 import { createAction, createPayloadAction, IPayloadAction } from "./actionCreators";
 import { appInfo } from "../../common/appInfo";
+import {toast} from "react-toastify";
 
 /**
  * Actions to be performed in relation to projects
@@ -50,7 +51,9 @@ export function loadProject(project: IProject):
             .find((securityToken) => securityToken.name === project.securityToken);
 
         if (!projectToken) {
-            throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found");
+            toast.error("Security Token Not Found");
+            return null;
+            // throw new AppError(ErrorCode.SecurityTokenNotFound, "Security Token Not Found");
         }
         const loadedProject = await projectService.load(project, projectToken);
 
