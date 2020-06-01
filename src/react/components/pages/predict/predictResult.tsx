@@ -162,6 +162,10 @@ export default class PredictResult extends React.Component<IPredictResultProps, 
             await fetch(`https://lyceshi.azurewebsites.net/api/ExcelVisual?path=${this.props.folderPath}`,
                 requestOptions);
         console.log(response);
+        if (!response.ok) {
+            toast.error("Service Error.");
+            return;
+        }
         const blob = await response.blob();
         console.log(blob);
         fileURL = window.URL.createObjectURL(blob);
