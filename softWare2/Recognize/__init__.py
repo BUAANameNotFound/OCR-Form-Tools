@@ -1,10 +1,13 @@
+'''
+The module is for recognize
+'''
 import logging
 import json
 import os
 import pathlib
-
-import azure.functions as func
 from io import BytesIO
+import azure.functions as func
+
 
 from azure.storage.blob import BlobServiceClient
 from azure.storage.blob import ContainerClient
@@ -16,8 +19,11 @@ from .anlysis import analyze_json
 from .cognize import recognize
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
+    '''
+    main function
+    '''
     logging.info('Python HTTP trigger function processed a request.')
-    
+
     pro_name = req.params.get('path')
     if pro_name is None:
         return func.HttpResponse(
@@ -25,7 +31,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             status_code=400
         )
 
-    
+
     analyze_json(path=pro_name)
 
     recognize(pro_name)
