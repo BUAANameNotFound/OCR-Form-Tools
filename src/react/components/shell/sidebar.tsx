@@ -62,6 +62,13 @@ export function Sidebar({ project }) {
                         <FontIcon iconName="Insights" />
                     </ConditionalNavLink>
                 </li>
+                <li>
+                    <ConditionalNavLink disabled={!projectId}
+                        title={`Map`}
+                        to={`/projects/${projectId}/map`}>
+                        <FontIcon iconName="MapPin" />
+                    </ConditionalNavLink>
+                </li>
                 {/*<li>*/}
                 {/*    <ConditionalNavLink disabled={!projectId}*/}
                 {/*        title={strings.projectSettings.title}*/}

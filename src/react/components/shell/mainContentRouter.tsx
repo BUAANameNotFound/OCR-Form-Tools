@@ -12,6 +12,7 @@ import PredictPage from "../pages/predict/predictPage";
 import ProjectSettingsPage from "../pages/projectSettings/projectSettingsPage";
 import DatasPage from "../pages/datasPage/datasPage";
 import UploadPage from "../pages/uploadPage/UploadPage";
+import MapPage from "../pages/mapPage/mapPage";
 /**
  * @name - Main Content Router
  * @description - Controls main content pane based on route
@@ -31,6 +32,7 @@ export function MainContentRouter() {
                 <Route path="/projects/:projectId/settings" component={ProjectSettingsPage} />
                 <Route path="/projects/:projectId/datas" component={DatasPage} />
                 <Route path="/projects/:projectId/upload" component={UploadPage} />
+                <Route path="/projects/:projectId/map" component={MapPage} />
                 <Route component={HomePage} />
             </Switch>
         </div>
